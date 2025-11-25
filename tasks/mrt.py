@@ -397,14 +397,14 @@ class MRT(object):
                     and mouseY <= aButton[1][1]
                 ):
                     if self.answer1 == 1:
-                        data.set_value(self.curTrial - 1, "user_answer1", 0)
+                        data.at[self.curTrial - 1, "user_answer1"] = 0
                     elif self.answer2 == 1:
-                        data.set_value(self.curTrial - 1, "user_answer2", 0)
+                        data.at[self.curTrial - 1, "user_answer2"] = 0
                     else:
                         if self.answer1 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer1", 1)
+                            data.at[self.curTrial - 1, "user_answer1"] = 1
                         elif self.answer2 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer2", 1)
+                            data.at[self.curTrial - 1, "user_answer2"] = 1
 
                 if (
                     event.type == pygame.MOUSEBUTTONUP
@@ -415,14 +415,14 @@ class MRT(object):
                     and mouseY <= bButton[1][1]
                 ):
                     if self.answer1 == 2:
-                        data.set_value(self.curTrial - 1, "user_answer1", 0)
+                        data.at[self.curTrial - 1, "user_answer1"] = 0
                     elif self.answer2 == 2:
-                        data.set_value(self.curTrial - 1, "user_answer2", 0)
+                        data.at[self.curTrial - 1, "user_answer2"] = 0
                     else:
                         if self.answer1 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer1", 2)
+                            data.at[self.curTrial - 1, "user_answer1"] = 2
                         elif self.answer2 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer2", 2)
+                            data.at[self.curTrial - 1, "user_answer2"] = 2
 
                 if (
                     event.type == pygame.MOUSEBUTTONUP
@@ -433,14 +433,14 @@ class MRT(object):
                     and mouseY <= cButton[1][1]
                 ):
                     if self.answer1 == 3:
-                        data.set_value(self.curTrial - 1, "user_answer1", 0)
+                        data.at[self.curTrial - 1, "user_answer1"] = 0
                     elif self.answer2 == 3:
-                        data.set_value(self.curTrial - 1, "user_answer2", 0)
+                        data.at[self.curTrial - 1, "user_answer2"] = 0
                     else:
                         if self.answer1 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer1", 3)
+                            data.at[self.curTrial - 1, "user_answer1"] = 3
                         elif self.answer2 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer2", 3)
+                            data.at[self.curTrial - 1, "user_answer2"] = 3
 
                 if (
                     event.type == pygame.MOUSEBUTTONUP
@@ -451,14 +451,14 @@ class MRT(object):
                     and mouseY <= dButton[1][1]
                 ):
                     if self.answer1 == 4:
-                        data.set_value(self.curTrial - 1, "user_answer1", 0)
+                        data.at[self.curTrial - 1, "user_answer1"] = 0
                     elif self.answer2 == 4:
-                        data.set_value(self.curTrial - 1, "user_answer2", 0)
+                        data.at[self.curTrial - 1, "user_answer2"] = 0
                     else:
                         if self.answer1 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer1", 4)
+                            data.at[self.curTrial - 1, "user_answer1"] = 4
                         elif self.answer2 == 0:
-                            data.set_value(self.curTrial - 1, "user_answer2", 4)
+                            data.at[self.curTrial - 1, "user_answer2"] = 4
 
             pygame.display.flip()
 

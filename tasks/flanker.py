@@ -153,14 +153,14 @@ class Flanker(object):
 
         # Store reaction time and response
         rt = int(round(time.time() * 1000)) - start_time
-        data.set_value(trial_num, "RT", rt)
-        data.set_value(trial_num, "response", response)
+        data.at[trial_num, "RT"] = rt
+        data.at[trial_num, "response"] = response
 
         if data["compatibility"][trial_num] == "compatible":
             correct = 1 if response == data["direction"][trial_num] else 0
         else:
             correct = 1 if response != data["direction"][trial_num] else 0
-        data.set_value(trial_num, "correct", correct)
+        data.at[trial_num, "correct"] = correct
 
         # Display feedback
         self.screen.blit(self.background, (0, 0))

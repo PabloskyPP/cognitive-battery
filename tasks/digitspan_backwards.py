@@ -57,9 +57,7 @@ class DigitspanBackwards(object):
             generated_sequence = random.sample(
                 self.NUMBERS_USED, self.all_data["length"][i]
             )
-            self.all_data.set_value(
-                i, "sequence", "".join(str(n) for n in generated_sequence)
-            )
+            self.all_data.at[i, "sequence"] = "".join(str(n) for n in generated_sequence)
 
     def display_numbers(self, i, data):
         for number in data["sequence"][i]:
@@ -251,12 +249,12 @@ class DigitspanBackwards(object):
             correct_sequence = self.display_numbers(i, self.all_data)
             user_sequence = self.number_entry()
 
-            self.all_data.set_value(i, "user_sequence", user_sequence)
+            self.all_data.at[i, "user_sequence"] = user_sequence
 
             if self.check_answer(user_sequence, correct_sequence):
-                self.all_data.set_value(i, "correct", 1)
+                self.all_data.at[i, "correct"] = 1
             else:
-                self.all_data.set_value(i, "correct", 0)
+                self.all_data.at[i, "correct"] = 0
 
         # End screen
         self.screen.blit(self.background, (0, 0))

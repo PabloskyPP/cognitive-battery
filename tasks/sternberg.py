@@ -85,14 +85,14 @@ class Sternberg(object):
             used_set = random.sample(self.STIM_SET, r["setSize"])
             unused_set = list(set(self.STIM_SET) - set(used_set))
 
-            df.set_value(i, "set", "".join(str(x) for x in used_set))
+            df.at[i, "set"] = "".join(str(x) for x in used_set)
 
             # Store the target probe number
             # Probe will be from/in the set 50% of the time (probe present)
             if r["probeType"] == "present":
-                df.set_value(i, "probe", str(random.choice(used_set)))
+                df.at[i, "probe"] = str(random.choice(used_set))
             else:
-                df.set_value(i, "probe", str(random.choice(unused_set)))
+                df.at[i, "probe"] = str(random.choice(unused_set))
 
             # Store blank columns to be used later
             df["trialNum"] = ""
@@ -185,10 +185,10 @@ class Sternberg(object):
         while wait_response:
             for event in pygame.event.get():
                 if event.type == KEYDOWN and event.key == K_LEFT:
-                    df.set_value(i, "response", "present")
+                    df.at[i, "response"] = "present"
                     wait_response = False
                 elif event.type == KEYDOWN and event.key == K_RIGHT:
-                    df.set_value(i, "response", "absent")
+                    df.at[i, "response"] = "absent"
                     wait_response = False
                 elif event.type == KEYDOWN and event.key == K_F12:
                     sys.exit(0)
@@ -201,7 +201,7 @@ class Sternberg(object):
 
         # Store RT
         rt = int(round(time.time() * 1000)) - start_time
-        df.set_value(i, "RT", rt)
+        df.at[i, "RT"] = rt
 
         # Display blank screen
         display.blank_screen(self.screen, self.background, self.BETWEEN_STIM_DURATION)
@@ -210,18 +210,18 @@ class Sternberg(object):
         self.screen.blit(self.background, (0, 0))
 
         if rt >= self.PROBE_DURATION:
-            df.set_value(i, "correct", 0)
+            df.at[i, "correct"] = 0
             display.text(
                 self.screen, self.font, "too slow", "center", "center", (255, 165, 0)
             )
         else:
             if df["probeType"][i] == df["response"][i]:
-                df.set_value(i, "correct", 1)
+                df.at[i, "correct"] = 1
                 display.text(
                     self.screen, self.font, "correct", "center", "center", (0, 255, 0)
                 )
             else:
-                df.set_value(i, "correct", 0)
+                df.at[i, "correct"] = 0
                 display.text(
                     self.screen, self.font, "incorrect", "center", "center", (255, 0, 0)
                 )
