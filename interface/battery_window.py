@@ -378,9 +378,9 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 self.error_dialog("Subject number already exists")
             else:
                 # Create the excel writer object and save the file
-                data_file_name = "%s_%s.xls" % (sub_num, condition)
+                data_file_name = "%s_%s.xlsx" % (sub_num, condition)
                 output_file = os.path.join(self.dataPath, data_file_name)
-                writer = pd.ExcelWriter(output_file)
+                writer = pd.ExcelWriter(output_file, engine="openpyxl")
                 subject_info.to_excel(writer, "info", index=False)
                 writer.save()
 
