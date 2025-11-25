@@ -259,11 +259,11 @@ class ANT(object):
 
         # Store reaction time and response
         rt = int(round(time.time() * 1000)) - start_time
-        data.set_value(trial_num, "RT", rt)
-        data.set_value(trial_num, "response", response)
+        data.at[trial_num, "RT"] = rt
+        data.at[trial_num, "response"] = response
 
         correct = 1 if response == data["direction"][trial_num] else 0
-        data.set_value(trial_num, "correct", correct)
+        data.at[trial_num, "correct"] = correct
 
         # Display feedback if practice trials
         if trial_type == "practice":
@@ -286,7 +286,7 @@ class ANT(object):
         pygame.display.flip()
 
         iti = self.ITI_MAX - rt - data["fixationTime"][trial_num]
-        data.set_value(trial_num, "ITI", iti)
+        data.at[trial_num, "ITI"] = iti
 
         display.wait(iti)
 

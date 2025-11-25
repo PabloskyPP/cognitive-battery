@@ -378,116 +378,103 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 self.error_dialog("Subject number already exists")
             else:
                 # Create the excel writer object and save the file
- # --- Reemplazar a partir de la creación del nombre de archivo y writer ---
-data_file_name = f"{sub_num}_{condition}.xlsx"
-output_file = os.path.join(self.dataPath, data_file_name)
+                # --- Reemplazar a partir de la creación del nombre de archivo y writer ---
+                data_file_name = f"{sub_num}_{condition}.xlsx"
+                output_file = os.path.join(self.dataPath, data_file_name)
 
-# Abrir el ExcelWriter como contexto para que guarde/close automáticamente
-with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
-    # Guardar la info del sujeto
-    subject_info.to_excel(writer, sheet_name="info", index=False)
+                with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
+                    # Guardar la info del sujeto
+                    subject_info.to_excel(writer, sheet_name="info", index=False)
 
-    # Minimizar UI
-    self.showMinimized()
+                    # Minimizar UI y obtener ajustes
+                    self.showMinimized()
+                    self.get_settings()
 
-    # Obtener ajustes
-    self.get_settings()
+                    # (inicialización pygame, carga sonido, icono, creación pantalla...)
+                    pygame.init()
+                    beep_sound = pygame.mixer.Sound(
+                        os.path.join(self.base_dir, "tasks", "media", "beep_med.wav")
+                    )
+                    image = os.path.join(self.base_dir, "images", "icon_sml.png")
+                    icon_img = pygame.image.load(image)
+                    pygame.display.set_icon(icon_img)
 
-    # Centrar ventanas pygame si no es fullscreen
-    if not self.task_fullscreen:
-        pos_x = self.res_width // 2 - self.task_width // 2
-        pos_y = self.res_height // 2 - self.task_height // 2
-        os.environ["SDL_VIDEO_WINDOW_POS"] = f"{pos_x}, {pos_y}"
+                    # Crear ventana pygame (fullscreen / borderless / normal)
+                    if self.task_fullscreen:
+                        self.pygame_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                    else:
+                        if self.task_borderless:
+                            self.pygame_screen = pygame.display.set_mode(
+                                (self.task_width, self.task_height), pygame.NOFRAME
+                            )
+                        else:
+                            self.pygame_screen = pygame.display.set_mode(
+                                (self.task_width, self.task_height)
+                            )
+                    background = pygame.Surface(self.pygame_screen.get_size())
+                    background = background.convert()
 
-    # Inicializar pygame
-    pygame.init()
+                    # Ejecutar cada task y escribir cada DataFrame en una hoja diferente
+                    for task in selected_tasks:
+                        if task == "Attention Network Test (ANT)":
+                            ant_task = ant.ANT(self.pygame_screen, background, blocks=self.ant_blocks)
+                            ant_data = ant_task.run()
+                            ant_data.to_excel(writer, sheet_name="ANT", index=False)
+                        elif task == "Digit Span (backwards)":
+                            digitspan_backwards_task = digitspan_backwards.DigitspanBackwards(
+                                self.pygame_screen, background
+                            )
+                            digitspan_backwards_data = digitspan_backwards_task.run()
+                            digitspan_backwards_data.to_excel(
+                                writer, sheet_name="Digit span (backwards)", index=False
+                            )
+                        elif task == "Eriksen Flanker Task":
+                            flanker_task = flanker.Flanker(
+                                self.pygame_screen,
+                                background,
+                                self.flanker_dark_mode,
+                                self.flanker_sets_practice,
+                                self.flanker_sets_main,
+                                self.flanker_blocks_compat,
+                                self.flanker_blocks_incompat,
+                                self.flanker_block_order,
+                            )
+                            flanker_data = flanker_task.run()
+                            flanker_data.to_excel(writer, sheet_name="Eriksen Flanker", index=False)
+                        elif task == "Mental Rotation Task":
+                            mrt_task = mrt.MRT(self.pygame_screen, background)
+                            mrt_data = mrt_task.run()
+                            mrt_data.to_excel(writer, sheet_name="MRT", index=False)
+                        elif task == "Raven's Progressive Matrices":
+                            ravens_task = ravens.Ravens(
+                                self.pygame_screen,
+                                background,
+                                start=self.ravens_start,
+                                numTrials=self.ravens_trials,
+                            )
+                            ravens_data = ravens_task.run()
+                            ravens_data.to_excel(writer, sheet_name="Ravens Matrices", index=False)
+                        elif task == "Sternberg Task":
+                            sternberg_task = sternberg.Sternberg(
+                                self.pygame_screen, background, blocks=self.sternberg_blocks
+                            )
+                            sternberg_data = sternberg_task.run()
+                            sternberg_data.to_excel(writer, sheet_name="Sternberg", index=False)
+                        elif task == "Sustained Attention to Response Task (SART)":
+                            sart_task = sart.SART(self.pygame_screen, background)
+                            sart_data = sart_task.run()
+                            sart_data.to_excel(writer, sheet_name="SART", index=False)
 
-    # Cargar sonido beep
-    beep_sound = pygame.mixer.Sound(
-        os.path.join(self.base_dir, "tasks", "media", "beep_med.wav")
-    )
+                        # Reproducir beep después de cada tarea si está activado
+                        if self.task_beep:
+                            beep_sound.play()
 
-    # Icono pygame
-    image = os.path.join(self.base_dir, "images", "icon_sml.png")
-    icon_img = pygame.image.load(image)
-    pygame.display.set_icon(icon_img)
-
-    # Crear ventana pygame principal
-    if self.task_fullscreen:
-        self.pygame_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    else:
-        if self.task_borderless:
-            self.pygame_screen = pygame.display.set_mode(
-                (self.task_width, self.task_height), pygame.NOFRAME
-            )
-        else:
-            self.pygame_screen = pygame.display.set_mode(
-                (self.task_width, self.task_height)
-            )
-
-    background = pygame.Surface(self.pygame_screen.get_size())
-    background = background.convert()
-
-    # Ejecutar cada task y escribir cada DataFrame en una hoja diferente
-    for task in selected_tasks:
-        if task == "Attention Network Test (ANT)":
-            ant_task = ant.ANT(self.pygame_screen, background, blocks=self.ant_blocks)
-            ant_data = ant_task.run()
-            ant_data.to_excel(writer, sheet_name="ANT", index=False)
-        elif task == "Digit Span (backwards)":
-            digitspan_backwards_task = digitspan_backwards.DigitspanBackwards(
-                self.pygame_screen, background
-            )
-            digitspan_backwards_data = digitspan_backwards_task.run()
-            digitspan_backwards_data.to_excel(
-                writer, sheet_name="Digit span (backwards)", index=False
-            )
-        elif task == "Eriksen Flanker Task":
-            flanker_task = flanker.Flanker(
-                self.pygame_screen,
-                background,
-                self.flanker_dark_mode,
-                self.flanker_sets_practice,
-                self.flanker_sets_main,
-                self.flanker_blocks_compat,
-                self.flanker_blocks_incompat,
-                self.flanker_block_order,
-            )
-            flanker_data = flanker_task.run()
-            flanker_data.to_excel(writer, sheet_name="Eriksen Flanker", index=False)
-        elif task == "Mental Rotation Task":
-            mrt_task = mrt.MRT(self.pygame_screen, background)
-            mrt_data = mrt_task.run()
-            mrt_data.to_excel(writer, sheet_name="MRT", index=False)
-        elif task == "Raven's Progressive Matrices":
-            ravens_task = ravens.Ravens(
-                self.pygame_screen,
-                background,
-                start=self.ravens_start,
-                numTrials=self.ravens_trials,
-            )
-            ravens_data = ravens_task.run()
-            ravens_data.to_excel(writer, sheet_name="Ravens Matrices", index=False)
-        elif task == "Sternberg Task":
-            sternberg_task = sternberg.Sternberg(
-                self.pygame_screen, background, blocks=self.sternberg_blocks
-            )
-            sternberg_data = sternberg_task.run()
-            sternberg_data.to_excel(writer, sheet_name="Sternberg", index=False)
-        elif task == "Sustained Attention to Response Task (SART)":
-            sart_task = sart.SART(self.pygame_screen, background)
-            sart_data = sart_task.run()
-            sart_data.to_excel(writer, sheet_name="SART", index=False)
-
-        # Reproducir beep después de cada tarea si está activado
-        if self.task_beep:
-            beep_sound.play()
-            
-# Al salir del with: el archivo Excel se guarda automáticamente
-# --- Continuar con el resto del código (pantalla de fin) tal como está ---
+                        pass    
+                # Al salir del with: el archivo Excel se guarda automáticamente
+                # --- Continuar con el resto del código (pantalla de fin) tal como está ---
 
                     # Save excel file
-                    writer.save()
+                    writer.close() #si no funciona eliminar esta línea
 
                 # End of experiment screen
                 pygame.display.set_caption("Cognitive Battery")
