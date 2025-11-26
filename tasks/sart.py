@@ -62,7 +62,7 @@ class SART(object):
         trial_font = self.stim_fonts[size_index]
 
         key_press = 0
-        data.set_value(i, "RT", 1150)
+        data.at[i, "RT"] = 1150
 
         # Display number
         self.screen.blit(self.background, (0, 0))
@@ -86,7 +86,7 @@ class SART(object):
             for event in pygame.event.get():
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     key_press = 1
-                    data.set_value(i, "RT", int(round(time.time() * 1000)) - start_time)
+                    data.at[i, "RT"] = int(round(time.time() * 1000)) - start_time
                 elif event.type == KEYDOWN and event.key == K_F12:
                     sys.exit(0)
 
@@ -107,9 +107,7 @@ class SART(object):
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     if key_press == 0:
                         key_press = 1
-                        data.set_value(
-                            i, "RT", int(round(time.time() * 1000)) - start_time
-                        )
+                        data.at[i, "RT"] = int(round(time.time() * 1000)) - start_time
                 elif event.type == KEYDOWN and event.key == K_F12:
                     sys.exit(0)
 
@@ -132,9 +130,9 @@ class SART(object):
                 accuracy = 1
 
         # Store key press data in dataframe
-        data.set_value(i, "key press", key_press)
-        data.set_value(i, "accuracy", accuracy)
-        data.set_value(i, "stimSize", self.STIMSIZES_PT[size_index])
+        data.at[i, "key press"] = key_press
+        data.at[i, "accuracy"] = accuracy
+        data.at[i, "stimSize"] = self.STIMSIZES_PT[size_index]
 
     def run(self):
         # Instructions

@@ -138,8 +138,8 @@ class Ravens(object):
         while int(round(time.time() * 1000)) - self.baseTime < self.stimDuration:
             self.endTime = int(round(time.time() * 1000))
 
-            data.set_value(i, "userAnswer", "NA")
-            data.set_value(i, "RT", "NA")
+            data.at[i, "userAnswer"] = "NA"
+            data.at[i, "RT"] = "NA"
 
             for event in pygame.event.get():
                 if event.type == KEYDOWN and event.key == K_F12:
@@ -147,68 +147,36 @@ class Ravens(object):
                     exit()
                 elif event.type == KEYDOWN:
                     if event.key == K_1:
-                        data.set_value(i, "userAnswer", "1")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "1"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_2:
-                        data.set_value(i, "userAnswer", "2")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "2"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_3:
-                        data.set_value(i, "userAnswer", "3")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "3"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_4:
-                        data.set_value(i, "userAnswer", "4")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "4"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_5:
-                        data.set_value(i, "userAnswer", "5")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "5"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_6:
-                        data.set_value(i, "userAnswer", "6")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "6"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_7:
-                        data.set_value(i, "userAnswer", "7")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "7"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
                     elif event.key == K_8:
-                        data.set_value(i, "userAnswer", "8")
-                        data.set_value(
-                            i,
-                            "RT",
-                            str((float(self.endTime) - float(self.baseTime)) / 1000),
-                        )
+                        data.at[i, "userAnswer"] = "8"
+                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
                         return 0
 
             self.screen.blit(self.background, (0, 0))
@@ -384,9 +352,9 @@ class Ravens(object):
             if self.allData.at[i, "userAnswer"] == str(
                 self.allData.at[i, "correctAnswer"]
             ):
-                self.allData.set_value(i, "correct", 1)
+                self.allData.at[i, "correct"] = 1
             else:
-                self.allData.set_value(i, "correct", 0)
+                self.allData.at[i, "correct"] = 0
 
             self.baseTime = int(round(time.time() * 1000))
             while int(round(time.time() * 1000)) - self.baseTime < self.ITI:
