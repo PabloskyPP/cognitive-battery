@@ -79,13 +79,13 @@ class MRT(object):
         # Path to UI elements (kept in old location)
         self.imagePath = os.path.join(self.directory, "images", "MRT")
 
-    def get_image_path(self, trial_num, image_type):
+    def get_image_path(self, trial_num, image_type=None):
         """
         Map old image naming convention to new Mental Rotation Test 3D naming.
         
         Args:
             trial_num: Trial number (1-24) or practice ('p1', 'p2', 'p3') or instruction ('0a', '0b')
-            image_type: Image type ('q' for question, 'a', 'b', 'c', 'd' for answers)
+            image_type: Image type ('q' for question, 'a', 'b', 'c', 'd' for answers, None for instruction images)
             
         Returns:
             Full path to the image file
@@ -119,7 +119,8 @@ class MRT(object):
                 option_map = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
                 path = os.path.join(self.imagePathNew, f"MRT_{base_trial}a_{option_map[image_type]}.png")
             else:
-                # Fallback to old path if something unexpected
+                # This should not happen in normal operation - log a warning
+                print(f"Warning: Unexpected image_type '{image_type}' for trial {trial_num}, falling back to old path")
                 path = os.path.join(self.imagePath, f"{trial_num}{image_type}.png")
         
         # Check if file exists, raise helpful error if not
@@ -546,7 +547,7 @@ class MRT(object):
             )
             self.screen.blit(self.line1, (100, self.screen_y / 2 - 300))
 
-            img0a = pygame.image.load(self.get_image_path('0a', ''))
+            img0a = pygame.image.load(self.get_image_path('0a'))
             x, y = img0a.get_rect().size
             self.screen.blit(
                 img0a, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 - 260)
@@ -565,7 +566,7 @@ class MRT(object):
             )
             self.screen.blit(line2a, (100, self.screen_y / 2 - 10))
 
-            img0b = pygame.image.load(self.get_image_path('0b', ''))
+            img0b = pygame.image.load(self.get_image_path('0b'))
             x, y = img0b.get_rect().size
             self.screen.blit(
                 img0b, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 + 80)
