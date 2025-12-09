@@ -15,7 +15,7 @@ class MRT(object):
         self.background = background
 
         # sets font and font size
-        self.xFont = pygame.font.SysFont("arial", 20)
+        self.xFont = pygame.font.SysFont("arial", 25)
 
         # get self.screen info
         self.screen_x = self.screen.get_width()
@@ -280,13 +280,16 @@ class MRT(object):
                 )
 
             # task boxes
-            self.questionX = self.screen_x / 2 - 500  # question box start X position
-            self.answerX = self.screen_x / 2 - 200  # answer boxes start X position
-            self.spacer = 40  # between answer boxes
+            self.questionX = self.screen_x / 2 - 600  # question box start X position
+            self.answerX = self.screen_x / 2 - 300  # answer boxes start X position
+            self.spacer = 30  # between answer boxes
             self.letterOffset = 35  # text offset above boxes
+            image_scale = 0.7  # shrink practice images uniformly
+            main_image_scale = 0.8  # shrink main experiment images
 
             # target image
             imgQ = pygame.image.load(self.get_image_path(self.curTrial, 'q'))
+            imgQ = pygame.transform.smoothscale(imgQ, (int(imgQ.get_width() * main_image_scale), int(imgQ.get_height() * main_image_scale)))
             qX, qY = imgQ.get_rect().size
             qButton = (
                 [self.questionX, (self.screen_y / 2) - (qY / 2)],
@@ -298,6 +301,7 @@ class MRT(object):
 
             # answer a
             imgA = pygame.image.load(self.get_image_path(self.curTrial, 'a'))
+            imgA = pygame.transform.smoothscale(imgA, (int(imgA.get_width() * main_image_scale), int(imgA.get_height() * main_image_scale)))
             aX, aY = imgA.get_rect().size
             aButton = (
                 [self.answerX, (self.screen_y / 2) - (aY / 2)],
@@ -309,6 +313,7 @@ class MRT(object):
 
             # answer b
             imgB = pygame.image.load(self.get_image_path(self.curTrial, 'b'))
+            imgB = pygame.transform.smoothscale(imgB, (int(imgB.get_width() * main_image_scale), int(imgB.get_height() * main_image_scale)))
             bX, bY = imgB.get_rect().size
             bButton = (
                 [self.answerX + aX + self.spacer, (self.screen_y / 2) - (bY / 2)],
@@ -320,15 +325,16 @@ class MRT(object):
 
             # answer c
             imgC = pygame.image.load(self.get_image_path(self.curTrial, 'c'))
+            imgC = pygame.transform.smoothscale(imgC, (int(imgC.get_width() * main_image_scale), int(imgC.get_height() * main_image_scale)))
             cX, cY = imgC.get_rect().size
             cButton = (
                 [
                     self.answerX + bX * 2 + self.spacer * 2,
-                    (self.screen_y / 2) - (bY / 2),
+                    (self.screen_y / 2) - (cY / 2),
                 ],
                 [
                     self.answerX + bX * 2 + self.spacer * 2 + cX,
-                    (self.screen_y / 2) + (bY / 2),
+                    (self.screen_y / 2) + (cY / 2),
                 ],
             )
             self.screen.blit(imgC, (cButton[0][0], cButton[0][1]))
@@ -337,15 +343,16 @@ class MRT(object):
 
             # answer d
             imgD = pygame.image.load(self.get_image_path(self.curTrial, 'd'))
+            imgD = pygame.transform.smoothscale(imgD, (int(imgD.get_width() * main_image_scale), int(imgD.get_height() * main_image_scale)))
             dX, dY = imgD.get_rect().size
             dButton = (
                 [
                     self.answerX + cX * 3 + self.spacer * 3,
-                    (self.screen_y / 2) - (bY / 2),
+                    (self.screen_y / 2) - (dY / 2),
                 ],
                 [
                     self.answerX + cX * 3 + self.spacer * 3 + dX,
-                    (self.screen_y / 2) + (bY / 2),
+                    (self.screen_y / 2) + (dY / 2),
                 ],
             )
             self.screen.blit(imgD, (dButton[0][0], dButton[0][1]))
@@ -539,18 +546,18 @@ class MRT(object):
             self.titleW = self.title.get_rect().width
             self.screen.blit(
                 self.title,
-                (self.screen_x / 2 - self.titleW / 2, self.screen_y / 2 - 400),
+                (self.screen_x / 2 - self.titleW / 2, self.screen_y / 2 - 500),
             )
 
             self.line1 = self.xFont.render(
                 "Please look at these five figures:", 1, (0, 0, 0)
             )
-            self.screen.blit(self.line1, (100, self.screen_y / 2 - 300))
+            self.screen.blit(self.line1, (100, self.screen_y / 2 - 400))
 
             img0a = pygame.image.load(self.get_image_path('0a'))
             x, y = img0a.get_rect().size
             self.screen.blit(
-                img0a, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 - 260)
+                img0a, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 - 360)
             )
 
             line2 = self.xFont.render(
@@ -558,18 +565,18 @@ class MRT(object):
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line2, (100, self.screen_y / 2 - 60))
+            self.screen.blit(line2, (100, self.screen_y / 2 - 70))
             line2a = self.xFont.render(
                 "Try to imagine moving the object (or yourself with respect to the object), as you look from one drawing to the next.",
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line2a, (100, self.screen_y / 2 - 10))
+            self.screen.blit(line2a, (100, self.screen_y / 2 - 40))
 
             img0b = pygame.image.load(self.get_image_path('0b'))
             x, y = img0b.get_rect().size
             self.screen.blit(
-                img0b, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 + 80)
+                img0b, ((self.screen_x / 2) - (x / 2), self.screen_y / 2 )
             )
 
             line3 = self.xFont.render(
@@ -577,13 +584,20 @@ class MRT(object):
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line3, (100, self.screen_y / 2 + 280))
+            self.screen.blit(line3, (50, self.screen_y / 2 + 280))
             line3a = self.xFont.render(
-                "Satisfy yourself that these two drawings show an object that is different, and cannot be rotated to be identical with the object shown in the first five drawings.",
+                "Satisfy yourself that these two drawings show an object that is different, and cannot be rotated to be identical with",
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line3a, (100, self.screen_y / 2 + 330))
+            line3b = self.xFont.render(
+                "the object shown in the first five drawings.",
+                1,
+                (0, 0, 0),
+            )
+            self.screen.blit(line3a, (50, self.screen_y / 2 + 330))
+            
+            self.screen.blit(line3b, (50, self.screen_y / 2 + 360))
 
             self.pressSpace(100, self.screen_y / 2 + 400)
 
@@ -603,10 +617,11 @@ class MRT(object):
             )
             self.screen.blit(line2, (100, self.screen_y / 2 - 400))
 
-            self.questionX = self.screen_x / 2 - 500  # question box start X position
-            self.answerX = self.screen_x / 2 - 200  # answer boxes start X position
+            self.questionX = self.screen_x / 2 - 600  # question box start X position
+            self.answerX = self.screen_x / 2 - 300  # answer boxes start X position
             self.spacer = 40  # between answer boxes
             self.letterOffset = 35  # text offset above boxes
+            image_scale = 0.7  # shrink practice images uniformly
             # lists used to hold box locations
             qButton = []
             aButton = []
@@ -617,12 +632,16 @@ class MRT(object):
             for i in range(3):
                 imgQ = pygame.image.load(self.get_image_path(f'p{i + 1}', 'q'))
                 qX, qY = imgQ.get_rect().size
+                imgQ = pygame.transform.smoothscale(
+                    imgQ, (int(qX * image_scale), int(qY * image_scale))
+                )
+                qX, qY = imgQ.get_rect().size
                 qButton.append(
                     (
-                        [self.questionX, (self.screen_y / 3) - (qY / 2) + (i * 250)],
+                        [self.questionX, (self.screen_y / 3) - (qY / 2) + (i * 220)],
                         [
                             self.questionX + qX,
-                            (self.screen_y / 3) + (qY / 2) + (i * 250),
+                            (self.screen_y / 3) + (qY / 2) + (i * 220),
                         ],
                     )
                 )
@@ -634,10 +653,14 @@ class MRT(object):
 
                 imgA = pygame.image.load(self.get_image_path(f'p{i + 1}', 'a'))
                 aX, aY = imgA.get_rect().size
+                imgA = pygame.transform.smoothscale(
+                    imgA, (int(aX * image_scale), int(aY * image_scale))
+                )
+                aX, aY = imgA.get_rect().size
                 aButton.append(
                     (
-                        [self.answerX, (self.screen_y / 3) - (aY / 2) + (i * 250)],
-                        [self.answerX + aX, (self.screen_y / 3) + (aY / 2) + (i * 250)],
+                        [self.answerX, (self.screen_y / 3) - (aY / 2) + (i * 220)],
+                        [self.answerX + aX, (self.screen_y / 3) + (aY / 2) + (i * 220)],
                     )
                 )
                 self.screen.blit(imgA, (aButton[i][0][0], aButton[i][0][1]))
@@ -648,15 +671,19 @@ class MRT(object):
 
                 imgB = pygame.image.load(self.get_image_path(f'p{i + 1}', 'b'))
                 bX, bY = imgB.get_rect().size
+                imgB = pygame.transform.smoothscale(
+                    imgB, (int(bX * image_scale), int(bY * image_scale))
+                )
+                bX, bY = imgB.get_rect().size
                 bButton.append(
                     (
                         [
                             self.answerX + aX + self.spacer,
-                            (self.screen_y / 3) - (bY / 2) + (i * 250),
+                            (self.screen_y / 3) - (bY / 2) + (i * 220),
                         ],
                         [
                             self.answerX + aX + self.spacer + bX,
-                            (self.screen_y / 3) + (bY / 2) + (i * 250),
+                            (self.screen_y / 3) + (bY / 2) + (i * 220),
                         ],
                     )
                 )
@@ -668,15 +695,19 @@ class MRT(object):
 
                 imgC = pygame.image.load(self.get_image_path(f'p{i + 1}', 'c'))
                 cX, cY = imgC.get_rect().size
+                imgC = pygame.transform.smoothscale(
+                    imgC, (int(cX * image_scale), int(cY * image_scale))
+                )
+                cX, cY = imgC.get_rect().size
                 cButton.append(
                     (
                         [
                             self.answerX + bX * 2 + self.spacer * 2,
-                            (self.screen_y / 3) - (bY / 2) + (i * 250),
+                            (self.screen_y / 3) - (bY / 2) + (i * 220),
                         ],
                         [
                             self.answerX + bX * 2 + self.spacer * 2 + cX,
-                            (self.screen_y / 3) + (bY / 2) + (i * 250),
+                            (self.screen_y / 3) + (bY / 2) + (i * 220),
                         ],
                     )
                 )
@@ -688,15 +719,19 @@ class MRT(object):
 
                 imgD = pygame.image.load(self.get_image_path(f'p{i + 1}', 'd'))
                 dX, dY = imgD.get_rect().size
+                imgD = pygame.transform.smoothscale(
+                    imgD, (int(dX * image_scale), int(dY * image_scale))
+                )
+                dX, dY = imgD.get_rect().size
                 dButton.append(
                     (
                         [
                             self.answerX + cX * 3 + self.spacer * 3,
-                            (self.screen_y / 3) - (bY / 2) + (i * 250),
+                            (self.screen_y / 3) - (bY / 2) + (i * 220),
                         ],
                         [
                             self.answerX + cX * 3 + self.spacer * 3 + dX,
-                            (self.screen_y / 3) + (bY / 2) + (i * 250),
+                            (self.screen_y / 3) + (bY / 2) + (i * 220),
                         ],
                     )
                 )
@@ -884,27 +919,27 @@ class MRT(object):
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line1, (100, self.screen_y / 2 - 200))
+            self.screen.blit(line1, (60, self.screen_y / 2 - 300))
 
             line2 = self.xFont.render(
                 "You will only be given a point if you mark off BOTH correct matching figures, marking off only one of these will result in no marks.",
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line2, (100, self.screen_y / 2 - 100))
+            self.screen.blit(line2, (60, self.screen_y / 2 - 200))
             line2a = self.xFont.render(
                 "Unlike the practice questions, you WON'T be told what the correct answer is.",
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line2a, (100, self.screen_y / 2))
+            self.screen.blit(line2a, (60, self.screen_y / 2 - 100))
 
             line3 = self.xFont.render(
                 "You will have 3 minutes to complete 12 questions. You may complete them in any order you wish.",
                 1,
                 (0, 0, 0),
             )
-            self.screen.blit(line3, (100, self.screen_y / 2 + 100))
+            self.screen.blit(line3, (60, self.screen_y / 2))
 
             self.pressSpace(100, (self.screen_y / 2) + 300)
 
@@ -918,8 +953,9 @@ class MRT(object):
                     instructions = False
 
             self.screen.blit(self.background, (0, 0))
-            line1 = self.xFont.render("Ready?", 1, (0, 0, 0))
-            self.screen.blit(line1, (100, self.screen_y / 2))
+            largeFont = pygame.font.SysFont("arial", 50)
+            line1 = largeFont.render("Ready?", 1, (0, 0, 0))
+            self.screen.blit(line1, (100, self.screen_y / 2 - 100))
 
             self.pressSpace(100, (self.screen_y / 2) + 100)
 
@@ -942,7 +978,7 @@ class MRT(object):
                 (0, 0, 0),
             )
 
-            self.screen.blit(text, (100, self.screen_y / 2))
+            self.screen.blit(text, (100, self.screen_y / 2 - 300))
 
             self.pressSpace(100, (self.screen_y / 2) + 100)
 
@@ -992,7 +1028,7 @@ class MRT(object):
                     instructions = False
 
             self.screen.blit(self.background, (0, 0))
-            endText = self.xFont.render("End of task.", 1, (0, 0, 0))
+            endText = largeFont.render("End of task.", 1, (0, 0, 0))
             self.screen.blit(endText, (100, self.screen_y / 2))
 
             self.pressSpace(100, (self.screen_y / 2) + 100)
