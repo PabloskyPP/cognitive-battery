@@ -58,6 +58,19 @@
 - Time between digits: 250ms
 - Probe duration: 2250ms
 
+## Raven's Progressive Matrices Task (Standard Scale)
+- **New implementation using standard scale images**
+- 60 trials across 5 sets (A, B, C, D, E)
+- 12 trials per set
+- Sets A and B: 6 answer options per trial (3×2 grid)
+- Sets C, D, and E: 8 answer options per trial (4×2 grid)
+- Mouse click selection with visual feedback (blue border)
+- Spacebar to advance to next trial
+- Automatic data saving after each trial
+- **File:** `tasks/raven_task.py`
+- **Class:** `RavenTask`
+- **Note:** Requires manual configuration of ANSWER_KEY in the source code (lines 68-128)
+
 ## Sustained Attention to Response Task (SART)
 - Digit set: 1-9 (inclusive)
 - Mask follows presentation of each digit
