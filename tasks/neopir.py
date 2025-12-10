@@ -37,17 +37,34 @@ class NeoPiR(object):
         self.statements = []
         self.statement_numbers = []
 
-        with open(statements_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    # Parse "1. Text" format
-                    parts = line.split(". ", 1)
-                    if len(parts) == 2:
-                        num = int(parts[0])
-                        text = parts[1]
-                        self.statements.append(text)
-                        self.statement_numbers.append(num)
+        try:
+            with open(statements_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        # Parse "1. Text" format
+                        parts = line.split(". ", 1)
+                        if len(parts) == 2:
+                            try:
+                                num = int(parts[0])
+                                text = parts[1]
+                                self.statements.append(text)
+                                self.statement_numbers.append(num)
+                            except ValueError:
+                                # Skip malformed lines that don't have a valid number
+                                print(f"Warning: Skipping malformed line: {line[:50]}...")
+                                continue
+        except FileNotFoundError:
+            print(f"ERROR: Statements file not found: {statements_file}")
+            print("Please ensure the file exists in the correct location.")
+            sys.exit(1)
+        except Exception as e:
+            print(f"ERROR: Failed to load statements file: {e}")
+            sys.exit(1)
+
+        # Verify we loaded the correct number of statements
+        if len(self.statements) != 240:
+            print(f"WARNING: Expected 240 statements but loaded {len(self.statements)}")
 
         # Create randomized order while preserving original numbers
         indices = list(range(len(self.statements)))
@@ -233,9 +250,12 @@ class NeoPiR(object):
         current_trial = 0
 
         while current_trial < len(self.randomized_statements):
-            current_response = str(self.all_data.at[current_trial, "respuesta"])
-            if current_response == "" or current_response == "nan":
+            # Get current response, handling both empty strings and NaN values
+            response_value = self.all_data.at[current_trial, "respuesta"]
+            if pd.isna(response_value) or response_value == "" or str(response_value) == "nan":
                 current_response = ""
+            else:
+                current_response = str(response_value)
 
             self.draw_statement(current_trial, current_response)
 
