@@ -59,8 +59,8 @@ class NeoPiR(object):
         # Create output dataframe
         self.all_data = pd.DataFrame()
         self.all_data["trial"] = list(range(1, len(self.randomized_statements) + 1))
-        self.all_data["statement_number"] = self.randomized_numbers
-        self.all_data["response"] = ""
+        self.all_data["numero_del_enunciado"] = self.randomized_numbers
+        self.all_data["respuesta"] = ""
 
         # Button rectangles
         self.back_button_rect = None
@@ -233,7 +233,7 @@ class NeoPiR(object):
         current_trial = 0
 
         while current_trial < len(self.randomized_statements):
-            current_response = str(self.all_data.at[current_trial, "response"])
+            current_response = str(self.all_data.at[current_trial, "respuesta"])
             if current_response == "" or current_response == "nan":
                 current_response = ""
 
@@ -253,7 +253,7 @@ class NeoPiR(object):
                         elif event.key == K_SPACE:
                             # Only advance if a response has been given
                             if current_response:
-                                self.all_data.at[current_trial, "response"] = int(current_response)
+                                self.all_data.at[current_trial, "respuesta"] = int(current_response)
                                 current_trial += 1
                                 waiting = False
                         elif event.key in [K_1, K_2, K_3, K_4, K_5]:
