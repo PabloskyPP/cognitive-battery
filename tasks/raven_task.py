@@ -54,8 +54,13 @@ class RavenTask(object):
                     'num_options': num_options
                 })
         
-        # ANSWER_KEY: Dictionary mapping trial ID to correct answer (1-based index)
-        # This should be filled manually with the correct answers for each trial.
+        # ===================================================================
+        # ANSWER_KEY CONFIGURATION - MUST BE FILLED MANUALLY
+        # ===================================================================
+        # This dictionary maps each trial ID to its correct answer (1-based index).
+        # 
+        # IMPORTANT: Replace all None values with the correct answer numbers!
+        # 
         # Example: 'A1': 4 means the correct answer for trial A1 is option 4
         # 
         # Instructions for Pablo:
@@ -131,7 +136,23 @@ class RavenTask(object):
             'E11': None,
             'E12': None,
         }
+        # ===================================================================
         # END OF ANSWER_KEY SECTION
+        # ===================================================================
+        
+        # Validate ANSWER_KEY configuration
+        empty_keys = [k for k, v in self.ANSWER_KEY.items() if v is None]
+        if empty_keys:
+            print("\n" + "="*70)
+            print("WARNING: ANSWER_KEY is not fully configured!")
+            print("="*70)
+            print(f"The following {len(empty_keys)} trials have no correct answer set:")
+            print(f"  {', '.join(empty_keys[:10])}")
+            if len(empty_keys) > 10:
+                print(f"  ... and {len(empty_keys) - 10} more")
+            print("\nPlease edit the ANSWER_KEY in tasks/raven_task.py (lines 68-128)")
+            print("to set the correct answer for each trial before running the task.")
+            print("="*70 + "\n")
         
         # Create output dataframe
         self.allData = pd.DataFrame()
@@ -180,7 +201,7 @@ class RavenTask(object):
             
             # Title
             title = self.titleFont.render(
-                "Test de Matrices Progresivas de Ravens con escala estándar",
+                "Test de Matrices Progresivas de Raven con escala estándar",
                 1, (0, 0, 0)
             )
             titleW = title.get_rect().width
