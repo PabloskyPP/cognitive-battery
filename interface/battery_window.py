@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import display, values
 from designer import battery_window_qt
 from interface import about_dialog, update_dialog, settings_window
-from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg
+from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir
 
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
@@ -468,6 +468,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         sart_task = sart.SART(self.pygame_screen, background)
                         sart_data = sart_task.run()
                         results["SART"] = sart_data
+                    elif task == "NEO-PI-R":
+                        neopir_task = neopir.NeoPiR(self.pygame_screen, background)
+                        neopir_data = neopir_task.run()
+                        results["NEO-PI-R"] = neopir_data
 
                     # Play beep after each task
                     if self.task_beep:
