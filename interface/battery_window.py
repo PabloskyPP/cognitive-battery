@@ -452,9 +452,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                     elif task == "Raven's Progressive Matrices":
                         ravens_task = ravens.Ravens(
                             self.pygame_screen,
-                            background,
-                            start=self.ravens_start,
-                            numTrials=self.ravens_trials,
+                            background
                         )
                         ravens_data = ravens_task.run()
                         results["Ravens Matrices"] = ravens_data
