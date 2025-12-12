@@ -34,6 +34,8 @@ class Ravens(object):
         
         # Get images directory
         self.directory = os.path.dirname(os.path.realpath(__file__))
+        # Note: The directory name has two spaces between "test" and "matrices" - this is intentional
+        # and matches the actual directory name in the repository
         self.imagePath = os.path.join(
             os.path.dirname(self.directory),
             "images",
@@ -75,7 +77,7 @@ class Ravens(object):
         # The answer should be a number between 1 and 6 for sets A and B,
         # and between 1 and 8 for sets C, D, and E.
         #
-        # EDIT THIS SECTION BELOW (lines 68-128):
+        # EDIT THIS SECTION BELOW (lines 79-145):
         self.ANSWER_KEY = {
             # Set A (12 trials, 6 options each)
             'A1': None,   # Fill with correct answer (1-6)
@@ -157,7 +159,7 @@ class Ravens(object):
             print(f"  {', '.join(empty_keys[:10])}")
             if len(empty_keys) > 10:
                 print(f"  ... and {len(empty_keys) - 10} more")
-            print("\nPlease edit the ANSWER_KEY in tasks/raven_task.py (lines 68-128)")
+            print("\nPlease edit the ANSWER_KEY in tasks/ravens.py")
             print("to set the correct answer for each trial before running the task.")
             print("="*70 + "\n")
         
@@ -175,6 +177,9 @@ class Ravens(object):
         
         # Path for saving data
         self.dataPath = None
+        
+        # Cache for image dimensions (to avoid loading sample images repeatedly)
+        self.cached_image_dimensions = None
     
     def get_image_path(self, trial_id, image_type):
         """
@@ -324,9 +329,13 @@ class Ravens(object):
             spacing_y = 20
             
             # Calculate starting position to center the grid
-            sample_img = pygame.image.load(self.get_image_path(trial['id'], 1))
-            option_w = int(sample_img.get_width() * option_scale)
-            option_h = int(sample_img.get_height() * option_scale)
+            # Use cached dimensions or load once on first trial
+            if self.cached_image_dimensions is None:
+                sample_img = pygame.image.load(self.get_image_path(trial['id'], 1))
+                self.cached_image_dimensions = (sample_img.get_width(), sample_img.get_height())
+            
+            option_w = int(self.cached_image_dimensions[0] * option_scale)
+            option_h = int(self.cached_image_dimensions[1] * option_scale)
             
             grid_width = cols * option_w + (cols - 1) * spacing_x
             grid_start_x = self.screen_x / 2 - grid_width / 2
