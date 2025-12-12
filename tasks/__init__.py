@@ -1,3 +1,3 @@
-from .raven_task import RavenTask
+from .ravens import Ravens
 
-__all__ = ['RavenTask']
+__all__ = ['Ravens']

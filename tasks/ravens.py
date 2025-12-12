@@ -1,392 +1,457 @@
-import time
-import pandas as pd
-import numpy as np
+import os
 import pygame
-
+import pandas as pd
 from pygame.locals import *
-from os import listdir
-from os.path import join, dirname, realpath, splitext
 from sys import exit
 
 
 class Ravens(object):
-    def __init__(self, screen, background, start=13, numTrials=12):
+    """
+    Raven's Progressive Matrices Task (Standard Scale)
+    
+    This task presents 60 trials across 5 sets (A, B, C, D, E) with 12 trials each.
+    Sets A and B have 6 answer options per trial.
+    Sets C, D, and E have 8 answer options per trial.
+    """
+    
+    def __init__(self, screen, background):
         # Get the pygame display window
         self.screen = screen
         self.background = background
-
-        # sets font and font size
+        
+        # Set font and font size
         self.instructionsFont = pygame.font.SysFont("arial", 20)
-
-        # get screen info
+        self.titleFont = pygame.font.SysFont("arial", 25, bold=True)
+        
+        # Get screen info
         self.screen_x = self.screen.get_width()
         self.screen_y = self.screen.get_height()
-
+        
         # Fill background
         self.background.fill((255, 255, 255))
-        pygame.display.set_caption("Ravens Progressive Matrices")
-        pygame.mouse.set_visible(0)
-
-        # set number of trials
-        self.numTrials = numTrials
-        self.stimDuration = 60000
-        self.ITI = 1000
-
-        # get images
-        self.directory = dirname(realpath(__file__))
-        self.imagePath = join(self.directory, "images", "Ravens")
-
-        # store all filenames in the images path to a list
-        self.dirImages = [
-            f
-            for f in listdir(self.imagePath)
-            if splitext(join(self.imagePath, f))[-1] == ".png"
-        ]
-
-        self.dirImages = sorted(self.dirImages)
-
-        # only load the desired number/set of images
-        self.images = []
-        for i in range(start - 1, start + numTrials - 1):
-            self.images.append(pygame.image.load(join(self.imagePath, self.dirImages[i])))
-
-        # get image size
-        self.stimH = self.images[0].get_rect().height
-        self.stimW = self.images[0].get_rect().width
-
-        # load practice image
-        self.practiceImage = pygame.image.load(
-            join(self.imagePath, "practice", "practice.png")
+        pygame.display.set_caption("Test de Matrices Progresivas de Raven")
+        pygame.mouse.set_visible(1)
+        
+        # Get images directory
+        self.directory = os.path.dirname(os.path.realpath(__file__))
+        # Note: The directory name has two spaces between "test" and "matrices" - this is intentional
+        # and matches the actual directory name in the repository
+        self.imagePath = os.path.join(
+            os.path.dirname(self.directory),
+            "images",
+            "test  matrices progresivas de Raven escala standard"
         )
-
-        # load instructions page example images
-        self.img_example = pygame.image.load(join(self.imagePath, "practice", "example.png"))
-        self.exampleW = self.img_example.get_rect().width
-
-        self.img_example_answers = pygame.image.load(
-            join(self.imagePath, "practice", "example_answers.png")
-        )
-        self.exampleAnswersW = self.img_example_answers.get_rect().width
-
-        # ravens set 2 answers
-        self.correctAnswers = np.array(
-            [
-                5,  # 1
-                1,  # 2
-                7,  # 3
-                4,  # 4
-                3,  # 5
-                1,  # 6
-                6,  # 7
-                1,  # 8
-                8,  # 9
-                4,  # 10
-                5,  # 11
-                6,  # 12
-                2,  # 13
-                1,  # 14
-                2,  # 15
-                4,  # 16
-                6,  # 17
-                7,  # 18
-                3,  # 19
-                8,  # 20
-                8,  # 21
-                7,  # 22
-                6,  # 23
-                3,  # 24
-                7,  # 25
-                2,  # 26
-                7,  # 27
-                5,  # 28
-                6,  # 29
-                5,  # 30
-                4,  # 31
-                8,  # 32
-                5,  # 33
-                1,  # 34
-                3,  # 35
-                2,  # 36
-            ]
-        )
-
-        # create output dataframe
+        
+        # Validate that image directory exists
+        if not os.path.exists(self.imagePath):
+            raise FileNotFoundError(
+                f"Images directory not found: {self.imagePath}\n"
+                f"Please ensure the Raven's matrices images are in the correct location."
+            )
+        
+        # Define trial structure: 60 trials in 5 sets (A, B, C, D, E)
+        # Each set has 12 trials
+        self.trials = []
+        for set_letter in ['A', 'B', 'C', 'D', 'E']:
+            for trial_num in range(1, 13):
+                # Sets A and B have 6 options, C/D/E have 8 options
+                num_options = 6 if set_letter in ['A', 'B'] else 8
+                self.trials.append({
+                    'set': set_letter,
+                    'number': trial_num,
+                    'id': f"{set_letter}{trial_num}",
+                    'num_options': num_options
+                })
+        
+        # ===================================================================
+        # ANSWER_KEY CONFIGURATION - MUST BE FILLED MANUALLY
+        # ===================================================================
+        # This dictionary maps each trial ID to its correct answer (1-based index).
+        # 
+        # IMPORTANT: Replace all None values with the correct answer numbers!
+        # 
+        # Example: 'A1': 4 means the correct answer for trial A1 is option 4
+        # 
+        # Instructions for Pablo:
+        # Fill in the correct answer for each trial below.
+        # The answer should be a number between 1 and 6 for sets A and B,
+        # and between 1 and 8 for sets C, D, and E.
+        #
+        # EDIT THIS SECTION BELOW (lines 79-145):
+        self.ANSWER_KEY = {
+            # Set A (12 trials, 6 options each)
+            'A1': None,   # Fill with correct answer (1-6)
+            'A2': None,
+            'A3': None,
+            'A4': None,
+            'A5': None,
+            'A6': None,
+            'A7': None,
+            'A8': None,
+            'A9': None,
+            'A10': None,
+            'A11': None,
+            'A12': None,
+            # Set B (12 trials, 6 options each)
+            'B1': None,   # Fill with correct answer (1-6)
+            'B2': None,
+            'B3': None,
+            'B4': None,
+            'B5': None,
+            'B6': None,
+            'B7': None,
+            'B8': None,
+            'B9': None,
+            'B10': None,
+            'B11': None,
+            'B12': None,
+            # Set C (12 trials, 8 options each)
+            'C1': None,   # Fill with correct answer (1-8)
+            'C2': None,
+            'C3': None,
+            'C4': None,
+            'C5': None,
+            'C6': None,
+            'C7': None,
+            'C8': None,
+            'C9': None,
+            'C10': None,
+            'C11': None,
+            'C12': None,
+            # Set D (12 trials, 8 options each)
+            'D1': None,   # Fill with correct answer (1-8)
+            'D2': None,
+            'D3': None,
+            'D4': None,
+            'D5': None,
+            'D6': None,
+            'D7': None,
+            'D8': None,
+            'D9': None,
+            'D10': None,
+            'D11': None,
+            'D12': None,
+            # Set E (12 trials, 8 options each)
+            'E1': None,   # Fill with correct answer (1-8)
+            'E2': None,
+            'E3': None,
+            'E4': None,
+            'E5': None,
+            'E6': None,
+            'E7': None,
+            'E8': None,
+            'E9': None,
+            'E10': None,
+            'E11': None,
+            'E12': None,
+        }
+        # ===================================================================
+        # END OF ANSWER_KEY SECTION
+        # ===================================================================
+        
+        # Validate ANSWER_KEY configuration
+        empty_keys = [k for k, v in self.ANSWER_KEY.items() if v is None]
+        if empty_keys:
+            print("\n" + "="*70)
+            print("WARNING: ANSWER_KEY is not fully configured!")
+            print("="*70)
+            print(f"The following {len(empty_keys)} trials have no correct answer set:")
+            print(f"  {', '.join(empty_keys[:10])}")
+            if len(empty_keys) > 10:
+                print(f"  ... and {len(empty_keys) - 10} more")
+            print("\nPlease edit the ANSWER_KEY in tasks/ravens.py")
+            print("to set the correct answer for each trial before running the task.")
+            print("="*70 + "\n")
+        
+        # Create output dataframe
         self.allData = pd.DataFrame()
-        self.trial = np.arange(1, numTrials + 1)
-        self.allData["trial"] = self.trial
-        self.stimNum = np.arange(start, start + numTrials)
-        self.allData["image"] = self.stimNum
-        self.answerSubset = self.correctAnswers[start - 1 : start + numTrials - 1]
-        self.allData["correctAnswer"] = self.answerSubset
-
-    def pressSpace(self, x, y):
-        self.space = self.instructionsFont.render(
-            "(Press spacebar when ready)", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.space, (x, y))
-
-    def displayTrial(self, i, data, type):
-        # clear the event queue before checking for responses
-        pygame.event.clear()
-
-        if type == "main":
-            self.curImage = self.images[i]
-        elif type == "practice":
-            self.curImage = self.practiceImage
-
-        self.baseTime = int(round(time.time() * 1000))
-        while int(round(time.time() * 1000)) - self.baseTime < self.stimDuration:
-            self.endTime = int(round(time.time() * 1000))
-
-            data.at[i, "userAnswer"] = "NA"
-            data.at[i, "RT"] = "NA"
-
+        self.allData['Ensayo'] = [trial['id'] for trial in self.trials]
+        self.allData['Respuesta correcta'] = [self.ANSWER_KEY.get(trial['id']) for trial in self.trials]
+        self.allData['Respuesta dada'] = [None] * len(self.trials)
+        
+        # Current trial index
+        self.current_trial = 0
+        
+        # Selected answer for current trial
+        self.selected_answer = None
+        
+        # Path for saving data
+        self.dataPath = None
+        
+        # Cache for image dimensions (to avoid loading sample images repeatedly)
+        self.cached_image_dimensions = None
+    
+    def get_image_path(self, trial_id, image_type):
+        """
+        Get the full path to an image file.
+        
+        Args:
+            trial_id: Trial identifier (e.g., 'A1', 'B5', 'C2')
+            image_type: 0 for reference image, 1-8 for answer options
+            
+        Returns:
+            Full path to the image file
+        """
+        filename = f"Raven's {trial_id}_{image_type}.png"
+        filepath = os.path.join(self.imagePath, filename)
+        
+        # Validate that the image file exists
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(
+                f"Image file not found: {filepath}\n"
+                f"Expected format: Raven's {{trial_id}}_{{image_type}}.png"
+            )
+        
+        return filepath
+    
+    def show_instructions(self):
+        """Display the instruction screen"""
+        instructions = True
+        while instructions:
             for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_F12:
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    instructions = False
+                elif event.type == KEYDOWN and event.key == K_F12:
                     pygame.quit()
                     exit()
-                elif event.type == KEYDOWN:
-                    if event.key == K_1:
-                        data.at[i, "userAnswer"] = "1"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_2:
-                        data.at[i, "userAnswer"] = "2"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_3:
-                        data.at[i, "userAnswer"] = "3"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_4:
-                        data.at[i, "userAnswer"] = "4"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_5:
-                        data.at[i, "userAnswer"] = "5"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_6:
-                        data.at[i, "userAnswer"] = "6"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_7:
-                        data.at[i, "userAnswer"] = "7"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-                    elif event.key == K_8:
-                        data.at[i, "userAnswer"] = "8"
-                        data.at[i, "RT"] = str((float(self.endTime) - float(self.baseTime)) / 1000)
-                        return 0
-
+                elif event.type == QUIT:
+                    pygame.quit()
+                    exit()
+            
             self.screen.blit(self.background, (0, 0))
-            self.screen.blit(
-                self.curImage,
-                (
-                    self.screen_x / 2 - self.stimW / 2,
-                    self.screen_y / 2 - self.stimH / 2,
-                ),
+            
+            # Title
+            title = self.titleFont.render(
+                "Test de Matrices Progresivas de Raven con escala estándar",
+                1, (0, 0, 0)
             )
-
-            self.timeLeft = (
-                self.stimDuration / 1000 - (self.endTime - self.baseTime) / 1000
-            )
-            # convert seconds to time format
-            self.timer = time.strftime("%M:%S", time.gmtime(self.timeLeft))
-
-            self.timerText = self.instructionsFont.render(
-                "Time left: " + str(self.timer), 1, (0, 0, 0)
-            )
-            self.timerW = self.timerText.get_rect().width
-            self.screen.blit(
-                self.timerText,
-                (self.screen_x / 2 - self.timerW / 2, self.screen_y / 2 + 400),
-            )
-
+            titleW = title.get_rect().width
+            self.screen.blit(title, (self.screen_x / 2 - titleW / 2, 100))
+            
+            # Instructions text
+            y_offset = 200
+            line_spacing = 40
+            
+            instructions_lines = [
+                "Esta prueba consta de 60 ensayos en los que se muestra una imagen más grande",
+                "con un patrón de contenido o relleno específico y con un hueco vacío.",
+                "Abajo de esta imagen se encuentran otras más pequeñas.",
+                "",
+                "Como en un rompecabezas, tu tarea es seleccionar aquella imagen que contiene",
+                "el mismo patrón de relleno y que por tanto encaja en el hueco de la imagen superior.",
+                "",
+                "Si quieres cambiar de respuesta puedes deseleccionar una imagen y clicar en otra.",
+                "Solo hay una respuesta correcta por ensayo.",
+                "",
+                "Para avanzar al siguiente ensayo pulsa la barra espaciadora.",
+                "",
+                "Si estás preparado para empezar la tarea pulsa la barra espaciadora."
+            ]
+            
+            for i, line in enumerate(instructions_lines):
+                text = self.instructionsFont.render(line, 1, (0, 0, 0))
+                text_w = text.get_rect().width
+                self.screen.blit(text, (self.screen_x / 2 - text_w / 2, y_offset + i * line_spacing))
+            
             pygame.display.flip()
-
+    
+    def display_trial(self):
+        """Display a single trial"""
+        if self.current_trial >= len(self.trials):
+            return False
+        
+        trial = self.trials[self.current_trial]
+        
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    # Save answer and advance
+                    self.allData.at[self.current_trial, 'Respuesta dada'] = self.selected_answer
+                    self.save_data_incremental()
+                    self.current_trial += 1
+                    self.selected_answer = None
+                    waiting = False
+                elif event.type == KEYDOWN and event.key == K_F12:
+                    # Save before quitting
+                    self.allData.at[self.current_trial, 'Respuesta dada'] = self.selected_answer
+                    self.save_data_incremental()
+                    pygame.quit()
+                    exit()
+                elif event.type == QUIT:
+                    # Save before quitting
+                    self.allData.at[self.current_trial, 'Respuesta dada'] = self.selected_answer
+                    self.save_data_incremental()
+                    pygame.quit()
+                    exit()
+                elif event.type == MOUSEBUTTONUP and event.button == 1:
+                    # Handle click on answer options
+                    mouseX, mouseY = pygame.mouse.get_pos()
+                    clicked_option = self.check_option_click(mouseX, mouseY, trial)
+                    if clicked_option is not None:
+                        if self.selected_answer == clicked_option:
+                            # Deselect if clicking the same option
+                            self.selected_answer = None
+                        else:
+                            # Select new option
+                            self.selected_answer = clicked_option
+            
+            # Draw the trial
+            self.screen.blit(self.background, (0, 0))
+            
+            # Draw trial identifier at the top
+            trial_id_text = self.titleFont.render(f"Ensayo {trial['id']}", 1, (0, 0, 0))
+            trial_id_w = trial_id_text.get_rect().width
+            self.screen.blit(trial_id_text, (self.screen_x / 2 - trial_id_w / 2, 50))
+            
+            # Load and display reference image (larger, centered)
+            ref_image_path = self.get_image_path(trial['id'], 0)
+            ref_image = pygame.image.load(ref_image_path)
+            
+            # Scale reference image to be larger
+            ref_scale = 0.6
+            ref_w = int(ref_image.get_width() * ref_scale)
+            ref_h = int(ref_image.get_height() * ref_scale)
+            ref_image = pygame.transform.smoothscale(ref_image, (ref_w, ref_h))
+            
+            # Center the reference image
+            ref_x = self.screen_x / 2 - ref_w / 2
+            ref_y = 150
+            self.screen.blit(ref_image, (ref_x, ref_y))
+            
+            # Display answer options in grid (3x2 or 4x2)
+            num_options = trial['num_options']
+            cols = 4 if num_options == 8 else 3
+            rows = 2
+            
+            option_scale = 0.35
+            spacing_x = 20
+            spacing_y = 20
+            
+            # Calculate starting position to center the grid
+            # Use cached dimensions or load once on first trial
+            if self.cached_image_dimensions is None:
+                sample_img = pygame.image.load(self.get_image_path(trial['id'], 1))
+                self.cached_image_dimensions = (sample_img.get_width(), sample_img.get_height())
+            
+            option_w = int(self.cached_image_dimensions[0] * option_scale)
+            option_h = int(self.cached_image_dimensions[1] * option_scale)
+            
+            grid_width = cols * option_w + (cols - 1) * spacing_x
+            grid_start_x = self.screen_x / 2 - grid_width / 2
+            grid_start_y = ref_y + ref_h + 50
+            
+            # Store button positions for click detection
+            self.option_buttons = []
+            
+            for i in range(num_options):
+                row = i // cols
+                col = i % cols
+                
+                option_x = grid_start_x + col * (option_w + spacing_x)
+                option_y = grid_start_y + row * (option_h + spacing_y)
+                
+                # Load and scale option image
+                option_image = pygame.image.load(self.get_image_path(trial['id'], i + 1))
+                option_image = pygame.transform.smoothscale(option_image, (option_w, option_h))
+                
+                # Draw the image
+                self.screen.blit(option_image, (option_x, option_y))
+                
+                # Store button position for click detection
+                self.option_buttons.append({
+                    'option': i + 1,
+                    'rect': pygame.Rect(option_x, option_y, option_w, option_h)
+                })
+                
+                # Draw blue border if selected
+                if self.selected_answer == i + 1:
+                    pygame.draw.rect(
+                        self.screen,
+                        (0, 0, 255),
+                        (option_x, option_y, option_w, option_h),
+                        5
+                    )
+            
+            # Display instruction at bottom
+            instruction_text = self.instructionsFont.render(
+                "Selecciona una respuesta y pulsa la barra espaciadora para continuar",
+                1, (100, 100, 100)
+            )
+            instruction_w = instruction_text.get_rect().width
+            self.screen.blit(instruction_text, (self.screen_x / 2 - instruction_w / 2, self.screen_y - 80))
+            
+            pygame.display.flip()
+        
+        return True
+    
+    def check_option_click(self, mouseX, mouseY, trial):
+        """Check if an option was clicked"""
+        for button in self.option_buttons:
+            if button['rect'].collidepoint(mouseX, mouseY):
+                return button['option']
+        return None
+    
+    def save_data_incremental(self):
+        """Save data after each trial"""
+        if self.dataPath:
+            try:
+                self.allData.to_excel(self.dataPath, index=False)
+            except Exception as e:
+                print(f"Error saving data: {e}")
+    
+    def show_end_screen(self):
+        """Display the end screen"""
+        end_screen = True
+        while end_screen:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    end_screen = False
+                elif event.type == KEYDOWN and event.key == K_F12:
+                    pygame.quit()
+                    exit()
+                elif event.type == QUIT:
+                    pygame.quit()
+                    exit()
+            
+            self.screen.blit(self.background, (0, 0))
+            
+            end_text = self.titleFont.render("Tarea completada", 1, (0, 0, 0))
+            end_w = end_text.get_rect().width
+            self.screen.blit(end_text, (self.screen_x / 2 - end_w / 2, self.screen_y / 2 - 50))
+            
+            thanks_text = self.instructionsFont.render(
+                "Gracias por tu participación",
+                1, (0, 0, 0)
+            )
+            thanks_w = thanks_text.get_rect().width
+            self.screen.blit(thanks_text, (self.screen_x / 2 - thanks_w / 2, self.screen_y / 2 + 20))
+            
+            space_text = self.instructionsFont.render(
+                "(Pulsa la barra espaciadora para continuar)",
+                1, (100, 100, 100)
+            )
+            space_w = space_text.get_rect().width
+            self.screen.blit(space_text, (self.screen_x / 2 - space_w / 2, self.screen_y / 2 + 100))
+            
+            pygame.display.flip()
+    
     def run(self):
-        # Instructions
-        self.screen.blit(self.background, (0, 0))
-
-        self.title = self.instructionsFont.render(
-            "Raven's Progressive Matrices", 1, (0, 0, 0)
-        )
-        self.titleW = self.title.get_rect().width
-        self.screen.blit(
-            self.title, (self.screen_x / 2 - self.titleW / 2, self.screen_y / 2 - 400)
-        )
-
-        self.line1 = self.instructionsFont.render(
-            "You will see a grid of items with one item missing:", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.line1, (100, self.screen_y / 2 - 350))
-
-        self.screen.blit(
-            self.img_example,
-            (self.screen_x / 2 - self.exampleW / 2, self.screen_y / 2 - 300),
-        )
-
-        self.line2 = self.instructionsFont.render(
-            "There will be a set of 8 possible answer options:", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.line2, (100, self.screen_y / 2 - 100))
-
-        self.screen.blit(
-            self.img_example_answers,
-            (self.screen_x / 2 - self.exampleAnswersW / 2, self.screen_y / 2 - 50),
-        )
-
-        self.line3 = self.instructionsFont.render(
-            "Determine which option is the missing item.", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.line3, (100, self.screen_y / 2 + 150))
-
-        self.line4 = self.instructionsFont.render(
-            "In example above, the correct answer is 4.", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.line4, (100, self.screen_y / 2 + 180))
-
-        self.line5 = self.instructionsFont.render(
-            "Select your answer by pressing the corresponding number on the keyboard.",
-            1,
-            (0, 0, 0),
-        )
-        self.screen.blit(self.line5, (100, self.screen_y / 2 + 250))
-
-        self.line6 = self.instructionsFont.render(
-            "You will have 1 minute to complete each question.", 1, (0, 0, 0)
-        )
-        self.screen.blit(self.line6, (100, self.screen_y / 2 + 280))
-
-        self.pressSpace(100, (self.screen_y / 2) + 350)
-
-        self.instructions = True
-        while self.instructions:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.instructions = False
-                elif event.type == KEYDOWN and event.key == K_F4:
-                    return pd.DataFrame()
-                elif event.type == KEYDOWN and event.key == K_F12:
-                    pygame.quit()
-                    exit()
-
-            pygame.display.flip()
-
-        # Instructions Practice
-        self.instructionsPractice = True
-        while self.instructionsPractice:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.instructionsPractice = False
-                elif event.type == KEYDOWN and event.key == K_F4:
-                    return pd.DataFrame()
-                elif event.type == KEYDOWN and event.key == K_F12:
-                    pygame.quit()
-                    exit()
-
-                self.screen.blit(self.background, (0, 0))
-                self.practiceInstructions = self.instructionsFont.render(
-                    "We will begin with a practice trial...", 1, (0, 0, 0)
-                )
-                self.screen.blit(self.practiceInstructions, (100, self.screen_y / 2))
-
-                self.pressSpace(100, (self.screen_y / 2) + 100)
-
-                pygame.display.flip()
-
-        # Practice trials
-        self.practiceData = pd.DataFrame()
-        self.displayTrial(0, self.practiceData, "practice")
-
-        # Practice feedback screen
-        self.screen.blit(self.background, (0, 0))
-
-        if self.practiceData.at[0, "userAnswer"] == "2":
-            self.feedbackLine = self.instructionsFont.render("Correct", 1, (0, 255, 0))
-        else:
-            self.feedbackLine = self.instructionsFont.render(
-                "Incorrect", 1, (255, 0, 0)
-            )
-
-        self.feedbackLineH = self.feedbackLine.get_rect().height
-        self.feedbackLineW = self.feedbackLine.get_rect().width
-
-        self.screen.blit(
-            self.feedbackLine,
-            (
-                self.screen_x / 2 - self.feedbackLineW / 2,
-                self.screen_y / 2 - self.feedbackLineH / 2,
-            ),
-        )
-
-        pygame.display.flip()
-
-        # show feedback screen for 2 seconds
-        self.baseTime = int(round(time.time() * 1000))
-        while int(round(time.time() * 1000)) - self.baseTime < 2000:
-            pass
-
-        # Instructions Practice End
-        self.practiceEndScreen = True
-        while self.practiceEndScreen:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.practiceEndScreen = False
-
-            self.screen.blit(self.background, (0, 0))
-            self.practiceEndLine = self.instructionsFont.render(
-                "We will now begin the main trials...", 1, (0, 0, 0)
-            )
-            self.screen.blit(self.practiceEndLine, (100, self.screen_y / 2))
-
-            self.pressSpace(100, (self.screen_y / 2) + 100)
-
-            pygame.display.flip()
-
-        # Main task
-        for i in range(self.numTrials):
-            self.displayTrial(i, self.allData, "main")
-
-            if self.allData.at[i, "userAnswer"] == str(
-                self.allData.at[i, "correctAnswer"]
-            ):
-                self.allData.at[i, "correct"] = 1
-            else:
-                self.allData.at[i, "correct"] = 0
-
-            self.baseTime = int(round(time.time() * 1000))
-            while int(round(time.time() * 1000)) - self.baseTime < self.ITI:
-                self.screen.blit(self.background, (0, 0))
-                pygame.display.flip()
-
-        # rearrange dataframe
-        self.columns = [
-            "trial",
-            "image",
-            "correctAnswer",
-            "userAnswer",
-            "correct",
-            "RT",
-        ]
-        self.allData = self.allData[self.columns]
-
-        # End screen
-        self.endScreen = True
-        while self.endScreen:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.endScreen = False
-
-            self.screen.blit(self.background, (0, 0))
-            self.endLine = self.instructionsFont.render("End of task.", 1, (0, 0, 0))
-            self.screen.blit(self.endLine, (100, self.screen_y / 2))
-
-            self.pressSpace(100, (self.screen_y / 2) + 100)
-
-            pygame.display.flip()
-
-        print("- Raven's Progressive Matrices complete")
-
+        """Main run method for the task"""
+        # Show instructions
+        self.show_instructions()
+        
+        # Run all trials
+        for i in range(len(self.trials)):
+            if not self.display_trial():
+                break
+        
+        # Show end screen
+        self.show_end_screen()
+        
+        # Final save
+        self.save_data_incremental()
+        
+        print("- Raven's Progressive Matrices Task complete")
+        
         return self.allData
