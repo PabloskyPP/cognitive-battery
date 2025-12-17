@@ -216,8 +216,17 @@ class NeoPiR(object):
 
         pygame.display.flip()
 
-    def draw_wrapped_text(self, text, x, y, max_width):
-        """Draw text with word wrapping"""
+    def draw_wrapped_text(self, text, x, y, max_width, center=False, line_height=35):
+        """Draw text with word wrapping
+        
+        Args:
+            text: The text to display
+            x: X position (ignored if center=True)
+            y: Y position
+            max_width: Maximum width for text wrapping
+            center: If True, center the text horizontally
+            line_height: Height between lines
+        """
         words = text.split()
         lines = []
         current_line = []
@@ -237,37 +246,17 @@ class NeoPiR(object):
             lines.append(" ".join(current_line))
 
         # Draw all lines
-        line_height = 35
         for i, line in enumerate(lines):
             line_surface = self.font.render(line, True, (0, 0, 0))
-            self.screen.blit(line_surface, (x, y + i * line_height))
+            if center:
+                x_pos = (self.screen_x - line_surface.get_width()) // 2
+            else:
+                x_pos = x
+            self.screen.blit(line_surface, (x_pos, y + i * line_height))
 
     def draw_wrapped_text_centered(self, text, y, max_width):
         """Draw text with word wrapping, centered horizontally"""
-        words = text.split()
-        lines = []
-        current_line = []
-
-        for word in words:
-            test_line = " ".join(current_line + [word])
-            test_surface = self.font.render(test_line, True, (0, 0, 0))
-
-            if test_surface.get_width() <= max_width:
-                current_line.append(word)
-            else:
-                if current_line:
-                    lines.append(" ".join(current_line))
-                current_line = [word]
-
-        if current_line:
-            lines.append(" ".join(current_line))
-
-        # Draw all lines centered
-        line_height = 40
-        for i, line in enumerate(lines):
-            line_surface = self.font.render(line, True, (0, 0, 0))
-            x = (self.screen_x - line_surface.get_width()) // 2
-            self.screen.blit(line_surface, (x, y + i * line_height))
+        self.draw_wrapped_text(text, 0, y, max_width, center=True, line_height=40)
 
     def run(self):
         # Show instructions
