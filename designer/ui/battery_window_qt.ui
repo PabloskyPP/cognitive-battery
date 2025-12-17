@@ -350,6 +350,14 @@
               <enum>Unchecked</enum>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>D2 (Test de atención y concentración)</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+            </item>
            </widget>
           </item>
           <item>
