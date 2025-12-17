@@ -35,11 +35,15 @@ class D2(object):
         pygame.display.set_caption("D2 - Test de atención y concentración")
         pygame.mouse.set_visible(1)
 
-        # Experiment options
+        # Experiment options (constants)
         self.ROW_DURATION = 20000  # 20 seconds per row in milliseconds
         self.TRAINING_LETTERS = 22  # Number of letters in training
         self.ROW_LETTERS = 47  # Number of letters in each main task row
         self.NUM_ROWS = 14  # Number of main task rows
+        
+        # Note: Hitbox calculations assume letters are evenly spaced across the image width.
+        # If actual letter positions differ, hitbox detection accuracy may be affected.
+        # Consider providing precise letter coordinates if available.
 
         # Get image path
         self.base_dir = os.path.dirname(os.path.realpath(__file__))
@@ -103,6 +107,56 @@ class D2(object):
         
         pygame.display.flip()
         display.wait_for_space()
+
+    def _redraw_training_screen(self, img_prueba, img_x, img_y, img_height, hitboxes, selections):
+        """Helper method to redraw training screen with current selections"""
+        explanation = "Observa que deberías haber marcado las letras números "
+        correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
+        instructions = [
+            "En la siguiente página empezarás la tarea.",
+            "Durante la tarea se te presentarán por orden hasta un total de 14 filas similares a la de esta",
+            "práctica anterior pero con más letras. En cada una tendrás 20 segundos para señalar todas las",
+            "letras d (esta d en azul oscuro) con dos rayitas que encuentres.",
+            "Tras los 20 segundos se pasará automáticamente a la siguiente fila.",
+            "Trabaja tan rápidamente como puedas sin cometer errores.",
+            "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
+        ]
+        
+        self.screen.blit(self.background, (0, 0))
+        
+        # Redraw instructions
+        y = 100
+        display.text(self.screen, self.font, 
+            "Recuerda que el objetivo es señalar las letras d con dos rayitas.",
+            "center", y, (0, 0, 0))
+        y += 40
+        display.text(self.screen, self.font, 
+            "Prueba a hacerlo con la siguiente serie",
+            "center", y, (0, 0, 0))
+        
+        # Redraw image
+        self.screen.blit(img_prueba, (img_x, img_y))
+        
+        # Draw red rectangles for selected letters
+        for j, selected in enumerate(selections):
+            if selected:
+                pygame.draw.rect(self.screen, (255, 0, 0), hitboxes[j], 3)
+        
+        # Redraw bottom text
+        y = img_y + img_height + 50
+        display.text(self.screen, self.font_small, explanation, "center", y, (0, 0, 0))
+        y += 30
+        display.text(self.screen, self.font_small, correct_numbers, "center", y, (0, 0, 139))
+        
+        y += 50
+        for line in instructions:
+            display.text(self.screen, self.font_small, line, "center", y, (0, 0, 0))
+            y += 28
+        
+        y += 30
+        display.text_space(self.screen, self.font, "center", y, (0, 0, 0))
+        
+        pygame.display.flip()
 
     def display_training(self):
         """Screen 2: Display training screen with 22 clickable letters"""
@@ -208,41 +262,7 @@ class D2(object):
                             selections[i] = not selections[i]
                             
                             # Redraw the screen with highlights
-                            self.screen.blit(self.background, (0, 0))
-                            
-                            # Redraw instructions
-                            y = 100
-                            display.text(self.screen, self.font, 
-                                "Recuerda que el objetivo es señalar las letras d con dos rayitas.",
-                                "center", y, (0, 0, 0))
-                            y += 40
-                            display.text(self.screen, self.font, 
-                                "Prueba a hacerlo con la siguiente serie",
-                                "center", y, (0, 0, 0))
-                            
-                            # Redraw image
-                            self.screen.blit(img_prueba, (img_x, img_y))
-                            
-                            # Draw red rectangles for selected letters
-                            for j, selected in enumerate(selections):
-                                if selected:
-                                    pygame.draw.rect(self.screen, (255, 0, 0), hitboxes[j], 3)
-                            
-                            # Redraw bottom text
-                            y = img_y + img_height + 50
-                            display.text(self.screen, self.font_small, explanation, "center", y, (0, 0, 0))
-                            y += 30
-                            display.text(self.screen, self.font_small, correct_numbers, "center", y, (0, 0, 139))
-                            
-                            y += 50
-                            for line in instructions:
-                                display.text(self.screen, self.font_small, line, "center", y, (0, 0, 0))
-                                y += 28
-                            
-                            y += 30
-                            display.text_space(self.screen, self.font, "center", y, (0, 0, 0))
-                            
-                            pygame.display.flip()
+                            self._redraw_training_screen(img_prueba, img_x, img_y, img_height, hitboxes, selections)
                             break
 
         return selections
@@ -271,13 +291,16 @@ class D2(object):
             pygame.display.flip()
             display.wait(2000)
             
-            # Return empty DataFrame for this row
-            return pd.DataFrame({
-                'row': [row_num],
-                'letter_num': [0],
-                'selected': [False],
-                'timestamp': [0]
-            })
+            # Return DataFrame with expected structure (47 letters, all unselected)
+            row_data = []
+            for i in range(self.ROW_LETTERS):
+                row_data.append({
+                    'row': row_num,
+                    'letter_num': i + 1,
+                    'selected': False,
+                    'timestamp': 0
+                })
+            return pd.DataFrame(row_data)
 
         img_row = pygame.image.load(row_image_path)
         img_width = img_row.get_width()
@@ -332,6 +355,8 @@ class D2(object):
                                 selection_times[i] = None
                             
                             # Redraw the screen with highlights
+                            # Note: Full screen redraw is acceptable given typical click frequency
+                            # and 20-second task duration
                             self.screen.blit(self.background, (0, 0))
                             self.screen.blit(img_row, (img_x, img_y))
                             
