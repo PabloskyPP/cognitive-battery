@@ -309,7 +309,7 @@ class Ravens(object):
             ref_image = pygame.image.load(ref_image_path)
             
             # Scale reference image to be larger
-            ref_scale = 0.8
+            ref_scale = 1
             ref_w = int(ref_image.get_width() * ref_scale)
             ref_h = int(ref_image.get_height() * ref_scale)
             ref_image = pygame.transform.smoothscale(ref_image, (ref_w, ref_h))
@@ -324,7 +324,7 @@ class Ravens(object):
             cols = 4 if num_options == 8 else 3
             rows = 2
             
-            option_scale = 0.5
+            option_scale = 0.85
             spacing_x = 20
             spacing_y = 20
             

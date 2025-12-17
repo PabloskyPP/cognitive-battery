@@ -15,7 +15,7 @@ class NeoPiR(object):
         self.background = background
 
         # Set fonts and font sizes
-        self.font = pygame.font.SysFont("arial", 28)
+        self.font = pygame.font.SysFont("arial", 32)
         self.font_large = pygame.font.SysFont("arial", 36)
         self.font_small = pygame.font.SysFont("arial", 24)
         self.font_instructions = pygame.font.SysFont("arial", 30)

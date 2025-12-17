@@ -53,7 +53,7 @@
 53. Encuentro aburridas las discusiones filosóficas.
 54. Prefiero no hablar de mí o de mis éxitos.
 55. Pierdo mucho tiempo hasta que me pongo a trabajar.
-56. Creo que soy capaz de enfrentarme a la mayor parte de mis
+56. Creo que soy capaz de enfrentarme a la mayor parte de mis problemas.
 57. A veces he experimentado una intensa alegría o arrebato.
 58. Considero que las leyes y normas sociales deberían cambiar para reflejar las necesidades de un mundo cambiante.
 59. Soy duro y poco sentimental en mis actitudes.
@@ -61,7 +61,7 @@
 61. Rara vez me siento con miedo o ansioso.
 62. Se me conoce como una persona cálida y cordial.
 63. Tengo mucha fantasía.
-64. Creo que la mayoría de la gente se aprovecharía de uno si se le
+64. Creo que la mayoría de la gente se aprovecharía de uno si se le dejara.
 65. Me mantengo informado y por lo general tomo decisiones inteligentes.
 66. Se me tiene por colérico y de genio vivo.
 67. En general prefiero hacer las cosas solo.
@@ -91,7 +91,7 @@
 91. A menudo me siento tenso e inquieto.
 92. Mucha gente cree que soy algo frío y distante.
 93. No me gusta perder el tiempo soñando despierto.
-94. Me parece que la mayoría de la gente con la que trato es honrada
+94. Me parece que la mayoría de la gente con la que trato es honrada y digna de confianza.
 95. Muchas veces no preparo de antemano lo que tengo que hacer.
 96. No se me considera una persona difícil ni de mal genio.
 97. Si estoy solo mucho tiempo, siento mucha necesidad de la gente.
@@ -180,7 +180,7 @@
 180. Casi nunca tomo decisiones precipitadas.
 181. Tengo menos miedos que la mayoría de la gente.
 182. Tengo una fuerte relación emocional con mis amigos.
-183. De niño rara vez me divertía jugando a ser otra persona (policía, padre, profesor, etc.)
+183. De niño rara vez me divertía jugando a ser otra persona (policía, padre, profesor, etc).
 184. Tiendo a pensar lo mejor de la gente.
 185. Soy una persona muy competente.
 186. A veces me he sentido amargado y resentido.
