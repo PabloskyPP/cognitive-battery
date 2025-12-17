@@ -15,9 +15,10 @@ class NeoPiR(object):
         self.background = background
 
         # Set fonts and font sizes
-        self.font = pygame.font.SysFont("arial", 24)
-        self.font_large = pygame.font.SysFont("arial", 30)
-        self.font_small = pygame.font.SysFont("arial", 20)
+        self.font = pygame.font.SysFont("arial", 28)
+        self.font_large = pygame.font.SysFont("arial", 36)
+        self.font_small = pygame.font.SysFont("arial", 24)
+        self.font_instructions = pygame.font.SysFont("arial", 30)
 
         # Get screen info
         self.screen_x = self.screen.get_width()
@@ -88,7 +89,7 @@ class NeoPiR(object):
         self.screen.blit(self.background, (0, 0))
 
         y_pos = 50
-        line_spacing = 40
+        line_spacing = 45
 
         instructions = [
             "Esto es un cuestionario de personalidad. El cuestionario consta de 240 enunciados",
@@ -113,7 +114,7 @@ class NeoPiR(object):
         ]
 
         for line in instructions:
-            display.text(self.screen, self.font, line, 50, y_pos)
+            display.text(self.screen, self.font_instructions, line, 50, y_pos)
             y_pos += line_spacing
 
         pygame.display.flip()
@@ -122,25 +123,25 @@ class NeoPiR(object):
         """Draw a statement screen with rating scale"""
         self.screen.blit(self.background, (0, 0))
 
-        # Draw back button (top left)
+        # Draw back button (top left, larger and lower)
         back_text = "Volver al enunciado anterior"
-        back_surface = self.font_small.render(back_text, True, (0, 0, 0))
-        self.back_button_rect = pygame.Rect(20, 20, back_surface.get_width() + 20, back_surface.get_height() + 10)
+        back_surface = self.font.render(back_text, True, (0, 0, 0))
+        self.back_button_rect = pygame.Rect(20, 40, back_surface.get_width() + 30, back_surface.get_height() + 20)
         pygame.draw.rect(self.screen, (200, 200, 200), self.back_button_rect)
         pygame.draw.rect(self.screen, (0, 0, 0), self.back_button_rect, 2)
-        self.screen.blit(back_surface, (30, 25))
+        self.screen.blit(back_surface, (35, 50))
 
         # Draw counter (top right)
         counter_text = f"{trial_index + 1} / {len(self.randomized_statements)}"
         counter_surface = self.font.render(counter_text, True, (0, 0, 0))
-        self.screen.blit(counter_surface, (self.screen_x - counter_surface.get_width() - 50, 30))
+        self.screen.blit(counter_surface, (self.screen_x - counter_surface.get_width() - 50, 50))
 
-        # Draw statement text (wrapped)
+        # Draw statement text (wrapped and centered)
         statement_text = self.randomized_statements[trial_index]
-        self.draw_wrapped_text(statement_text, 100, 120, self.screen_x - 200)
+        self.draw_wrapped_text_centered(statement_text, self.screen_y // 3, self.screen_x - 200)
 
-        # Draw rating scale
-        scale_y = self.screen_y - 250
+        # Draw rating scale (moved up)
+        scale_y = self.screen_y - 300
         scale_labels = ["1", "2", "3", "4", "5"]
         scale_descriptions = [
             "En total",
@@ -195,28 +196,37 @@ class NeoPiR(object):
                     desc2_surface, (x_pos - desc2_surface.get_width() // 2, scale_y + 65)
                 )
 
-        # Draw "Change response" button
+        # Draw "Change response" button (moved up)
         change_text = "Cambiar respuesta"
         change_surface = self.font_small.render(change_text, True, (0, 0, 0))
         button_width = change_surface.get_width() + 40
         button_x = (self.screen_x - button_width) // 2
-        button_y = self.screen_y - 120
+        button_y = self.screen_y - 170
         self.change_button_rect = pygame.Rect(button_x, button_y, button_width, 40)
         pygame.draw.rect(self.screen, (200, 200, 200), self.change_button_rect)
         pygame.draw.rect(self.screen, (0, 0, 0), self.change_button_rect, 2)
         self.screen.blit(change_surface, (button_x + 20, button_y + 10))
 
-        # Draw instructions at bottom
+        # Draw instructions at bottom (moved up)
         instr_text = "Usa los números 1-5 del teclado para responder. Pulsa la barra espaciadora para continuar."
         instr_surface = self.font_small.render(instr_text, True, (100, 100, 100))
         self.screen.blit(
-            instr_surface, ((self.screen_x - instr_surface.get_width()) // 2, self.screen_y - 50)
+            instr_surface, ((self.screen_x - instr_surface.get_width()) // 2, self.screen_y - 100)
         )
 
         pygame.display.flip()
 
-    def draw_wrapped_text(self, text, x, y, max_width):
-        """Draw text with word wrapping"""
+    def draw_wrapped_text(self, text, x, y, max_width, center=False, line_height=35):
+        """Draw text with word wrapping
+        
+        Args:
+            text: The text to display
+            x: X position (ignored if center=True)
+            y: Y position
+            max_width: Maximum width for text wrapping
+            center: If True, center the text horizontally
+            line_height: Height between lines
+        """
         words = text.split()
         lines = []
         current_line = []
@@ -236,10 +246,17 @@ class NeoPiR(object):
             lines.append(" ".join(current_line))
 
         # Draw all lines
-        line_height = 35
         for i, line in enumerate(lines):
             line_surface = self.font.render(line, True, (0, 0, 0))
-            self.screen.blit(line_surface, (x, y + i * line_height))
+            if center:
+                x_pos = (self.screen_x - line_surface.get_width()) // 2
+            else:
+                x_pos = x
+            self.screen.blit(line_surface, (x_pos, y + i * line_height))
+
+    def draw_wrapped_text_centered(self, text, y, max_width):
+        """Draw text with word wrapping, centered horizontally"""
+        self.draw_wrapped_text(text, 0, y, max_width, center=True, line_height=40)
 
     def run(self):
         # Show instructions
