@@ -23,8 +23,8 @@ class D2(object):
         self.background = background
 
         # Set font and font size
-        self.font = pygame.font.SysFont("arial", 24)
-        self.font_small = pygame.font.SysFont("arial", 18)
+        self.font = pygame.font.SysFont("arial", 32)
+        self.font_small = pygame.font.SysFont("arial", 30)
 
         # Get screen info
         self.screen_x = self.screen.get_width()
@@ -45,8 +45,8 @@ class D2(object):
         # If actual letter positions differ, hitbox detection accuracy may be affected.
         # Consider providing precise letter coordinates if available.
 
-        # Get image path
-        self.base_dir = os.path.dirname(os.path.realpath(__file__))
+        # Get image path - FIX: Navigate to project root
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self.image_path = os.path.join(self.base_dir, "images", "D2")
 
         # Create output dataframe for all rows
@@ -60,9 +60,9 @@ class D2(object):
         y_pos = self.screen_y / 2 - 350
         
         lines = [
-            "Esta prueba trata de conocer su capacidad de concentración en una tarea determinada.",
+            "Esta prueba trata de conocer tu capacidad de concentración en una tarea determinada.",
             "En esta página se te presenta un ejemplo y una línea de entrenamiento para que te",
-            "familiarices con la tarea"
+            "familiarices con la tarea."
         ]
         
         for line in lines:
@@ -73,6 +73,12 @@ class D2(object):
         ejemplo_path = os.path.join(self.image_path, "ejemplo.png")
         if os.path.exists(ejemplo_path):
             img_ejemplo = pygame.image.load(ejemplo_path)
+            # Escalar la imagen (por ejemplo, 1.5x = 150% del tamaño original)
+            scale_factor = 2  # Cambia este valor para ajustar el tamaño
+            new_width = int(img_ejemplo.get_width() * scale_factor)
+            new_height = int(img_ejemplo.get_height() * scale_factor)
+            img_ejemplo = pygame.transform.scale(img_ejemplo, (new_width, new_height))
+            
             y_pos += 30
             display.image(self.screen, img_ejemplo, "center", y_pos)
             y_pos += img_ejemplo.get_height() + 30
@@ -91,7 +97,7 @@ class D2(object):
             "Si te equivocas y quieres cambiar una respuesta, puedes desmarcar tu respuesta clicando de nuevo",
             "en el estímulo seleccionado.",
             "",
-            "En la página siguiente se te mostrará un caso de entrenamiento antes de empezar con la tarea"
+            "En la página siguiente se te mostrará un caso de entrenamiento antes de empezar con la tarea."
         ]
         
         for line in explanation_lines:
@@ -116,7 +122,7 @@ class D2(object):
             "En la siguiente página empezarás la tarea.",
             "Durante la tarea se te presentarán por orden hasta un total de 14 filas similares a la de esta",
             "práctica anterior pero con más letras. En cada una tendrás 20 segundos para señalar todas las",
-            "letras d (esta d en azul oscuro) con dos rayitas que encuentres.",
+            "letras d con dos rayitas que encuentres.",
             "Tras los 20 segundos se pasará automáticamente a la siguiente fila.",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
@@ -190,6 +196,13 @@ class D2(object):
             return []
 
         img_prueba = pygame.image.load(prueba_path)
+
+        # Escalar la imagen
+        scale_factor = 2  # Cambia este valor
+        new_width = int(img_prueba.get_width() * scale_factor)
+        new_height = int(img_prueba.get_height() * scale_factor)
+        img_prueba = pygame.transform.scale(img_prueba, (new_width, new_height))
+
         img_width = img_prueba.get_width()
         img_height = img_prueba.get_height()
         
@@ -202,14 +215,16 @@ class D2(object):
         # Create hitboxes for 22 letters (assuming evenly spaced)
         # This is a simplified hitbox system - adjust based on actual image layout
         letter_width = img_width / self.TRAINING_LETTERS
+        hitbox_margin = letter_width * 0.005  # 15% de margen a cada lado
+        actual_hitbox_width = letter_width * 0.6  # 70% del ancho total
         hitboxes = []
         selections = [False] * self.TRAINING_LETTERS
         
         for i in range(self.TRAINING_LETTERS):
             hitbox = pygame.Rect(
-                img_x + (i * letter_width),
+                img_x + (i * letter_width) + hitbox_margin,
                 img_y,
-                letter_width,
+                actual_hitbox_width,
                 img_height
             )
             hitboxes.append(hitbox)
@@ -229,7 +244,7 @@ class D2(object):
             "En la siguiente página empezarás la tarea.",
             "Durante la tarea se te presentarán por orden hasta un total de 14 filas similares a la de esta",
             "práctica anterior pero con más letras. En cada una tendrás 20 segundos para señalar todas las",
-            "letras d (esta d en azul oscuro) con dos rayitas que encuentres.",
+            "letras d con dos rayitas que encuentres.",
             "Tras los 20 segundos se pasará automáticamente a la siguiente fila.",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
@@ -303,9 +318,16 @@ class D2(object):
             return pd.DataFrame(row_data)
 
         img_row = pygame.image.load(row_image_path)
+
+        # Escalar la imagen
+        scale_factor = 1.18  # Cambia este valor para ajustar el tamaño
+        new_width = int(img_row.get_width() * scale_factor)
+        new_height = int(img_row.get_height() * scale_factor)
+        img_row = pygame.transform.scale(img_row, (new_width, new_height))
+
         img_width = img_row.get_width()
         img_height = img_row.get_height()
-        
+
         # Center the image
         img_x = (self.screen_x - img_width) / 2
         img_y = (self.screen_y - img_height) / 2
@@ -314,13 +336,15 @@ class D2(object):
 
         # Create hitboxes for 47 letters (assuming evenly spaced)
         letter_width = img_width / self.ROW_LETTERS
+        hitbox_margin = letter_width * 0.1  # 15% de margen a cada lado
+        actual_hitbox_width = letter_width * 0.5  # 70% del ancho total
         hitboxes = []
         selections = [False] * self.ROW_LETTERS
         selection_times = [None] * self.ROW_LETTERS
         
         for i in range(self.ROW_LETTERS):
             hitbox = pygame.Rect(
-                img_x + (i * letter_width),
+                img_x + (i * letter_width) + hitbox_margin,
                 img_y,
                 letter_width,
                 img_height
