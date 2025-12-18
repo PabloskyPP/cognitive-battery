@@ -41,9 +41,34 @@ class D2(object):
         self.ROW_LETTERS = 47  # Number of letters in each main task row
         self.NUM_ROWS = 14  # Number of main task rows
         
-        # Note: Hitbox calculations assume letters are evenly spaced across the image width.
-        # If actual letter positions differ, hitbox detection accuracy may be affected.
-        # Consider providing precise letter coordinates if available.
+        # Customizable hitbox coordinate system
+        # These coordinates define the exact x-position boundaries [x_start, x_end] for each letter
+        # in the ORIGINAL (unscaled) images. They will be automatically scaled during runtime.
+        # 
+        # How to measure and add coordinates:
+        # 1. Open the original image (prueba.png or fila{N}.png) in an image editor
+        # 2. For each letter, note the x-coordinate where the letter starts and ends
+        # 3. Add these as [x_start, x_end] pairs in pixels
+        # 4. The system will automatically apply scaling when displaying
+        # 
+        # If coordinates are empty or incomplete, the system falls back to uniform spacing.
+        
+        # Training image coordinates (22 letters in prueba.png)
+        # Format: [[x_start, x_end], [x_start, x_end], ...]
+        self.TRAINING_POSITIONS = [
+            # Add 22 coordinate pairs here, one for each letter in prueba.png
+            # Example: [10, 45], [50, 85], [90, 125], ...
+        ]
+        
+        # Main task row coordinates (47 letters per row, 14 rows total)
+        # Format: {row_number: [[x_start, x_end], [x_start, x_end], ...], ...}
+        self.ROW_POSITIONS = {
+            # Add coordinate pairs for each row's 47 letters
+            # Example:
+            # 1: [[x1, x2], [x3, x4], ..., [x93, x94]],  # 47 pairs for fila1.png
+            # 2: [[x1, x2], [x3, x4], ..., [x93, x94]],  # 47 pairs for fila2.png
+            # ... up to row 14
+        }
 
         # Get image path - FIX: Navigate to project root
         self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -212,21 +237,35 @@ class D2(object):
         
         self.screen.blit(img_prueba, (img_x, img_y))
 
-        # Create hitboxes for 22 letters (assuming evenly spaced)
-        # This is a simplified hitbox system - adjust based on actual image layout
-        letter_width = img_width / self.TRAINING_LETTERS
-        hitbox_margin = letter_width * 0.005  # 15% de margen a cada lado
-        actual_hitbox_width = letter_width * 0.6  # 70% del ancho total
+        # Create hitboxes for 22 letters
+        # Use custom coordinates if available, otherwise fall back to uniform spacing
         hitboxes = []
         selections = [False] * self.TRAINING_LETTERS
         
         for i in range(self.TRAINING_LETTERS):
-            hitbox = pygame.Rect(
-                img_x + (i * letter_width) + hitbox_margin,
-                img_y,
-                actual_hitbox_width,
-                img_height
-            )
+            # Check if custom coordinates are defined for this letter
+            if i < len(self.TRAINING_POSITIONS) and len(self.TRAINING_POSITIONS[i]) == 2:
+                # Use custom coordinates (from original image) and scale them
+                x_start, x_end = self.TRAINING_POSITIONS[i]
+                x_start_scaled = x_start * scale_factor
+                x_end_scaled = x_end * scale_factor
+                hitbox = pygame.Rect(
+                    img_x + x_start_scaled,
+                    img_y,
+                    x_end_scaled - x_start_scaled,
+                    img_height
+                )
+            else:
+                # Fallback: uniform spacing calculation
+                letter_width = img_width / self.TRAINING_LETTERS
+                hitbox_margin = letter_width * 0.005
+                actual_hitbox_width = letter_width * 0.6
+                hitbox = pygame.Rect(
+                    img_x + (i * letter_width) + hitbox_margin,
+                    img_y,
+                    actual_hitbox_width,
+                    img_height
+                )
             hitboxes.append(hitbox)
 
         # Display explanation text below image
@@ -334,21 +373,42 @@ class D2(object):
         
         self.screen.blit(img_row, (img_x, img_y))
 
-        # Create hitboxes for 47 letters (assuming evenly spaced)
-        letter_width = img_width / self.ROW_LETTERS
-        hitbox_margin = letter_width * 0.1  # 15% de margen a cada lado
-        actual_hitbox_width = letter_width * 0.5  # 70% del ancho total
+        # Create hitboxes for 47 letters
+        # Use custom coordinates if available, otherwise fall back to uniform spacing
         hitboxes = []
         selections = [False] * self.ROW_LETTERS
         selection_times = [None] * self.ROW_LETTERS
         
+        # Check if custom coordinates are defined for this row
+        has_custom_coords = (row_num in self.ROW_POSITIONS and 
+                            len(self.ROW_POSITIONS[row_num]) >= self.ROW_LETTERS)
+        
         for i in range(self.ROW_LETTERS):
-            hitbox = pygame.Rect(
-                img_x + (i * letter_width) + hitbox_margin,
-                img_y,
-                letter_width,
-                img_height
-            )
+            # Check if custom coordinates are defined for this letter in this row
+            if (has_custom_coords and 
+                i < len(self.ROW_POSITIONS[row_num]) and 
+                len(self.ROW_POSITIONS[row_num][i]) == 2):
+                # Use custom coordinates (from original image) and scale them
+                x_start, x_end = self.ROW_POSITIONS[row_num][i]
+                x_start_scaled = x_start * scale_factor
+                x_end_scaled = x_end * scale_factor
+                hitbox = pygame.Rect(
+                    img_x + x_start_scaled,
+                    img_y,
+                    x_end_scaled - x_start_scaled,
+                    img_height
+                )
+            else:
+                # Fallback: uniform spacing calculation
+                letter_width = img_width / self.ROW_LETTERS
+                hitbox_margin = letter_width * 0.1
+                actual_hitbox_width = letter_width * 0.5
+                hitbox = pygame.Rect(
+                    img_x + (i * letter_width) + hitbox_margin,
+                    img_y,
+                    letter_width,
+                    img_height
+                )
             hitboxes.append(hitbox)
 
         pygame.display.flip()
