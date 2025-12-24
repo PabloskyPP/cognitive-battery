@@ -79,6 +79,9 @@ class D2(object):
         
         # Define target stimuli based on (row, letter_num) combinations
         # These are the combinations where target = "si"
+        # Note: These mappings come from the D2 test specifications.
+        # Row 10 intentionally has 28 instead of 29 (compared to rows 1, 7, 13).
+        # Row 4 is not defined in the specifications, so it has no targets.
         self.TARGET_STIMULI = {
             1: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
             2: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47],
