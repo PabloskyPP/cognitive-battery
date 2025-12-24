@@ -76,6 +76,27 @@ class D2(object):
 
         # Create output dataframe for all rows
         self.all_data = pd.DataFrame()
+        
+        # Define target stimuli based on (row, letter_num) combinations
+        # These are the combinations where target = "si"
+        # Note: These mappings come from the D2 test specifications.
+        # Row 10 intentionally has 28 instead of 29 (compared to rows 1, 7, 13).
+        # Row 4 is not defined in the specifications, so it has no targets.
+        self.TARGET_STIMULI = {
+            1: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
+            2: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47],
+            3: [3, 4, 7, 9, 13, 14, 16, 18, 21, 23, 26, 28, 32, 34, 37, 39, 41, 42, 43, 45, 47],
+            5: [2, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
+            6: [3, 4, 7, 9, 13, 14, 16, 18, 21, 23, 26, 28, 32, 34, 37, 39, 41, 42, 43, 45, 47],
+            7: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
+            8: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47],
+            9: [3, 4, 7, 9, 13, 14, 16, 18, 21, 23, 26, 28, 32, 34, 37, 39, 41, 42, 43, 45, 47],
+            10: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 28, 33, 34, 37, 38, 40, 43, 45, 46],
+            11: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47],
+            12: [3, 4, 7, 9, 13, 14, 16, 18, 21, 23, 26, 28, 32, 34, 37, 39, 41, 42, 43, 45, 47],
+            13: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
+            14: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47]
+        }
 
     def display_instructions(self):
         """Screen 1: Display task instructions with example image"""
@@ -348,11 +369,16 @@ class D2(object):
             # Return DataFrame with expected structure (47 letters, all unselected)
             row_data = []
             for i in range(self.ROW_LETTERS):
+                letter_num = i + 1
+                # Determine if this stimulus is a target based on (row, letter_num)
+                is_target = "si" if letter_num in self.TARGET_STIMULI.get(row_num, []) else "no"
+                
                 row_data.append({
                     'row': row_num,
-                    'letter_num': i + 1,
+                    'letter_num': letter_num,
                     'selected': False,
-                    'timestamp': 0
+                    'timestamp': 0,
+                    'target': is_target
                 })
             return pd.DataFrame(row_data)
 
@@ -460,11 +486,16 @@ class D2(object):
         # Create DataFrame for this row
         row_data = []
         for i in range(self.ROW_LETTERS):
+            letter_num = i + 1
+            # Determine if this stimulus is a target based on (row, letter_num)
+            is_target = "si" if letter_num in self.TARGET_STIMULI.get(row_num, []) else "no"
+            
             row_data.append({
                 'row': row_num,
-                'letter_num': i + 1,
+                'letter_num': letter_num,
                 'selected': selections[i],
-                'timestamp': selection_times[i] if selection_times[i] is not None else 0
+                'timestamp': selection_times[i] if selection_times[i] is not None else 0,
+                'target': is_target
             })
         
         return pd.DataFrame(row_data)
