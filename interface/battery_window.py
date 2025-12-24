@@ -46,9 +46,23 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Set initial window size/pos from saved settings
         self.settings.beginGroup("MainWindow")
-        self.resize(self.settings.value("size"))
-        self.move(self.settings.value("pos"))
+        saved_size = self.settings.value("size")
+        saved_pos = self.settings.value("pos")
+        
+        # If no saved size, use screen dimensions for fullscreen
+        if saved_size is None:
+            saved_size = QtCore.QSize(res_width, res_height)
+        
+        # If no saved position, center the window
+        if saved_pos is None:
+            saved_pos = QtCore.QPoint(0, 0)
+            
+        self.resize(saved_size)
+        self.move(saved_pos)
         self.settings.endGroup()
+        
+        # Maximize the window to use full screen area
+        self.showMaximized()
 
         # Initialize task settings
         self.task_fullscreen = None
@@ -341,8 +355,6 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
             self.error_dialog("Please enter RA name...")
         elif not sub_num:
             self.error_dialog("Please enter a subject number...")
-        elif not condition:
-            self.error_dialog("Please enter a condition number...")
         elif not age:
             self.error_dialog("Please enter an age...")
         elif not self.maleRadio.isChecked() and not self.femaleRadio.isChecked():
@@ -378,7 +390,11 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 self.error_dialog("Subject number already exists")
             else:
                 # Nombre de archivo de salida
-                data_file_name = f"{sub_num}_{condition}.xlsx"
+                # Use condition in filename if provided, otherwise use subject number only
+                if condition:
+                    data_file_name = f"{sub_num}_{condition}.xlsx"
+                else:
+                    data_file_name = f"{sub_num}.xlsx"
                 output_file = os.path.join(self.dataPath, data_file_name)
 
                 # Minimizar UI y obtener ajustes antes de ejecutar tareas
