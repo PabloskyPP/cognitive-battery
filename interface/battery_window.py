@@ -400,12 +400,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 self.showMinimized()
                 self.get_settings()
 
-                # Usar resolución completa de pantalla para la ventana de tarea
-                # En lugar de usar task_width/task_height fijos, usar res_width/res_height
-                actual_task_width = self.res_width
-                actual_task_height = self.res_height
-                
-                # Centrar ventanas pygame si no es fullscreen (posición 0,0 para pantalla completa)
+                # Posicionar ventana pygame en esquina superior izquierda para pantalla completa
                 if not self.task_fullscreen:
                     os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
 
@@ -422,17 +417,17 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 icon_img = pygame.image.load(image)
                 pygame.display.set_icon(icon_img)
 
-                # Crear ventana pygame principal usando resolución completa de pantalla
+                # Crear ventana pygame usando resolución completa de pantalla
                 if self.task_fullscreen:
                     self.pygame_screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
                 else:
                     if self.task_borderless:
                         self.pygame_screen = pygame.display.set_mode(
-                            (actual_task_width, actual_task_height), pygame.NOFRAME
+                            (self.res_width, self.res_height), pygame.NOFRAME
                         )
                     else:
                         self.pygame_screen = pygame.display.set_mode(
-                            (actual_task_width, actual_task_height)
+                            (self.res_width, self.res_height)
                         )
 
                 background = pygame.Surface(self.pygame_screen.get_size())
