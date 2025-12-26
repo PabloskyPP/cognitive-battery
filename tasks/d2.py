@@ -399,6 +399,18 @@ class D2(object):
         # This maintains aspect ratio while filling the full width
         original_width = img_prueba.get_width()
         original_height = img_prueba.get_height()
+        
+        # Validate image dimensions to prevent division by zero
+        if original_width <= 0 or original_height <= 0:
+            display.text(
+                self.screen, self.font,
+                "Error: Invalid training image dimensions",
+                "center", "center", (255, 0, 0)
+            )
+            pygame.display.flip()
+            display.wait(3000)
+            return []
+        
         scale_factor = self.screen_x / original_width
         
         new_width = int(original_width * scale_factor)
@@ -544,6 +556,31 @@ class D2(object):
         # This maintains aspect ratio while filling the full width
         original_width = img_row.get_width()
         original_height = img_row.get_height()
+        
+        # Validate image dimensions to prevent division by zero
+        if original_width <= 0 or original_height <= 0:
+            display.text(
+                self.screen, self.font,
+                f"Error: Invalid dimensions for 'fila{row_num}.png'",
+                "center", "center", (255, 0, 0)
+            )
+            pygame.display.flip()
+            display.wait(2000)
+            
+            # Return DataFrame with expected structure
+            row_data = []
+            for i in range(self.ROW_LETTERS):
+                letter_num = i + 1
+                is_target = "si" if letter_num in self.TARGET_STIMULI.get(row_num, []) else "no"
+                row_data.append({
+                    'row': row_num,
+                    'letter_num': letter_num,
+                    'selected': False,
+                    'timestamp': 0,
+                    'target': is_target
+                })
+            return pd.DataFrame(row_data)
+        
         scale_factor = self.screen_x / original_width
         
         new_width = int(original_width * scale_factor)
