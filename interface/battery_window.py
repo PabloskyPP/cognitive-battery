@@ -46,22 +46,9 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Set initial window size/pos from saved settings
         self.settings.beginGroup("MainWindow")
-        saved_size = self.settings.value("size")
-        saved_pos = self.settings.value("pos")
-        
-        # Set default size/pos if not saved yet
-        if saved_size is None:
-            saved_size = QtCore.QSize(res_width, res_height)
-        if saved_pos is None:
-            saved_pos = QtCore.QPoint(0, 0)
-            
-        self.resize(saved_size)
-        self.move(saved_pos)
+        self.resize(self.settings.value("size"))
+        self.move(self.settings.value("pos"))
         self.settings.endGroup()
-        
-        # Always maximize the window to use full screen area
-        # This ensures the GUI occupies 100% of width and height as requested
-        self.showMaximized()
 
         # Initialize task settings
         self.task_fullscreen = None
