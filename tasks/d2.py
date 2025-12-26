@@ -271,8 +271,8 @@ class D2(object):
         ejemplo_path = os.path.join(self.image_path, "ejemplo.png")
         if os.path.exists(ejemplo_path):
             img_ejemplo = pygame.image.load(ejemplo_path)
-            # Escalar la imagen (por ejemplo, 1.5x = 150% del tamaño original)
-            scale_factor = 2  # Cambia este valor para ajustar el tamaño
+            # Scale the example image to a reasonable size (keep it moderate since it's just an example)
+            scale_factor = 3  # Fixed scale for the small example image
             new_width = int(img_ejemplo.get_width() * scale_factor)
             new_height = int(img_ejemplo.get_height() * scale_factor)
             img_ejemplo = pygame.transform.scale(img_ejemplo, (new_width, new_height))
@@ -395,17 +395,33 @@ class D2(object):
 
         img_prueba = pygame.image.load(prueba_path)
 
-        # Escalar la imagen
-        scale_factor = 2  # Cambia este valor
-        new_width = int(img_prueba.get_width() * scale_factor)
-        new_height = int(img_prueba.get_height() * scale_factor)
+        # Calculate dynamic scale factor to fit 100% of screen width
+        # This maintains aspect ratio while filling the full width
+        original_width = img_prueba.get_width()
+        original_height = img_prueba.get_height()
+        
+        # Validate image dimensions to prevent division by zero
+        if original_width <= 0 or original_height <= 0:
+            display.text(
+                self.screen, self.font,
+                "Error: Invalid training image dimensions",
+                "center", "center", (255, 0, 0)
+            )
+            pygame.display.flip()
+            display.wait(3000)
+            return []
+        
+        scale_factor = self.screen_x / original_width
+        
+        new_width = int(original_width * scale_factor)
+        new_height = int(original_height * scale_factor)
         img_prueba = pygame.transform.scale(img_prueba, (new_width, new_height))
 
         img_width = img_prueba.get_width()
         img_height = img_prueba.get_height()
         
-        # Center the image
-        img_x = (self.screen_x - img_width) / 2
+        # Position image at full width (x=0)
+        img_x = 0
         img_y = y_pos + 40
         
         self.screen.blit(img_prueba, (img_x, img_y))
@@ -536,17 +552,46 @@ class D2(object):
 
         img_row = pygame.image.load(row_image_path)
 
-        # Escalar la imagen
-        scale_factor = 1.18  # Cambia este valor para ajustar el tamaño
-        new_width = int(img_row.get_width() * scale_factor)
-        new_height = int(img_row.get_height() * scale_factor)
+        # Calculate dynamic scale factor to fit 100% of screen width
+        # This maintains aspect ratio while filling the full width
+        original_width = img_row.get_width()
+        original_height = img_row.get_height()
+        
+        # Validate image dimensions to prevent division by zero
+        if original_width <= 0 or original_height <= 0:
+            display.text(
+                self.screen, self.font,
+                f"Error: Invalid dimensions for 'fila{row_num}.png'",
+                "center", "center", (255, 0, 0)
+            )
+            pygame.display.flip()
+            display.wait(2000)
+            
+            # Return DataFrame with expected structure
+            row_data = []
+            for i in range(self.ROW_LETTERS):
+                letter_num = i + 1
+                is_target = "si" if letter_num in self.TARGET_STIMULI.get(row_num, []) else "no"
+                row_data.append({
+                    'row': row_num,
+                    'letter_num': letter_num,
+                    'selected': False,
+                    'timestamp': 0,
+                    'target': is_target
+                })
+            return pd.DataFrame(row_data)
+        
+        scale_factor = self.screen_x / original_width
+        
+        new_width = int(original_width * scale_factor)
+        new_height = int(original_height * scale_factor)
         img_row = pygame.transform.scale(img_row, (new_width, new_height))
 
         img_width = img_row.get_width()
         img_height = img_row.get_height()
 
-        # Center the image
-        img_x = (self.screen_x - img_width) / 2
+        # Position image at full width (x=0) and center vertically
+        img_x = 0
         img_y = (self.screen_y - img_height) / 2
         
         self.screen.blit(img_row, (img_x, img_y))
