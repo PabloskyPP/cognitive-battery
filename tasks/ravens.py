@@ -5,6 +5,10 @@ from pygame.locals import *
 from sys import exit
 
 
+ # INSTRUCCIONES PARA PASAR LA TAREA: EXPLICAR Y CUESTIONAR SI SELECCIÓN ERRÓNEA PARA LOS 5 PRIMEROS ENSAYOS
+ # EL TIEMPO MÁXIMO DE APLICACIÓN ES DE 1 hora.
+ # SI EL PARTICIPANTE NO RESPONDE CORRECTAMENTE A LOS 5 PRIMEROS ENSAYOS, SE DEBE DAR POR FINALIZADA LA TAREA.
+
 class Ravens(object):
     """
     Raven's Progressive Matrices Task (Standard Scale)
@@ -238,7 +242,7 @@ class Ravens(object):
                 "Abajo de esta imagen se encuentran otras más pequeñas.",
                 "",
                 "Como en un rompecabezas, tu tarea es seleccionar aquella imagen que contiene",
-                "el mismo patrón de relleno y que por tanto encaja en el hueco de la imagen superior.",
+                "un dibujo complementario, y que por tanto, encaja en el hueco de la imagen superior.",
                 "",
                 "Si quieres cambiar de respuesta puedes deseleccionar una imagen y clicar en otra.",
                 "Solo hay una respuesta correcta por ensayo.",
