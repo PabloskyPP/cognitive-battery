@@ -337,8 +337,6 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         # Check for required inputs
         if not selected_tasks:
             self.error_dialog("No tasks selected")
-        elif not ra:
-            self.error_dialog("Please enter RA name...")
         elif not sub_num:
             self.error_dialog("Please enter a subject number...")
         elif not age:
