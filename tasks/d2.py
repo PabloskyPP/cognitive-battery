@@ -521,7 +521,11 @@ class D2(object):
         Returns:
             DataFrame with selection data for this row
         """
-        self.screen.blit(self.background, (0, 0))
+        # Use black background for trial screens
+        black_background = pygame.Surface(self.screen.get_size())
+        black_background = black_background.convert()
+        black_background.fill((0, 0, 0))
+        self.screen.blit(black_background, (0, 0))
         
         # Load row image
         row_image_path = os.path.join(self.image_path, f"fila{row_num}.png")
@@ -665,7 +669,7 @@ class D2(object):
                             # Redraw the screen with highlights
                             # Note: Full screen redraw is acceptable given typical click frequency
                             # and 20-second task duration
-                            self.screen.blit(self.background, (0, 0))
+                            self.screen.blit(black_background, (0, 0))
                             self.screen.blit(img_row, (img_x, img_y))
                             
                             # Draw red rectangles for selected letters
