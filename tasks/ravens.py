@@ -85,7 +85,7 @@ class Ravens(object):
         self.ANSWER_KEY = {
             # Set A (12 trials, 6 options each)
             'A1': 4,
-            'A2': 5,
+            'A2': 6,
             'A3': 1,
             'A4': 2,
             'A5': 6,
@@ -144,7 +144,7 @@ class Ravens(object):
             'E6': 5,
             'E7': 1,
             'E8': 6,
-            'E9': 'E',
+            'E9': 3,
             'E10': 2,
             'E11': 4,
             'E12': 5,
