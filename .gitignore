@@ -18,5 +18,8 @@ run_battery.spec
 /tasks/images/Ravens/*.png
 /tasks/images/Ravens/practice/*.png
 
+#No subir carpeta images completa
+images/ 
+
 # Projects list
 projects.txt

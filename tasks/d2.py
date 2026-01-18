@@ -36,7 +36,7 @@ class D2(object):
         pygame.mouse.set_visible(1)
 
         # Experiment options (constants)
-        self.ROW_DURATION = 120000  # 20 seconds per row in milliseconds
+        self.ROW_DURATION = 20000  # 20 seconds per row in milliseconds
         self.TRAINING_LETTERS = 22  # Number of letters in training
         self.ROW_LETTERS = 47  # Number of letters in each main task row
         self.NUM_ROWS = 14  # Number of main task rows
