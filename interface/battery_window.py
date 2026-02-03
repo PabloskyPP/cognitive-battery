@@ -369,16 +369,14 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
             )
 
             # Check if subject number already exists
-            existing_subs = [x.split("_")[0] for x in os.listdir(self.dataPath)]
+            existing_subs = [x.split("-")[0] for x in os.listdir(self.dataPath)]
             if sub_num in existing_subs:
                 self.error_dialog("Subject number already exists")
             else:
                 # Nombre de archivo de salida
-                # Use condition in filename if provided, otherwise use subject number only
-                if condition:
-                    data_file_name = f"{sub_num}_{condition}.xlsx"
-                else:
-                    data_file_name = f"{sub_num}.xlsx"
+                # Format: {sub_num}-{tasks}.xlsx
+                tasks_str = ", ".join(selected_tasks)
+                data_file_name = f"{sub_num}-{tasks_str}.xlsx"
                 output_file = os.path.join(self.dataPath, data_file_name)
 
                 # Minimizar UI y obtener ajustes antes de ejecutar tareas
