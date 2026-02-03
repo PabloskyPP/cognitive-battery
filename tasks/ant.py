@@ -92,7 +92,7 @@ class ANT(object):
 
     def create_block(self, block_num, combinations, trial_type):
         if trial_type == "main":
-            cur_combinations = combinations * 2
+            cur_combinations = combinations
             np.random.shuffle(cur_combinations)
         else:
             np.random.shuffle(combinations)

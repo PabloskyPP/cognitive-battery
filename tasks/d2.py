@@ -528,12 +528,12 @@ class D2(object):
         self.screen.blit(black_background, (0, 0))
         
         # Load row image
-        row_image_path = os.path.join(self.image_path, f"fila{row_num}.png")
+        row_image_path = os.path.join(self.image_path, f"fila{row_num}.jpg")
         if not os.path.exists(row_image_path):
             # Show error message if image doesn't exist
             display.text(
                 self.screen, self.font,
-                f"Error: Image 'fila{row_num}.png' not found in images/D2/",
+                f"Error: Image 'fila{row_num}.jpg' not found in images/D2/",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
@@ -566,7 +566,7 @@ class D2(object):
         if original_width <= 0 or original_height <= 0:
             display.text(
                 self.screen, self.font,
-                f"Error: Invalid dimensions for 'fila{row_num}.png'",
+                f"Error: Invalid dimensions for 'fila{row_num}.jpg'",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
