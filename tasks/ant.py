@@ -16,8 +16,9 @@ class ANT(object):
         self.screen = screen
         self.background = background
 
-        # Sets font and font size
-        self.font = pygame.font.SysFont("arial", 30)
+        # Sets font and font size (explicitly defined)
+        self.font_size = 30
+        self.font = pygame.font.SysFont("arial", self.font_size)
 
         # Get screen info
         self.screen_x = self.screen.get_width()
@@ -25,7 +26,7 @@ class ANT(object):
 
         # Fill background
         self.background.fill((255, 255, 255))
-        pygame.display.set_caption("Attention Network Test")
+        pygame.display.set_caption("Test de Redes Atencionales (ANT)")
         pygame.mouse.set_visible(0)
 
         # Experiment options
@@ -270,11 +271,11 @@ class ANT(object):
             self.screen.blit(self.background, (0, 0))
             if correct == 1:
                 display.text(
-                    self.screen, self.font, "correct", "center", "center", (0, 255, 0)
+                    self.screen, self.font, "correcto", "center", "center", (0, 255, 0)
                 )
             else:
                 display.text(
-                    self.screen, self.font, "incorrect", "center", "center", (255, 0, 0)
+                    self.screen, self.font, "incorrecto", "center", "center", (255, 0, 0)
                 )
             pygame.display.flip()
 
@@ -306,7 +307,7 @@ class ANT(object):
             display.text(
                 self.screen,
                 self.font,
-                "End of current block. " "Start next block when you're ready...",
+                "Fin del bloque actual. Inicia el siguiente bloque cuando estés listo...",
                 100,
                 "center",
             )
@@ -323,14 +324,14 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Attentional Network Test",
+            "Test de Redes Atencionales",
             "center",
             self.screen_y / 2 - 300,
         )
         display.text(
             self.screen,
             self.font,
-            "Keep your eyes on the fixation cross at the " "start of each trial:",
+            "Mantén tus ojos en la cruz de fijación al inicio de cada ensayo:",
             100,
             self.screen_y / 2 - 200,
         )
@@ -338,7 +339,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "A set of arrows will appear somewhere on the screen:",
+            "Un conjunto de flechas aparecerá en algún lugar de la pantalla:",
             100,
             self.screen_y / 2 - 100,
         )
@@ -348,15 +349,15 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Use the Left / Right arrow keys to indicate "
-            "the direction of the CENTER arrow.",
+            "Usa las teclas de flecha Izquierda / Derecha para indicar "
+            "la dirección de la flecha CENTRAL.",
             100,
             self.screen_y / 2 + 50,
         )
         display.text(
             self.screen,
             self.font,
-            "In example above, you should press the Left arrow.",
+            "En el ejemplo anterior, deberías presionar la flecha Izquierda.",
             100,
             self.screen_y / 2 + 100,
         )
@@ -370,7 +371,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "We'll begin with some practice trials...",
+            "Comenzaremos con algunos ensayos de práctica...",
             "center",
             "center",
         )
@@ -387,14 +388,14 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "We will now begin the main trials...",
+            "Ahora comenzaremos con los ensayos principales...",
             100,
             self.screen_y / 2 - 50,
         )
         display.text(
             self.screen,
             self.font,
-            "You will not receive feedback after each trial.",
+            "No recibirás retroalimentación después de cada ensayo.",
             100,
             self.screen_y / 2 + 50,
         )
@@ -428,7 +429,7 @@ class ANT(object):
 
         # End screen
         self.screen.blit(self.background, (0, 0))
-        display.text(self.screen, self.font, "End of task", "center", "center")
+        display.text(self.screen, self.font, "Fin de la tarea", "center", "center")
         display.text_space(self.screen, self.font, "center", self.screen_y / 2 + 100)
         pygame.display.flip()
 
