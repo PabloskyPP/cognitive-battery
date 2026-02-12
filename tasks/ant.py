@@ -17,7 +17,7 @@ class ANT(object):
         self.background = background
 
         # Sets font and font size (explicitly defined)
-        self.font_size = 30
+        self.font_size = 40
         self.font = pygame.font.SysFont("arial", self.font_size)
 
         # Get screen info
@@ -60,29 +60,20 @@ class ANT(object):
         self.base_dir = os.path.dirname(os.path.realpath(__file__))
         self.image_path = os.path.join(self.base_dir, "images", "ANT")
 
-        self.img_left_congruent = pygame.image.load(
-            os.path.join(self.image_path, "left_congruent.png")
-        )
-        self.img_left_incongruent = pygame.image.load(
-            os.path.join(self.image_path, "left_incongruent.png")
-        )
-        self.img_right_congruent = pygame.image.load(
-            os.path.join(self.image_path, "right_congruent.png")
-        )
-        self.img_right_incongruent = pygame.image.load(
-            os.path.join(self.image_path, "right_incongruent.png")
-        )
-        self.img_left_neutral = pygame.image.load(
-            os.path.join(self.image_path, "left_neutral.png")
-        )
-        self.img_right_neutral = pygame.image.load(
-            os.path.join(self.image_path, "right_neutral.png")
-        )
+        def scale_image(image_path):
+            image = pygame.image.load(image_path)
+            width, height = image.get_size()
+            return pygame.transform.scale(image, (width * 3, height * 3))
 
-        self.img_fixation = pygame.image.load(
-            os.path.join(self.image_path, "fixation.png")
-        )
-        self.img_cue = pygame.image.load(os.path.join(self.image_path, "cue.png"))
+        self.img_left_congruent = scale_image(os.path.join(self.image_path, "left_congruent.png"))
+        self.img_left_incongruent = scale_image(os.path.join(self.image_path, "left_incongruent.png"))
+        self.img_right_congruent = scale_image(os.path.join(self.image_path, "right_congruent.png"))
+        self.img_right_incongruent = scale_image(os.path.join(self.image_path, "right_incongruent.png"))
+        self.img_left_neutral = scale_image(os.path.join(self.image_path, "left_neutral.png"))
+        self.img_right_neutral = scale_image(os.path.join(self.image_path, "right_neutral.png"))
+        self.img_fixation = scale_image(os.path.join(self.image_path, "fixation.png"))
+        self.img_cue = scale_image(os.path.join(self.image_path, "cue.png"))
+        self.img_tipo_target = pygame.image.load(os.path.join(self.image_path, "tipos de target.png"))
 
         # Get image dimensions
         self.flanker_h = self.img_left_incongruent.get_rect().height
@@ -142,11 +133,11 @@ class ANT(object):
                 self.screen,
                 stimulus,
                 "center",
-                self.screen_y / 2 - self.flanker_h - self.TARGET_OFFSET,
+                self.screen_y / 2.1 - self.flanker_h - self.TARGET_OFFSET,
             )
         elif location == "bottom":
             display.image(
-                self.screen, stimulus, "center", self.screen_y / 2 + self.TARGET_OFFSET
+                self.screen, stimulus, "center", self.screen_y / 1.9 + self.TARGET_OFFSET
             )
 
     def display_trial(self, trial_num, data, trial_type):
@@ -324,44 +315,89 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Test de Redes Atencionales",
+            "INTRUCCIONES del Test de Redes Atencionales (ANT)",
             "center",
-            self.screen_y / 2 - 300,
+            self.screen_y / 2 - 500,
         )
         display.text(
             self.screen,
             self.font,
-            "Mantén tus ojos en la cruz de fijación al inicio de cada ensayo:",
+            "En esta prueba se te van a presentar ordenadamente una serie de estímulos en pantalla,",
             100,
-            self.screen_y / 2 - 200,
-        )
-        display.image(self.screen, self.img_fixation, "center", self.screen_y / 2 - 150)
-        display.text(
-            self.screen,
-            self.font,
-            "Un conjunto de flechas aparecerá en algún lugar de la pantalla:",
-            100,
-            self.screen_y / 2 - 100,
-        )
-        display.image(
-            self.screen, self.img_left_incongruent, "center", self.screen_y / 2 - 50
+            self.screen_y / 2 - 410,
         )
         display.text(
             self.screen,
             self.font,
-            "Usa las teclas de flecha Izquierda / Derecha para indicar "
-            "la dirección de la flecha CENTRAL.",
+            "incluyendo uno de estos conjuntos de flechas:",
             100,
-            self.screen_y / 2 + 50,
+            self.screen_y / 2 - 360,
+        )
+        
+        display.image(self.screen, self.img_tipo_target, "center", self.screen_y / 2 - 300)
+        
+        display.text(
+            self.screen,
+            self.font,
+            "Tu tarea consiste en, lo más rápido y acertadamente posible, ",
+            100,
+            self.screen_y / 2 - 120,
         )
         display.text(
             self.screen,
             self.font,
-            "En el ejemplo anterior, deberías presionar la flecha Izquierda.",
+            "contestar con las flechas Izquierda / Derecha del teclado, ",
             100,
-            self.screen_y / 2 + 100,
+            self.screen_y / 2 - 70,
         )
-        display.text_space(self.screen, self.font, "center", (self.screen_y / 2) + 300)
+        display.text(
+            self.screen,
+            self.font,
+            "hacia qué lado indica la flecha CENTRAL. Por ejemplo:",
+            100,
+            self.screen_y / 2 - 20,
+        )
+        display.image(self.screen, self.img_left_incongruent, "center", self.screen_y / 2 + 40)
+
+        display.text(
+            self.screen,
+            self.font,
+            "En este ejemplo, deberías presionar la flecha Izquierda.",
+            100,
+            self.screen_y / 2 + 90,
+        )
+
+        display.text(
+            self.screen,
+            self.font,
+            "Una norma importante para esta tarea es que hay que ",
+            100,
+            self.screen_y / 2 + 160,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "MANTENER LA MIRADA FIJA EN EL CENTRO DE LA PANTALLA,",
+            100,
+            self.screen_y / 2 + 210,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "será en una cruzeta como esta que tienes que mantener ",
+            100,
+            self.screen_y / 2 + 260,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "fija tu mirada a lo largo de la prueba:",
+            100,
+            self.screen_y / 2 + 310,
+        )
+        display.image(self.screen, self.img_fixation, "center", self.screen_y / 2 + 380)
+
+        display.text_space(self.screen, self.font, "center", (self.screen_y / 2) + 480)
         pygame.display.flip()
 
         display.wait_for_space()
@@ -371,9 +407,23 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Comenzaremos con algunos ensayos de práctica...",
-            "center",
-            "center",
+            "A continuación, empezarás con unos ensayos de entrenamiento de la tarea.",
+            100,
+            self.screen_y / 2 - 150,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "Si tienes alguna duda sobre la tarea, pregúntale a la persona responsable de esta prueba antes de empezar.",
+            100,
+            self.screen_y / 2 - 100,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "Si no tienes ninguna duda presiona la barra espaciadora para empezar.",
+            100,
+            self.screen_y / 2 -50,
         )
         display.text_space(self.screen, self.font, "center", self.screen_y / 2 + 100)
         pygame.display.flip()
@@ -388,16 +438,37 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Ahora comenzaremos con los ensayos principales...",
+            "Bien hecho. Aquí termina el bloque de prueba. A continuación, vas a seguir haciendo la misma tarea,",
             100,
-            self.screen_y / 2 - 50,
+            self.screen_y / 2 - 150,
         )
         display.text(
             self.screen,
             self.font,
-            "No recibirás retroalimentación después de cada ensayo.",
+            "aunque ya no se te va a mostrar tus aciertos y errores después de cada respuesta.",
             100,
-            self.screen_y / 2 + 50,
+            self.screen_y / 2 - 100,
+        )        
+        display.text(
+            self.screen,
+            self.font,
+            "Por favor, recuerda MANTENER LA MIRADA EN EL CENTRO DE LA PANTALLA,",
+            100,
+            self.screen_y / 2 - 50,
+        )        
+        display.text(
+            self.screen,
+            self.font,
+            "e indicar la dirección de la flecha central con LA MAYOR RAPIDEZ Y PRECISIÓN POSIBLE.",
+            100,
+            self.screen_y / 2,
+        )
+        display.text(
+            self.screen,
+            self.font,
+            "Pulsa la barra espaciadora para empezar",
+            100,
+            self.screen_y / 2 + 100,
         )
         display.text_space(self.screen, self.font, "center", self.screen_y / 2 + 200)
         pygame.display.flip()
