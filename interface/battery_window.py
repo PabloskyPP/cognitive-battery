@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import display, values
 from designer import battery_window_qt
 from interface import about_dialog, update_dialog, settings_window
-from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir, d2
+from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir, d2, dual_task
 
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
@@ -470,6 +470,11 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         d2_task = d2.D2(self.pygame_screen, background)
                         d2_data = d2_task.run()
                         results["D2"] = d2_data
+                    elif task == "Dual Task":
+                        dt_task = dual_task.DualTask(self.pygame_screen, background)
+                        dt_data = dt_task.run()
+                        results["Dual Task - Tracking"] = dt_data["tracking"]
+                        results["Dual Task - Responses"] = dt_data["responses"]
 
                     # Play beep after each task
                     if self.task_beep:
