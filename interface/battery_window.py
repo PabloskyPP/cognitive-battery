@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import random
 import datetime
@@ -9,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import display, values
 from designer import battery_window_qt
 from interface import about_dialog, update_dialog, settings_window
-from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir, d2, dual_task
+from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir, d2, dual_task, pvr
 
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
@@ -368,16 +369,22 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 ],
             )
 
-            # Check if subject number already exists
-            existing_subs = [x.split("-")[0] for x in os.listdir(self.dataPath)]
-            if sub_num in existing_subs:
-                self.error_dialog("Subject number already exists")
+            # Build the output filename first (using sorted task names for deterministic ordering)
+            # Format: {sub_num}-{tasks}.xlsx
+            # Sanitize sub_num to remove filesystem-unsafe characters
+            safe_sub_num = re.sub(r'[/\\:*?"<>|]', "_", sub_num)
+            tasks_sorted = sorted(selected_tasks)
+            tasks_str = ", ".join(tasks_sorted)
+            data_file_name = f"{safe_sub_num}-{tasks_str}.xlsx"
+            output_file = os.path.join(self.dataPath, data_file_name)
+
+            # Block execution only when the exact output file already exists
+            if os.path.exists(output_file):
+                self.error_dialog(
+                    f"Output file already exists:\n{data_file_name}\n\n"
+                    "Choose a different subject number or task combination."
+                )
             else:
-                # Nombre de archivo de salida
-                # Format: {sub_num}-{tasks}.xlsx
-                tasks_str = ", ".join(selected_tasks)
-                data_file_name = f"{sub_num}-{tasks_str}.xlsx"
-                output_file = os.path.join(self.dataPath, data_file_name)
 
                 # Minimizar UI y obtener ajustes antes de ejecutar tareas
                 self.showMinimized()
@@ -475,6 +482,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         dt_data = dt_task.run()
                         results["Dual Task - Tracking"] = dt_data["tracking"]
                         results["Dual Task - Responses"] = dt_data["responses"]
+                    elif task == "Relative Verticality Perception (PVR)":
+                        pvr_task = pvr.PVR(self.pygame_screen, background)
+                        pvr_data = pvr_task.run()
+                        results["PVR"] = pvr_data
 
                     # Play beep after each task
                     if self.task_beep:
