@@ -2,6 +2,7 @@ import sys
 import time
 import math
 import heapq
+import random
 import pandas as pd
 import pygame
 
@@ -94,6 +95,11 @@ class DualTask(object):
     # Minimum safe pixel distance between tracking point and stimulus centre.
     MIN_STIMULUS_DISTANCE = 80
 
+    # Path arc-length parameterisation settings.
+    # More raw samples → more accurate arc-length estimate → smoother constant speed.
+    PATH_RAW_SAMPLES_PER_SEG = 300   # sub-samples used for arc-length computation
+    PATH_OUTPUT_POINTS_PER_SEG = 60  # arc-length-uniform output points per segment
+
     # Tracking measurement offsets after stimulus onset: (seconds, phase_label).
     TRACKING_OFFSETS = [
         (0.2, "concurrent"),
@@ -123,9 +129,17 @@ class DualTask(object):
 
         # Pre-compute smooth path and scaled stimulus positions
         self._path = self._build_smooth_path()
+
+        # Randomise stimulus-type assignment: balanced 12 target_red / 12 distractor_blue.
+        stimulus_types = ["target_red"] * 12 + ["distractor_blue"] * 12
+        random.shuffle(stimulus_types)
+        shuffled_events = [
+            (t, x, y, stype)
+            for (t, x, y, _), stype in zip(self.STIMULUS_EVENTS, stimulus_types)
+        ]
         self._stimuli = [
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
-            for t, x, y, stype in self.STIMULUS_EVENTS
+            for t, x, y, stype in shuffled_events
         ]
         self._practice_stimuli = [
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
@@ -152,7 +166,8 @@ class DualTask(object):
         )
 
     def _build_smooth_path(self):
-        """Return a dense list of (x, y) positions using Catmull-Rom splines."""
+        """Return a dense list of (x, y) positions using Catmull-Rom splines,
+        arc-length parameterised so the tracking point moves at constant speed."""
         pts = [
             (int(x * self.scale_x), int(y * self.scale_y))
             for x, y in self.PATH_POINTS
@@ -160,8 +175,10 @@ class DualTask(object):
         # Close the loop: return to the first point
         pts_loop = pts + [pts[0]]
         n = len(pts_loop) - 1
-        points_per_seg = 60
-        path = []
+
+        # Use many sub-samples per segment for accurate arc-length estimation
+        points_per_seg = self.PATH_RAW_SAMPLES_PER_SEG
+        raw_path = []
         for i in range(n):
             p0 = pts_loop[max(i - 1, 0)]
             p1 = pts_loop[i]
@@ -171,7 +188,40 @@ class DualTask(object):
                 t = j / points_per_seg
                 x = self._catmull_rom_val(t, p0[0], p1[0], p2[0], p3[0])
                 y = self._catmull_rom_val(t, p0[1], p1[1], p2[1], p3[1])
+                raw_path.append((x, y))
+
+        # Compute cumulative arc lengths along the raw path
+        arc_lengths = [0.0]
+        for i in range(1, len(raw_path)):
+            dx = raw_path[i][0] - raw_path[i - 1][0]
+            dy = raw_path[i][1] - raw_path[i - 1][1]
+            arc_lengths.append(arc_lengths[-1] + math.sqrt(dx * dx + dy * dy))
+        total_length = arc_lengths[-1]
+
+        if total_length == 0:
+            # Defensive: can only happen if all PATH_POINTS collapse to a single pixel.
+            return [(int(raw_path[0][0]), int(raw_path[0][1]))] if raw_path else [
+                (self.screen_x // 2, self.screen_y // 2)
+            ]
+
+        # Resample to n_out equally arc-length-spaced points so that
+        # equal elapsed-time steps map to equal distances (constant speed).
+        n_out = n * self.PATH_OUTPUT_POINTS_PER_SEG
+        path = []
+        j = 0
+        for k in range(n_out):
+            target_s = total_length * k / n_out
+            while j < len(arc_lengths) - 1 and arc_lengths[j + 1] < target_s:
+                j += 1
+            if j >= len(raw_path) - 1:
+                path.append((int(raw_path[-1][0]), int(raw_path[-1][1])))
+            else:
+                s0, s1 = arc_lengths[j], arc_lengths[j + 1]
+                alpha = (target_s - s0) / (s1 - s0) if s1 > s0 else 0.0
+                x = raw_path[j][0] + alpha * (raw_path[j + 1][0] - raw_path[j][0])
+                y = raw_path[j][1] + alpha * (raw_path[j + 1][1] - raw_path[j][1])
                 path.append((int(x), int(y)))
+
         return path
 
     def _get_point_position(self, elapsed):
@@ -400,11 +450,10 @@ class DualTask(object):
             elapsed = now - task_start
 
             if elapsed >= duration:
-                # Record any unanswered target stimulus as a miss
+                # Record any unanswered stimulus at block end
                 if (
                     active_stim is not None
                     and not active_stim["responded"]
-                    and active_stim["stype"] == "target_red"
                 ):
                     self._record_miss(active_stim, response_data)
                 break
@@ -432,11 +481,10 @@ class DualTask(object):
                 stim_idx < len(stimuli)
                 and elapsed >= stimuli[stim_idx][0]
             ):
-                # Record preceding unanswered target stimulus as miss
+                # Record preceding unanswered stimulus (miss or correct rejection)
                 if (
                     active_stim is not None
                     and not active_stim["responded"]
-                    and active_stim["stype"] == "target_red"
                 ):
                     self._record_miss(active_stim, response_data)
 
@@ -465,7 +513,7 @@ class DualTask(object):
 
             # --- Expire stimulus response window ---
             if active_stim is not None and now >= active_stim["response_end"]:
-                if not active_stim["responded"] and active_stim["stype"] == "target_red":
+                if not active_stim["responded"]:
                     self._record_miss(active_stim, response_data)
                 active_stim = None
 
