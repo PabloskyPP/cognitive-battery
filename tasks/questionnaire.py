@@ -92,8 +92,10 @@ class QuestionnaireTask(object):
         self.all_data["respuesta"] = ""
 
         self.key_to_value = {}
+        self.normalized_value_by_str = {}
         for option in self.response_options:
             value = option["value"]
+            self.normalized_value_by_str[str(value)] = value
             for key in option.get("keys", []):
                 self.key_to_value[str(key).lower()] = value
 
@@ -231,7 +233,7 @@ class QuestionnaireTask(object):
             if pd.isna(response_value) or response_value == "" or str(response_value) == "nan":
                 current_response = ""
             else:
-                current_response = response_value
+                current_response = self.normalized_value_by_str.get(str(response_value), response_value)
 
             self.draw_statement(current_trial, current_response)
 
