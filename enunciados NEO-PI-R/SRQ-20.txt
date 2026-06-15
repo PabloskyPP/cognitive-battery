@@ -1,0 +1,20 @@
+1. ¿Ha tenido dolores de cabeza frecuentes?                                                                  
+2. ¿Ha tenido poco apetito?                                                                                           
+3. ¿Ha tenido problemas para dormir?                                                                        
+4. ¿Se asusta con facilidad?                                                                                            
+5. ¿Le tiemblan las manos?                                                                                             
+6. ¿Se siente nervioso, tenso o aburrido?                                                                        
+7. ¿Sufre de mala digestión?                                                                                              
+8. ¿No puede pensar con claridad?                                                                                   
+9. ¿Se siente triste?                                                                                                           
+10. ¿Llora usted con mucha frecuencia?                                                                             
+11. ¿Tiene dificultad en disfrutar sus actividades diarias?                                            
+12. ¿Tiene dificultad para tomar decisiones?                                                                     
+13. ¿Tiene dificultad en hacer su trabajo? (¿Sufre usted con su trabajo?)             
+14. ¿Es incapaz de desempeñar un papel útil en su vida?                                           
+15. ¿Ha perdido interés en las cosas?                                                                              
+16. ¿Siente que usted es una persona inútil?                                                                     
+17. ¿Ha tenido la idea de acabar con su vida?                                                                  
+18. ¿Se siente cansado todo el tiempo?                                                                               
+19. ¿Tiene sensaciones desagradables en su estómago?                                               
+20. ¿Se cansa con facilidad?                                                                                                
