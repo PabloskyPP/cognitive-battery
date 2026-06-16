@@ -20,6 +20,9 @@ run_battery.spec
 
 #No subir carpeta images completa
 images/ 
+!tasks/images/
+!tasks/images/FourFigures/
+!tasks/images/FourFigures/figura.png
 
 # Projects list
 projects.txt

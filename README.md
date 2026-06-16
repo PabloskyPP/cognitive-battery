@@ -117,6 +117,7 @@ Currently implemented tasks:
   - Based on the original version by
   [Robertson et al. (1997)](http://www.sciencedirect.com/science/article/pii/S0028393297000158)
 * **Atentional test D2**
+* **FourFigures**
 * * **Atentional test Stroop**
 * * **Personality Questionnaire NEOPI-R**
 
