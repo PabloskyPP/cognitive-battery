@@ -358,10 +358,22 @@ class FourFigures(object):
         self._run_trials(part3_practice, part=3, initial_rule="content")
         self._show_text_screen(["Pulsa la barra espaciadora para empezar la parte experimental."])
         part3_experimental = self._create_part2_or_3_experimental()
-        while [
-            (trial["contour"], trial["content"]) for trial in part3_experimental
-        ] == [(trial["contour"], trial["content"]) for trial in part2_experimental]:
+        part2_sequence = [(trial["contour"], trial["content"]) for trial in part2_experimental]
+        max_attempts = 20
+        attempts = 0
+        while (
+            [
+                (trial["contour"], trial["content"]) for trial in part3_experimental
+            ]
+            == part2_sequence
+            and attempts < max_attempts
+        ):
             part3_experimental = self._create_part2_or_3_experimental()
+            attempts += 1
+
+        if attempts == max_attempts:
+            # Keep all trials but force a different sequence if repeated shuffles match.
+            part3_experimental = part3_experimental[1:] + part3_experimental[:1]
         self._run_trials(part3_experimental, part=3, initial_rule="content")
 
         part4_practice = [
