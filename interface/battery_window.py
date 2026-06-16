@@ -26,6 +26,7 @@ from tasks import (
     riasec,
     inteligencia_multiple,
     srq20,
+    fourfigures,
 )
 
 
@@ -518,6 +519,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         pvr_task = pvr.PVR(self.pygame_screen, background)
                         pvr_data = pvr_task.run()
                         results["PVR"] = pvr_data
+                    elif task == "FourFigures":
+                        fourfigures_task = fourfigures.FourFigures(self.pygame_screen, background)
+                        fourfigures_data = fourfigures_task.run()
+                        results["FourFigures"] = fourfigures_data
 
                     # Play beep after each task
                     if self.task_beep:

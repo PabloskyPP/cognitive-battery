@@ -78,3 +78,10 @@
 - 225 main trials, 25 repeats of each digit (~5 minutes)
 - Digit duration: 250ms
 - Mask duration: 900ms
+
+## FourFigures
+- 4 parts with part-specific instructions
+- Practice + experimental block per part
+- Response options: Cuadrado / Círculo / Triángulo / Cruz
+- Part 4 includes red rule-switch stimuli
+- Exports contour/content response accuracy per trial
