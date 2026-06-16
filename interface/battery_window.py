@@ -10,7 +10,23 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from utils import display, values
 from designer import battery_window_qt
 from interface import about_dialog, update_dialog, settings_window
-from tasks import ant, flanker, mrt, sart, ravens, digitspan_backwards, sternberg, neopir, d2, dual_task, pvr
+from tasks import (
+    ant,
+    flanker,
+    mrt,
+    sart,
+    ravens,
+    digitspan_backwards,
+    sternberg,
+    neopir,
+    d2,
+    dual_task,
+    pvr,
+    acs,
+    riasec,
+    inteligencia_multiple,
+    srq20,
+)
 
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
@@ -473,6 +489,22 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         neopir_task = neopir.NeoPiR(self.pygame_screen, background)
                         neopir_data = neopir_task.run()
                         results["NEO-PI-R"] = neopir_data
+                    elif task == "ACS":
+                        acs_task = acs.ACS(self.pygame_screen, background)
+                        acs_data = acs_task.run()
+                        results["ACS"] = acs_data
+                    elif task == "RIASEC":
+                        riasec_task = riasec.RIASEC(self.pygame_screen, background)
+                        riasec_data = riasec_task.run()
+                        results["RIASEC"] = riasec_data
+                    elif task == "Inteligencia Multiple":
+                        im_task = inteligencia_multiple.InteligenciaMultiple(self.pygame_screen, background)
+                        im_data = im_task.run()
+                        results["Inteligencia Multiple"] = im_data
+                    elif task == "SRQ20":
+                        srq20_task = srq20.SRQ20(self.pygame_screen, background)
+                        srq20_data = srq20_task.run()
+                        results["SRQ20"] = srq20_data
                     elif task == "D2 (Test de atención y concentración)":
                         d2_task = d2.D2(self.pygame_screen, background)
                         d2_data = d2_task.run()
