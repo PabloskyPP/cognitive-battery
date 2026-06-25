@@ -270,19 +270,21 @@ class FourFigures(object):
     def run(self):
         self._show_text_screen(
             [
-                "Esta prueba consta de 4 partes, en las que las instrucciones sobre el estímulo hacia el que la persona tiene que enfocar su atención y responder cambian.",
+                "Esta prueba consta de 4 partes, en las que las instrucciones sobre el estímulo hacia el que la persona tiene que enfocar su atención y responder (figuras internas o externa) cambian en cada parte.",
                 "",
-                "En las 4 partes se presentan una serie de estímulos: figuras pequeñas contenidas en un contorno más grande con una forma coincidente o discrepante.",
+                "En las 4 partes se presentan una serie de estímulos: figuras pequeñas internas y contenidas en una figura externa más grande (contorno) con una forma coincidente o discrepante.",
                 "",
-                "Para cada estímulo tienes que indicar la forma de la figura que se presenta y sobre la que se está preguntando (diferente en cada parte).",
+                "Ejemplo de estímulos:",                 
+                "",
+                "Para cada estímulo tienes que indicar la forma de la figura que se presenta y sobre la que se está preguntando.",
                 "",
                 "Tras responder al estímulo actual se pasa al siguiente y así hasta completar toda la serie de cada parte.",
                 "",
-                "Al empezar una nueva parte se presentarán nuevas instrucciones.",
+                "Al empezar cada nueva parte primero se presentan las nuevas instrucciones.",
                 "",
                 "Tienes que indicar la forma de la figura de la que se pregunta de la forma más rápida y precisa posible.",
                 "",
-                "Pulsa la barra espaciadora para continuar.",
+                "Pulsa <<barra espaciadora>> para continuar.",
             ],
             title="FourFigures",
             show_figure_image=True,
@@ -299,9 +301,9 @@ class FourFigures(object):
             [
                 "Primera parte",
                 "",
-                "En esta parte tienes que indicar la forma de las figuras que aparecen, la cual es la misma para el contorno exterior y las figuras pequeñas contenidas en su interior.",
+                "En esta parte tienes que indicar la forma de las figuras que aparecen, la cual es la misma para la figura exterior y las figuras pequeñas internas.",
                 "",
-                "Como ejemplo de práctica indica en las siguientes 4 figuras la forma que corresponde en cada una.",
+                "Como ejemplo de práctica indica para las siguientes 4 figuras la forma que corresponde en cada una.",
             ]
         )
         self._run_trials(part1_practice, part=1, initial_rule="contour")
@@ -311,7 +313,7 @@ class FourFigures(object):
                 "",
                 "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación.",
                 "",
-                "Si no tienes ninguna duda pulsa la barra espaciadora para empezar.",
+                "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar.",
             ]
         )
         self._run_trials(self._create_part1_experimental(), part=1, initial_rule="contour")
