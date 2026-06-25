@@ -11,7 +11,7 @@ class SRQ20(QuestionnaireTask):
             instructions_text=(
                 "Las siguientes cuestiones están relacionadas con ciertos malestares y problemas que puedes "
                 "haber tenido en los últimos 30 días. Si crees que la pregunta aplica para ti y has presentado "
-                "el problema descrito en los últimos 30 días, responda SI. Por el contrario, si no has tenido "
+                "el problema descrito en los últimos 30 días, responda SÍ. Por el contrario, si no has tenido "
                 "ese problema en los últimos 30 días, responda NO."
             ),
             response_options=[
@@ -19,5 +19,5 @@ class SRQ20(QuestionnaireTask):
                 {"label": "NO", "value": "NO", "desc1": "", "desc2": "", "keys": ["n", "2"]},
             ],
             expected_statement_count=20,
-            keyboard_hint="Usa S o N (también 1 o 2) para responder. Pulsa la barra espaciadora para continuar.",
+            keyboard_hint="Usa S o N (también 1 o 2) para responder. Pulsa <<barra espaciadora>> para continuar.",
         )

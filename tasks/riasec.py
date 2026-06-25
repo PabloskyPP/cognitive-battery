@@ -15,5 +15,5 @@ class RIASEC(QuestionnaireTask):
                 {"label": "3", "value": 3, "desc1": "Mucho", "desc2": "", "keys": ["3"]},
             ],
             expected_statement_count=36,
-            keyboard_hint="Usa los números 1-3 del teclado para responder. Pulsa la barra espaciadora para continuar.",
+            keyboard_hint="Usa los números 1-3 del teclado para responder. Pulsa <<barra espaciadora>> para continuar.",
         )

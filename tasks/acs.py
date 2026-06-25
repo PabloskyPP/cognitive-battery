@@ -16,5 +16,5 @@ class ACS(QuestionnaireTask):
                 {"label": "4", "value": 4, "desc1": "Mucho", "desc2": "", "keys": ["4"]},
             ],
             expected_statement_count=20,
-            keyboard_hint="Usa los números 1-4 del teclado para responder. Pulsa la barra espaciadora para continuar.",
+            keyboard_hint="Usa los números 1-4 del teclado para responder. Pulsa <<barra espaciadora>> para continuar.",
         )
