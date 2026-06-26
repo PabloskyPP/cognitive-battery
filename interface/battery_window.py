@@ -443,7 +443,53 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 # Ejecutar tasks y guardar DataFrames en memoria
                 results = {}  # diccionario: sheet_name -> DataFrame
 
-                for task in selected_tasks:
+                for task_index, task in enumerate(selected_tasks):
+                    # Show transition screen before each task except the first
+                    if task_index > 0:
+                        pygame.display.set_caption("Cognitive Battery")
+                        background.fill((255, 255, 255))
+                        self.pygame_screen.blit(background, (0, 0))
+                        font_trans = pygame.font.SysFont("arial", 36)
+                        trans_text = (
+                            "Ha terminado la tarea anterior. Para empezar la siguiente tarea "
+                            "y leer sus instrucciones, pulse el botón 0."
+                        )
+                        screen_w = self.pygame_screen.get_width()
+                        screen_h = self.pygame_screen.get_height()
+                        # Wrap and center transition message
+                        words = trans_text.split()
+                        lines = []
+                        current_line = []
+                        max_w = screen_w - 160
+                        for word in words:
+                            test = " ".join(current_line + [word])
+                            if font_trans.size(test)[0] <= max_w:
+                                current_line.append(word)
+                            else:
+                                if current_line:
+                                    lines.append(" ".join(current_line))
+                                current_line = [word]
+                        if current_line:
+                            lines.append(" ".join(current_line))
+                        line_h = 50
+                        total_h = len(lines) * line_h
+                        y0 = (screen_h - total_h) // 2
+                        for li, ln in enumerate(lines):
+                            surf = font_trans.render(ln, True, (0, 0, 0))
+                            x0 = (screen_w - surf.get_width()) // 2
+                            self.pygame_screen.blit(surf, (x0, y0 + li * line_h))
+                        pygame.display.flip()
+                        # Wait for key 0
+                        waiting_transition = True
+                        pygame.event.clear()
+                        while waiting_transition:
+                            for ev in pygame.event.get():
+                                if ev.type == pygame.KEYDOWN:
+                                    if ev.key == pygame.K_0 or ev.key == pygame.K_KP0:
+                                        waiting_transition = False
+                                    elif ev.key == pygame.K_F12:
+                                        sys.exit(0)
+
                     if task == "Attention Network Test (ANT)":
                         ant_task = ant.ANT(self.pygame_screen, background, blocks=self.ant_blocks)
                         ant_data = ant_task.run()

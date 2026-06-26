@@ -16,4 +16,5 @@ class RIASEC(QuestionnaireTask):
             ],
             expected_statement_count=36,
             keyboard_hint="Usa los números 1-3 del teclado para responder. Pulsa <<barra espaciadora>> para continuar.",
+            item_prompt="¿Cuánto disfrutas...?",
         )

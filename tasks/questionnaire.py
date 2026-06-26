@@ -20,6 +20,7 @@ class QuestionnaireTask(object):
         response_options,
         expected_statement_count=None,
         keyboard_hint=None,
+        item_prompt=None,
     ):
         self.screen = screen
         self.background = background
@@ -28,11 +29,13 @@ class QuestionnaireTask(object):
         self.response_options = response_options
         self.expected_statement_count = expected_statement_count
         self.keyboard_hint = keyboard_hint
+        self.item_prompt = item_prompt
 
         self.font = pygame.font.SysFont("arial", 32)
         self.font_large = pygame.font.SysFont("arial", 36)
         self.font_small = pygame.font.SysFont("arial", 24)
-        self.font_instructions = pygame.font.SysFont("arial", 30)
+        self.font_instructions = pygame.font.SysFont("arial", 38)
+        self.font_prompt = pygame.font.SysFont("arial", 28)
 
         self.screen_x = self.screen.get_width()
         self.screen_y = self.screen.get_height()
@@ -105,14 +108,39 @@ class QuestionnaireTask(object):
     def draw_instructions(self):
         self.screen.blit(self.background, (0, 0))
 
-        y_pos = 80
-        line_spacing = 45
+        font = self.font_instructions
+        line_spacing = 55
+        gap_spacing = 22
+        max_width = self.screen_x - 140
 
         instructions = [self.instructions_text, "", "Pulsa la barra espaciadora para comenzar."]
 
+        # Pre-calculate total block height (accounting for text wrapping)
+        total_height = 0
+        line_heights = []
         for line in instructions:
-            self.draw_wrapped_text(line, 50, y_pos, self.screen_x - 100, line_height=line_spacing)
-            y_pos += line_spacing if line else 15
+            if line:
+                wrapped = self._wrap_text_with_font(font, line, max_width)
+                h = len(wrapped) * line_spacing
+                line_heights.append(h)
+                total_height += h
+            else:
+                line_heights.append(gap_spacing)
+                total_height += gap_spacing
+
+        # Center the block vertically; always leave at least 60px from top
+        y_pos = max(60, (self.screen_y - total_height) // 2)
+
+        for i, line in enumerate(instructions):
+            if line:
+                wrapped = self._wrap_text_with_font(font, line, max_width)
+                for wline in wrapped:
+                    surf = font.render(wline, True, (0, 0, 0))
+                    x_pos = (self.screen_x - surf.get_width()) // 2
+                    self.screen.blit(surf, (x_pos, y_pos))
+                    y_pos += line_spacing
+            else:
+                y_pos += gap_spacing
 
         pygame.display.flip()
 
@@ -130,8 +158,16 @@ class QuestionnaireTask(object):
         counter_surface = self.font.render(counter_text, True, (0, 0, 0))
         self.screen.blit(counter_surface, (self.screen_x - counter_surface.get_width() - 50, 50))
 
+        # Draw item prompt above the statement (dark grey, centered)
+        statement_y = self.screen_y // 3
+        if self.item_prompt:
+            prompt_surf = self.font_prompt.render(self.item_prompt, True, (80, 80, 80))
+            prompt_x = (self.screen_x - prompt_surf.get_width()) // 2
+            prompt_y = statement_y - prompt_surf.get_height() - 12
+            self.screen.blit(prompt_surf, (prompt_x, prompt_y))
+
         statement_text = self.randomized_statements[trial_index]
-        self.draw_wrapped_text_centered(statement_text, self.screen_y // 3, self.screen_x - 200)
+        self.draw_wrapped_text_centered(statement_text, statement_y, self.screen_x - 200)
 
         scale_y = self.screen_y - 300
         total_width = self.screen_x - 200
@@ -221,6 +257,26 @@ class QuestionnaireTask(object):
 
     def draw_wrapped_text_centered(self, text, y, max_width):
         self.draw_wrapped_text(text, 0, y, max_width, center=True, line_height=40)
+
+    def _wrap_text_with_font(self, font, text, max_width):
+        """Return a list of wrapped line strings using the given font."""
+        words = text.split()
+        lines = []
+        current_line = []
+
+        for word in words:
+            test_line = " ".join(current_line + [word])
+            if font.size(test_line)[0] <= max_width:
+                current_line.append(word)
+            else:
+                if current_line:
+                    lines.append(" ".join(current_line))
+                current_line = [word]
+
+        if current_line:
+            lines.append(" ".join(current_line))
+
+        return lines if lines else [""]
 
     def run(self):
         self.draw_instructions()
