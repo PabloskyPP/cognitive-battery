@@ -17,4 +17,5 @@ class ACS(QuestionnaireTask):
             ],
             expected_statement_count=20,
             keyboard_hint="Usa los números 1-4 del teclado para responder. Pulsa <<barra espaciadora>> para continuar.",
+            item_prompt="¿Con qué frecuencia...?",
         )

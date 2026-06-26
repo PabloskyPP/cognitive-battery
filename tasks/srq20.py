@@ -20,4 +20,5 @@ class SRQ20(QuestionnaireTask):
             ],
             expected_statement_count=20,
             keyboard_hint="Usa S o N (también 1 o 2) para responder. Pulsa <<barra espaciadora>> para continuar.",
+            item_prompt="¿En los últimos 30 días te ha pasado que...?",
         )

@@ -16,4 +16,5 @@ class InteligenciaMultiple(QuestionnaireTask):
             ],
             expected_statement_count=24,
             keyboard_hint="Usa los números 1-3 del teclado para responder. Pulsa <<barra espaciadora>> para continuar.",
+            item_prompt="¿Cuán fácil te resulta...?",
         )
