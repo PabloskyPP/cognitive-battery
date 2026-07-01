@@ -4,7 +4,6 @@ import os
 import sys
 
 from PyQt5 import QtWidgets
-
 from interface import project_window
 
 if __name__ == "__main__":

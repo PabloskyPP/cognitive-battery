@@ -129,19 +129,32 @@ class FourFigures(object):
             ]
             pygame.draw.polygon(surface, color, points, width)
         elif shape == "cross":
-            # Filled plus (+) shape using two overlapping rectangles
+            # Filled plus (+) shape as a single continuous polygon (no seam at the intersection)
             bar_t = max(6, int(size * 0.42))
             half_t = bar_t // 2
-            # Horizontal bar
-            h_rect = pygame.Rect(int(cx - size), int(cy - half_t), int(2 * size), bar_t)
-            # Vertical bar
-            v_rect = pygame.Rect(int(cx - half_t), int(cy - size), bar_t, int(2 * size))
+            s = size
+            h = half_t
+
+            points = [
+                (cx - h, cy - s),  # top of vertical arm, left
+                (cx + h, cy - s),  # top of vertical arm, right
+                (cx + h, cy - h),  # inner corner
+                (cx + s, cy - h),  # right arm, top
+                (cx + s, cy + h),  # right arm, bottom
+                (cx + h, cy + h),  # inner corner
+                (cx + h, cy + s),  # bottom of vertical arm, right
+                (cx - h, cy + s),  # bottom of vertical arm, left
+                (cx - h, cy + h),  # inner corner
+                (cx - s, cy + h),  # left arm, bottom
+                (cx - s, cy - h),  # left arm, top
+                (cx - h, cy - h),  # inner corner
+            ]
+            points = [(int(px), int(py)) for px, py in points]
+
             if width == 0:
-                pygame.draw.rect(surface, color, h_rect)
-                pygame.draw.rect(surface, color, v_rect)
+                pygame.draw.polygon(surface, color, points)
             else:
-                pygame.draw.rect(surface, color, h_rect, width)
-                pygame.draw.rect(surface, color, v_rect, width)
+                pygame.draw.polygon(surface, color, points, width)
 
     def _draw_hierarchical_figure(self, contour, content, is_red=False,
                                    center=None, outer_size=170, inner_size=18,
@@ -322,7 +335,6 @@ class FourFigures(object):
         display.text(self.screen, self.font_small, f"Parte {part}", 40, 30)
         if part == 4:
             regla = "contorno" if target_rule == "contour" else "contenido"
-            display.text(self.screen, self.font_small, f"Norma: {regla}", self.screen_x - 260, 30)
         self._draw_hierarchical_figure(contour, content, is_red=is_red)
         button_rects = self._draw_response_buttons()
         pygame.display.flip()
@@ -614,10 +626,8 @@ class FourFigures(object):
             ],
             title="FourFigures",
             show_examples=True,
-            wait_for_space=False,
         )
-        # Now draw the rest of the intro text below the examples and wait for space
-        # We achieve this by calling a second screen continuation
+        # Continue to the next page of intro instructions.
         self._show_text_screen(
             [
                 "Para cada estímulo tienes que indicar la forma de la figura que se presenta y sobre la que se está preguntando.",
