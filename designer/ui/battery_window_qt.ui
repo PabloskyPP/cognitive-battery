@@ -358,6 +358,14 @@
               <enum>Unchecked</enum>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>Ikigai</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+            </item>
            </widget>
           </item>
           <item>

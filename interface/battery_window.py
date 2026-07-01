@@ -25,6 +25,7 @@ from tasks import (
     acs,
     riasec,
     inteligencia_multiple,
+    ikigai,
     srq20,
     fourfigures,
 )
@@ -548,6 +549,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         im_task = inteligencia_multiple.InteligenciaMultiple(self.pygame_screen, background)
                         im_data = im_task.run()
                         results["Inteligencia Multiple"] = im_data
+                    elif task == "Ikigai":
+                        ikigai_task = ikigai.Ikigai(self.pygame_screen, background)
+                        ikigai_data = ikigai_task.run()
+                        results["Ikigai"] = ikigai_data
                     elif task == "SRQ20":
                         srq20_task = srq20.SRQ20(self.pygame_screen, background)
                         srq20_data = srq20_task.run()
