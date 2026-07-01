@@ -242,7 +242,7 @@ class Ikigai(object):
         self.screen.blit(self.background, (0, 0))
 
         lines = [
-            "Para estas siguientes 2 preguntas tienes que elegir 4 opciones entre todas, excluyendo las demás.",
+            "Para las siguientes 2 preguntas tienes que elegir 4 opciones entre todas, excluyendo las demás.",
             "",
             "Por favor, pulsa la barra espaciadora para proceder.",
         ]
@@ -288,8 +288,8 @@ class Ikigai(object):
         trial = 1
 
         sections = [
-            ("Ikigai_mundo", world_options, world_selected),
-            ("Ikigai_paidFor", paid_options, paid_selected),
+            ("Ikigai_WorldNeed", world_options, world_selected),
+            ("Ikigai_PaidFor", paid_options, paid_selected),
         ]
 
         for section_name, options, selected_indices in sections:
