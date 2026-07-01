@@ -359,7 +359,6 @@ class FourFigures(object):
         display.text(self.screen, self.font_small, f"Parte {part}", 40, 30)
         if part == 4:
             regla = "contorno" if target_rule == "contour" else "contenido"
-            display.text(self.screen, self.font_small, f"Norma: {regla}", self.screen_x - 260, 30)
         self._draw_hierarchical_figure(contour, content, is_red=is_red)
         self._draw_response_buttons(selected_idx=selected_idx, is_correct=is_correct)
         pygame.display.flip()
