@@ -85,3 +85,10 @@
 - Response options: Cuadrado / Círculo / Triángulo / Cruz
 - Part 4 includes red rule-switch stimuli
 - Exports contour/content response accuracy per trial
+
+## Ikigai
+- 1 introduction screen followed by 2 selection screens
+- Page 1 asks for 4 jobs considered most important for the world
+- Page 2 asks for 4 personal skills or behavioral tendencies
+- Options are loaded dynamically from the `enunciados/IKIGAI_WorldNeed` and `enunciados/IKIGAI_PaidFor` files
+- Each page requires exactly 4 selections before enabling the advance/finish button
