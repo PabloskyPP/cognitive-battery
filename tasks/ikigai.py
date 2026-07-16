@@ -316,7 +316,7 @@ class Ikigai(object):
         paid_options = self._load_options("IKIGAI_PaidFor")
 
         world_prompt = (
-            "De los siguientes trabajos selecciona cuáles cuatro consideras son más importantes para el mundo hoy y en los "
+            "De los siguientes trabajos selecciona cuáles cuatro consideras son más importantes para el mundo, en el presente y en los "
             "próximos años. Puedes cambiar tu respuesta clicando de nuevo en la opción seleccionada. Al tener tus 4 "
             "opciones seleccionadas puedes avanzar seleccionando el botón de abajo de avanzar."
         )
