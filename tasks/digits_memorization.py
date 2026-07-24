@@ -136,7 +136,7 @@ class DigitsMemorization(object):
         self.background = background
 
         self.font = pygame.font.SysFont("arial", 30)
-        self.stimulus_font = pygame.font.SysFont("arial", 80)
+        self.stimulus_font = pygame.font.SysFont("arial", 90)
         self.countdown_font = pygame.font.SysFont("arial", 96)
 
         self.screen_x = self.screen.get_width()
@@ -306,7 +306,7 @@ class DigitsMemorization(object):
         pygame.display.flip()
         display.wait_for_space()
 
-    def _collect_response(self, expected_sequence, draw_callback):
+    def _collect_response(self, expected_sequence, draw_callback, no_countdown=False):
         expected_digits = [str(digit) for digit in expected_sequence]
         entered_digits = []
         response_start = time.time()
@@ -319,7 +319,7 @@ class DigitsMemorization(object):
         while True:
             elapsed = time.time() - response_start
             countdown = None
-            if elapsed >= countdown_delay:
+            if not no_countdown and elapsed >= countdown_delay:
                 countdown = max(0, self.COUNTDOWN_SECONDS - int(elapsed - countdown_delay))
 
             for event in pygame.event.get():
@@ -344,7 +344,7 @@ class DigitsMemorization(object):
                     display.wait(self.FEEDBACK_DURATION)
                     return True
 
-            if elapsed >= timeout_limit:
+            if not no_countdown and elapsed >= timeout_limit:
                 draw_callback(entered_digits, countdown=0)
                 self._draw_border((255, 0, 0))
                 pygame.display.flip()
