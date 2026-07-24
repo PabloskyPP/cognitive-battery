@@ -101,6 +101,8 @@ Currently implemented tasks:
   - Based on the version used by
   [Berman et al. (2008)](http://pss.sagepub.com/content/19/12/1207) and
   [Bourrier (2015)](https://open.library.ubc.ca/cIRcle/collections/ubctheses/24/items/1.0166677)
+* **Digits Memorization**
+  - Forward, backward, and ascending digit recall sections with span export
 * **Eriksen Flanker Task**
   - Based on the compatible and incompatible versions by [Hillman et al. (2006)](http://psycnet.apa.org/record/2006-20659-003) and 
   [Pontifex et al. (2011)](https://www.ncbi.nlm.nih.gov/pubmed/20521857)
