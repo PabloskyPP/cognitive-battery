@@ -310,8 +310,8 @@ class DigitsMemorization(object):
         expected_digits = [str(digit) for digit in expected_sequence]
         entered_digits = []
         response_start = time.time()
-        countdown_start = len(expected_digits) * self.RESPONSE_TIMEOUT_MULTIPLIER
-        timeout_limit = countdown_start + self.COUNTDOWN_SECONDS
+        countdown_delay = len(expected_digits) * self.RESPONSE_TIMEOUT_MULTIPLIER
+        timeout_limit = countdown_delay + self.COUNTDOWN_SECONDS
         clock = pygame.time.Clock()
 
         pygame.event.clear()
@@ -319,8 +319,8 @@ class DigitsMemorization(object):
         while True:
             elapsed = time.time() - response_start
             countdown = None
-            if elapsed >= countdown_start:
-                countdown = max(0, self.COUNTDOWN_SECONDS - int(elapsed - countdown_start))
+            if elapsed >= countdown_delay:
+                countdown = max(0, self.COUNTDOWN_SECONDS - int(elapsed - countdown_delay))
 
             for event in pygame.event.get():
                 digit = self._extract_digit(event)
@@ -388,7 +388,7 @@ class DigitsMemorization(object):
                 last_correct_length = len(sequence)
             else:
                 failed_trials += 1
-                if failed_trials == self.MAX_FAILED_TRIALS:
+                if failed_trials >= self.MAX_FAILED_TRIALS:
                     break
 
         return last_correct_length
