@@ -8,6 +8,7 @@ from utils import display
 
 
 class DigitsMemorization(object):
+    MAX_FAILED_TRIALS = 2
     RESPONSE_TIMEOUT_MULTIPLIER = 2
     COUNTDOWN_SECONDS = 10
     FEEDBACK_DURATION = 500
@@ -387,7 +388,7 @@ class DigitsMemorization(object):
                 last_correct_length = len(sequence)
             else:
                 failed_trials += 1
-                if failed_trials == 2:
+                if failed_trials == self.MAX_FAILED_TRIALS:
                     break
 
         return last_correct_length
