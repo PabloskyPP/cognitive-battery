@@ -17,6 +17,7 @@ from tasks import (
     sart,
     ravens,
     digitspan_backwards,
+    digits_memorization,
     sternberg,
     neopir,
     d2,
@@ -499,6 +500,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         ds_task = digitspan_backwards.DigitspanBackwards(self.pygame_screen, background)
                         ds_data = ds_task.run()
                         results["Digit span (backwards)"] = ds_data
+                    elif task == "Digits Memorization":
+                        dm_task = digits_memorization.DigitsMemorization(self.pygame_screen, background)
+                        dm_data = dm_task.run()
+                        results["Digits Memorization"] = dm_data
                     elif task == "Eriksen Flanker Task":
                         flanker_task = flanker.Flanker(
                             self.pygame_screen,

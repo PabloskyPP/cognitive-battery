@@ -23,6 +23,14 @@
 - Digit duration: 1000ms
 - Time between digits: 100ms
 
+## Digits Memorization
+- 3 sections: forward, backward, ascending
+- Each section ends after 2 failed trials
+- Sequence length increases every 2 trials
+- Presentation duration: one second per digit
+- Response timeout warning: 10-second countdown after 2 × sequence length seconds
+- Exports one row with `forward_span`, `backward_span`, and `ascending_span`, each storing the length of the last correctly completed sequence in that section
+
 ## Eriksen Flanker Task
 - A single set contains each trial type combination (left/congruent, left/incongruent, right/congruent, right/incongruent)
 - 3 practice sets by default, adjustable in settings
