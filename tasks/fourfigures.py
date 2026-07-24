@@ -1,4 +1,5 @@
 import sys
+import time
 
 import pandas as pd
 import pygame
@@ -341,6 +342,7 @@ class FourFigures(object):
 
         selected_idx = None
         selected_shape = None
+        response_start_time = time.time()
 
         while selected_idx is None:
             for event in pygame.event.get():
@@ -353,6 +355,7 @@ class FourFigures(object):
                             selected_shape = self.RESPONSE_OPTIONS[idx][0]
                             break
 
+        response_latency = round((time.time() - response_start_time) * 1000)
         is_correct = selected_shape == correct_response
 
         self.screen.blit(self.background, (0, 0))
@@ -372,9 +375,9 @@ class FourFigures(object):
                 "contour": contour,
                 "content": content,
                 "discrepancy": "yes" if contour != content else "no",
-                "response_given": "yes" if selected_shape is not None else "no",
                 "correct_response": correct_response,
                 "correct": "yes" if is_correct else "no",
+                "TR": response_latency,
             }
         )
 

@@ -257,7 +257,7 @@ class DigitsMemorization(object):
 
         display.text(
             self.screen,
-            self.font,
+            self.stimulus_font,
             self._format_sequence(example_sequence),
             "center",
             max(y_position + 60, self.screen_y / 2 - 80),
@@ -368,7 +368,7 @@ class DigitsMemorization(object):
         display.wait(len(sequence) * 1000)
 
     def _run_section(self, section):
-        failed_trials = 0
+        consecutive_failed = 0
         last_correct_length = 0
 
         for sequence in section["sequences"]:
@@ -386,9 +386,10 @@ class DigitsMemorization(object):
 
             if success:
                 last_correct_length = len(sequence)
+                consecutive_failed = 0
             else:
-                failed_trials += 1
-                if failed_trials >= self.MAX_FAILED_TRIALS:
+                consecutive_failed += 1
+                if consecutive_failed >= self.MAX_FAILED_TRIALS:
                     break
 
         return last_correct_length
@@ -404,6 +405,7 @@ class DigitsMemorization(object):
                 wrong_index=wrong_index,
                 countdown=countdown,
             ),
+            no_countdown=True,
         )
 
         if practice_success:
