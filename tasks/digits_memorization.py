@@ -53,7 +53,7 @@ class DigitsMemorization(object):
             "mode": "forward",
             "sequences": (
                 (3, 7),
-                (5, 2),
+                (4, 1),
                 (1, 6, 3),
                 (9, 8, 4),
                 (6, 4, 3, 5),
