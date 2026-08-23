@@ -20,10 +20,30 @@ class DigitsMemorization(object):
         "supervisor. Si ya entiendes la tarea y estás preparado para empezar "
         "pulsa espacio."
     )
-    PRACTICE_FAILURE_TEXT = (
-        "Fallaste, puede que no hayas entendido bien las instrucciones. Si es "
-        "así avisa al supervisor antes de seguir con esta tarea. Si ya "
-        "entiendes la tarea y estás preparado para empezar pulsa espacio."
+    PRACTICE_FORWARD_SPAN_FAILURE_TEXT = (
+        "Fallaste, puede que no hayas entendido bien las instrucciones. Fíjate:"
+        "en la pantalla anterior se mostraban las cifras 5 2. De esta manera "
+        "tienes que a continuación escribir estas mismas cifras en este mismo orden, 5 2." \
+        "Si aún tienes dudas sobre las instrucciones de como hacer la tarea avisa al supervisor."
+        "Si, por el contrario, ya entiendes la tarea y estás preparado para empezar, pulsa <<barra espaciadora>>."
+    )
+    PRACTICE_BACKWARD_SPAN_FAILURE_TEXT = (
+        "Fallaste, puede que no hayas entendido bien las instrucciones. Fíjate: "
+        "Ahora se te pide que escribas las cifras justo anteriormente mostradas pero en orden inverso: "
+        "Empezando por la última y hacia la primera."
+        "Así si por ejemplo en este último caso se te mostraron las cifras 7 2. Ahora "
+        "tienes que a escribir estas mismas cifras en sentido u orden contrario, 2 7." \
+        "Si aún tienes dudas sobre las instrucciones de como hacer la tarea avisa al supervisor."
+        "Si, por el contrario, ya entiendes la tarea y estás preparado para empezar, pulsa <<barra espaciadora>>."
+    )
+    PRACTICE_ASCENDING_SPAN_FAILURE_TEXT = (
+        "Fallaste, puede que no hayas entendido bien las instrucciones. Fíjate:"
+        "Ahora se te pide que escribas las cifras anteriormente mostradas en orden ascendente: "
+        "Empezando por el número más bajo, hacia el más alto: 0,1,2,3,4....7,8,9."
+        "Así si por ejemplo en este último caso se te mostraron las cifras 3 1 9. Ahora "
+        "tienes que escribir estas mismas cifras en orden ascendente, 1 3 9." \
+        "Si aún tienes dudas sobre las instrucciones de como hacer la tarea avisa al supervisor."
+        "Si, por el contrario, ya entiendes la tarea y estás preparado para empezar, pulsa <<barra espaciadora>>."
     )
 
     SECTIONS = (
@@ -33,17 +53,18 @@ class DigitsMemorization(object):
                 "En esta siguiente tarea tienes que memorizar listas de números, "
                 "teniendo para ello tantos segundos como números contenga cada "
                 "lista. Las listas de números se alargan cada dos rondas. Al "
-                "terminar este tiempo, tendrás que escribir en el orden indicado "
-                "en cada parte la lista de números justo anteriormente "
-                "presentada. Para recordar y escribir con los números del "
-                "teclado la lista tienes tiempo suficiente, aunque si tardas "
+                "terminar este tiempo, tienes que, en el orden indicado en cada parte, "
+                "escribir los números justo anteriormente presentados. "
+                "Para esto utiliza los números del teclado."
+                "Para recordar y escribir cada lista de números"
+                "tienes tiempo suficiente. Pero si tardas "
                 "demasiado aparecerá una cuenta regresiva de 10 segundos "
                 "avisándote de que tu tiempo para responder se está acabando. "
                 "Si este tiempo se acaba tu respuesta en esa ronda se "
                 "registrará como fallo. También si erras el número que sigue "
-                "en la lista la ronda termina registrándose como ronda fallada. "
+                "la ronda termina registrándose como ronda fallada. "
                 "Cuidado, el número que se escribe no se puede borrar. Tras 2 "
-                "rondas falladas la sección se termina. Esta prueba tiene 3 "
+                "rondas falladas la sección termina. Esta prueba tiene 3 "
                 "secciones. En la primera sección tienes que repetir la lista "
                 "de números justa anterior en el mismo orden que se presenta. "
                 "Como ejemplo, prueba a recordar y escribir la siguiente lista "
@@ -74,8 +95,8 @@ class DigitsMemorization(object):
             "result_key": "backward_span",
             "instruction": (
                 "La parte uno ha terminado. A continuación empieza la parte "
-                "dos. Aquí tienes que repetir las listas de números que "
-                "aparecen pero ahora en orden inverso. Como ejemplo, prueba a "
+                "dos. Aquí tienes que repetir los números que "
+                "aparecen pero ahora en orden inverso, del último hacia atrás. Como ejemplo, prueba a "
                 "recordar y escribir la siguiente lista en orden inverso."
             ),
             "practice_sequence": (7, 2),
@@ -103,7 +124,7 @@ class DigitsMemorization(object):
             "result_key": "ascending_span",
             "instruction": (
                 "La parte dos ha terminado. A continuación empieza la parte "
-                "tres. Aquí tienes que repetir las listas de números que "
+                "tres. Aquí tienes que repetir los números que "
                 "aparecen pero ahora en orden creciente (de menor a mayor). "
                 "Como ejemplo, prueba a recordar y escribir la siguiente lista "
                 "en orden creciente."
@@ -432,3 +453,4 @@ class DigitsMemorization(object):
             section_spans["backward_span"],
             section_spans["ascending_span"],
         )
+    

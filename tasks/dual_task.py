@@ -336,13 +336,13 @@ class DualTask(object):
         y += 50
         display.text(
             self.screen, self.font,
-            "   Cuando aparezca un cuadrado AZUL, NO presiones ninguna tecla.",
+            "   CUIDADO. Cuando aparezca un cuadrado AZUL, NO presiones ninguna tecla.",
             cx, y,
         )
         y += 50
         display.text(
             self.screen, self.font,
-            "La tarea dura 2 minutos y finalizará automáticamente.",
+            "La tarea dura 2 minutos y finaliza automáticamente.",
             cx, y,
         )
         y += 80

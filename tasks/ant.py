@@ -346,14 +346,14 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "contestar con las flechas Izquierda / Derecha del teclado, ",
+            "indicar con las flechas Izquierda / Derecha del teclado, ",
             100,
             self.screen_y / 2 - 70,
         )
         display.text(
             self.screen,
             self.font,
-            "hacia qué lado indica la flecha CENTRAL. Por ejemplo:",
+            "hacia qué lado señala la flecha CENTRAL. Por ejemplo:",
             100,
             self.screen_y / 2 - 20,
         )
@@ -445,7 +445,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "aunque ya no se te va a mostrar tus aciertos y errores después de cada respuesta.",
+            "aunque ya no se te van a mostrar tus aciertos y errores después de cada respuesta.",
             100,
             self.screen_y / 2 - 100,
         )        
