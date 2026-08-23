@@ -46,7 +46,9 @@ class ANT(object):
         self.DIRECTION_LEVELS = ("left", "right")
 
         # Create level combinations
-        # Level combinations give us 48 trials.
+        # Level combinations give us 36 trials per block (3 congruency × 3 cue × 2 location × 2 direction)
+        # Practice trials will use 1/3 of this (12 trials)
+        # Each experimental block uses all 36 trials
         self.combinations = list(
             product(
                 self.CONGRUENCY_LEVELS,
@@ -326,7 +328,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "incluyendo uno de estos conjuntos de flechas:",
+            "incluyendo uno de estos 3 conjuntos de flechas:",
             100,
             self.screen_y / 2 - 360,
         )

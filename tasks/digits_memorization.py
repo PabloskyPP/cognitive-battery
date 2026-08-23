@@ -56,13 +56,13 @@ class DigitsMemorization(object):
                 "terminar este tiempo, tienes que, en el orden indicado en cada parte, "
                 "escribir los números justo anteriormente presentados. "
                 "Para esto utiliza los números del teclado."
-                "Para recordar y escribir cada lista de números"
+                "Para recordar y escribir cada lista de números "
                 "tienes tiempo suficiente. Pero si tardas "
-                "demasiado aparecerá una cuenta regresiva de 10 segundos "
+                "demasiado aparece una cuenta regresiva de 10 segundos "
                 "avisándote de que tu tiempo para responder se está acabando. "
                 "Si este tiempo se acaba tu respuesta en esa ronda se "
-                "registrará como fallo. También si erras el número que sigue "
-                "la ronda termina registrándose como ronda fallada. "
+                "registra como fallo. También si erras el número que sigue "
+                "la ronda termina, registrándose como ronda fallada. "
                 "Cuidado, el número que se escribe no se puede borrar. Tras 2 "
                 "rondas falladas la sección termina. Esta prueba tiene 3 "
                 "secciones. En la primera sección tienes que repetir la lista "
@@ -146,8 +146,6 @@ class DigitsMemorization(object):
                 (6, 9, 8, 7, 2, 3, 1),
                 (4, 2, 1, 9, 7, 6, 3, 8),
                 (9, 1, 4, 8, 2, 3, 5, 6),
-                (4, 7, 8, 9, 1, 6, 2, 5, 3),
-                (7, 8, 2, 5, 3, 1, 9, 4, 6),
             ),
         },
     )

@@ -36,14 +36,14 @@ class PVR(object):
         # Line properties
         self.LINE_LENGTH = min(self.screen_x, self.screen_y) // 3
         self.LINE_COLOUR = (0, 0, 0)
-        self.LINE_WIDTH = 8
+        self.LINE_WIDTH = 32
 
         # Decorative frame properties (slightly tilted from vertical)
-        self.FRAME_WIDTH = self.screen_x // 3
-        self.FRAME_HEIGHT = int(self.screen_y * 0.85)
+        self.FRAME_HEIGHT = self.screen_x // 3
+        self.FRAME_WIDTH = int(self.screen_y * 0.85)
         self.FRAME_COLOUR = (0, 0, 0)
         self.FRAME_BORDER = 4
-        self.FRAME_TILT = -1.0  # degrees tilt of the frame from vertical
+        self.FRAME_TILT = -0.2  # degrees tilt of the frame from vertical
 
         # Mouse sensitivity: degrees of rotation per pixel of horizontal mouse movement
         self.SENSITIVITY = 0.05

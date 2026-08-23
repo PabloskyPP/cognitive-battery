@@ -61,7 +61,7 @@ class FourFigures(object):
         ("square", "square"),      # 2
         ("triangle", "cross"),     # 3
         ("cross", "circle"),       # 4
-        # pos 5: switch to content (is_red)
+        # pos 5: switch to content (is_red)4   8
         ("circle", "cross"),       # 5  RED
         # pos 6-12: rule=content
         ("triangle", "triangle"),  # 6
