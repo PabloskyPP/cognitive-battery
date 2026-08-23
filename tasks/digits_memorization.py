@@ -432,7 +432,12 @@ class DigitsMemorization(object):
         if practice_success:
             self._show_feedback_message(self.PRACTICE_SUCCESS_TEXT)
         else:
-            self._show_feedback_message(self.PRACTICE_FAILURE_TEXT)
+            failure_text_map = {
+                "forward_span": self.PRACTICE_FORWARD_SPAN_FAILURE_TEXT,
+                "backward_span": self.PRACTICE_BACKWARD_SPAN_FAILURE_TEXT,
+                "ascending_span": self.PRACTICE_ASCENDING_SPAN_FAILURE_TEXT,
+            }
+            self._show_feedback_message(failure_text_map[section["result_key"]])
 
     def run(self):
         section_spans = {}

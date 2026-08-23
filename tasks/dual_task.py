@@ -559,13 +559,6 @@ class DualTask(object):
                 )
                 pygame.draw.rect(self.screen, colour, rect)
 
-            remaining = max(0.0, duration - elapsed)
-            display.text(
-                self.screen, self.font_small,
-                "Tiempo: {}s".format(math.ceil(remaining)),
-                10, 10, (100, 100, 100),
-            )
-
             pygame.display.flip()
             clock.tick(60)
 

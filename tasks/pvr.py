@@ -34,19 +34,19 @@ class PVR(object):
         pygame.mouse.set_visible(1)
 
         # Line properties
-        self.LINE_LENGTH = min(self.screen_x, self.screen_y) // 4
+        self.LINE_LENGTH = min(self.screen_x, self.screen_y) // 3
         self.LINE_COLOUR = (0, 0, 0)
-        self.LINE_WIDTH = 4
+        self.LINE_WIDTH = 8
 
         # Decorative frame properties (slightly tilted from vertical)
-        self.FRAME_WIDTH = self.screen_x // 4
-        self.FRAME_HEIGHT = self.screen_y // 2
+        self.FRAME_WIDTH = self.screen_x // 3
+        self.FRAME_HEIGHT = int(self.screen_y * 0.85)
         self.FRAME_COLOUR = (0, 0, 0)
         self.FRAME_BORDER = 4
-        self.FRAME_TILT = 3.0  # degrees tilt of the frame from vertical
+        self.FRAME_TILT = -1.0  # degrees tilt of the frame from vertical
 
         # Mouse sensitivity: degrees of rotation per pixel of horizontal mouse movement
-        self.SENSITIVITY = 0.3
+        self.SENSITIVITY = 0.05
 
         # Initial angle in degrees: 0 = horizontal, 90 = vertical
         self.initial_angle = 0.0
