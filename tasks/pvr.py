@@ -46,7 +46,7 @@ class PVR(object):
         self.FRAME_TILT = -0.2  # degrees tilt of the frame from vertical
 
         # Mouse sensitivity: degrees of rotation per pixel of horizontal mouse movement
-        self.SENSITIVITY = 0.05
+        self.SENSITIVITY = 0.02
 
         # Initial angle in degrees: 0 = horizontal, 90 = vertical
         self.initial_angle = 0.0
@@ -209,8 +209,8 @@ class PVR(object):
             data=[
                 (
                     "PVR",
-                    round(self.initial_angle, 6),
-                    round(final_angle, 6),
+                    self.initial_angle,
+                    final_angle,
                     rotation_time_ms,
                 )
             ],

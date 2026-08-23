@@ -28,16 +28,40 @@ class DualTask(object):
     """
 
     # Waypoints for the moving point (reference resolution: 1920×1080).
+    # The path is designed with frequent ~90° and ~180° direction changes to make
+    # the trajectory less predictable.  The increased arc length (relative to the
+    # previous smooth loop) also raises the constant travel speed slightly.
     PATH_POINTS = [
-        (120, 140), (450, 220), (780, 180), (1100, 260),
-        (1500, 200), (1700, 400), (1600, 650), (1300, 720),
-        (900, 680), (500, 750), (200, 600), (300, 400),
-        (600, 350), (950, 420), (1250, 500), (1550, 480),
-        (1800, 300), (1650, 150), (1300, 120), (900, 200),
-        (600, 100), (300, 180), (150, 350), (400, 550),
-        (750, 600), (1100, 650), (1450, 800), (1750, 900),
-        (1500, 1000), (1000, 950), (650, 880), (350, 920),
-        (200, 1050), (600, 1020), (1200, 1000), (1700, 950),
+        # Upper-left → right
+        (150, 300), (500, 200), (900, 180), (1300, 220), (1700, 160),
+        # ≈90° turn: right → down
+        (1850, 350), (1820, 600),
+        # ≈90° turn: down → left
+        (1600, 750), (1200, 780), (800, 740),
+        # ≈90° turn: left → down
+        (500, 900), (300, 1020),
+        # ≈180° turn: reversal near bottom → right
+        (600, 980), (1000, 960), (1400, 940),
+        # ≈90° turn: right → up
+        (1750, 800), (1800, 550),
+        # ≈90° turn: up → left
+        (1550, 350), (1150, 310), (750, 350),
+        # ≈90° turn: left → down
+        (400, 500), (200, 700),
+        # ≈90° turn: down → right
+        (450, 850), (900, 820), (1300, 850),
+        # ≈180° turn: reversal → left
+        (1100, 780), (700, 760), (350, 800),
+        # ≈90° turn: left → up
+        (180, 600), (200, 350),
+        # ≈90° turn: up → right (upper-middle)
+        (550, 150), (950, 130), (1350, 170),
+        # ≈90° turn: right → down
+        (1700, 350), (1680, 600),
+        # ≈90° turn: down → left
+        (1450, 780), (1050, 800),
+        # ≈90° turn: left → up → return to start
+        (700, 650), (400, 450), (200, 300),
     ]
 
     # Main task stimulus events (24 total): (onset_s, x_ref, y_ref, stimulus_type).
