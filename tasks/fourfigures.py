@@ -53,47 +53,61 @@ class FourFigures(object):
         ("square", "cross"), ("cross", "circle"), ("triangle", "triangle"), ("circle", "square"),
     ]
 
-    # Fixed predefined sequence for part 4 (32 trials: 2 of each 4x4 pair; red at positions 5, 13, 14)
-    # Each pair (contour, content) appears exactly twice.
+    # Fixed predefined sequence for part 4 (32 trials: each of the 16 shape pairs appears
+    # exactly once under rule=contour and once under rule=content; red at positions 5, 10, 14,
+    # 19, 23, 29).
+    # Rule segments (RED figures trigger a rule switch and belong to the new rule):
+    #   Contour: pos 1-4, 10-13, 19-22, 29-32  (4+4+4+4 = 16 trials, including RED pos 10, 19, 29)
+    #   Content: pos 5-9, 14-18, 23-28          (5+5+6   = 16 trials, including RED pos 5, 14, 23)
+    # Convergent (contour==content) in contour-rule trials: pos 10 (RED), 21, 29 (RED), 32 → 4.
+    # Convergent (contour==content) in content-rule trials: pos 6, 7, 14 (RED), 18 → 4.
+    # No two RED figures appear consecutively (gaps between REDs: 5, 4, 5, 4, 6).
     _PART4_SEQUENCE = [
         # pos 1-4: rule=contour
         ("circle", "triangle"),    # 1
-        ("square", "square"),      # 2
+        ("square", "circle"),      # 2
         ("triangle", "cross"),     # 3
-        ("cross", "circle"),       # 4
-        # pos 5: switch to content (is_red)4   8
+        ("cross", "square"),       # 4
+        # pos 5: RED – switch to content
         ("circle", "cross"),       # 5  RED
-        # pos 6-12: rule=content
-        ("triangle", "triangle"),  # 6
-        ("square", "circle"),      # 7
-        ("cross", "square"),       # 8
-        ("circle", "circle"),      # 9
-        ("triangle", "square"),    # 10
-        ("square", "cross"),       # 11
-        ("cross", "triangle"),     # 12
-        # pos 13: switch to contour (is_red)
-        ("triangle", "circle"),    # 13 RED
-        # pos 14: switch to content (is_red)
-        ("cross", "cross"),        # 14 RED
-        # pos 15-32: rule=content
-        ("square", "triangle"),    # 15
-        ("circle", "square"),      # 16
-        ("triangle", "circle"),    # 17
-        ("cross", "cross"),        # 18
-        ("circle", "triangle"),    # 19
-        ("square", "square"),      # 20
-        ("cross", "circle"),       # 21
-        ("triangle", "cross"),     # 22
-        ("square", "triangle"),    # 23
-        ("circle", "square"),      # 24
-        ("cross", "square"),       # 25
-        ("triangle", "triangle"),  # 26
-        ("circle", "cross"),       # 27
-        ("square", "circle"),      # 28
-        ("cross", "triangle"),     # 29
-        ("triangle", "square"),    # 30
-        ("circle", "circle"),      # 31
-        ("square", "cross"),       # 32
+        # pos 6-9: rule=content
+        ("circle", "circle"),      # 6  (convergent)
+        ("triangle", "triangle"),  # 7  (convergent)
+        ("square", "cross"),       # 8
+        ("square", "circle"),      # 9
+        # pos 10: RED – switch to contour
+        ("circle", "circle"),      # 10 RED (convergent)
+        # pos 11-13: rule=contour
+        ("square", "triangle"),    # 11
+        ("triangle", "square"),    # 12
+        ("cross", "circle"),       # 13
+        # pos 14: RED – switch to content
+        ("square", "square"),      # 14 RED (convergent)
+        # pos 15-18: rule=content
+        ("circle", "square"),      # 15
+        ("square", "triangle"),    # 16
+        ("circle", "triangle"),    # 17
+        ("cross", "cross"),        # 18 (convergent)
+        # pos 19: RED – switch to contour
+        ("circle", "square"),      # 19 RED
+        # pos 20-22: rule=contour
+        ("square", "cross"),       # 20
+        ("triangle", "triangle"),  # 21 (convergent)
+        ("cross", "triangle"),     # 22
+        # pos 23: RED – switch to content
+        ("triangle", "square"),    # 23 RED
+        # pos 24-28: rule=content
+        ("triangle", "circle"),    # 24
+        ("triangle", "cross"),     # 25
+        ("cross", "circle"),       # 26
+        ("cross", "square"),       # 27
+        ("cross", "triangle"),     # 28
+        # pos 29: RED – switch to contour
+        ("square", "square"),      # 29 RED (convergent)
+        # pos 30-32: rule=contour
+        ("circle", "cross"),       # 30
+        ("triangle", "circle"),    # 31
+        ("cross", "cross"),        # 32 (convergent)
     ]
 
     def __init__(self, screen, background):
@@ -409,7 +423,7 @@ class FourFigures(object):
         ]
 
     def _create_part4_experimental(self):
-        RED_POSITIONS = {5, 13, 14}  # 1-indexed
+        RED_POSITIONS = {5, 10, 14, 19, 23, 29}  # 1-indexed
         trials = []
         for idx, (contour, content) in enumerate(self._PART4_SEQUENCE, start=1):
             is_red = idx in RED_POSITIONS

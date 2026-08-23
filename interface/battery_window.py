@@ -140,7 +140,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Settings - Attention Network Test
         self.settings.beginGroup("AttentionNetworkTest")
-        self.settings.setValue("numBlocks", self.settings.value("numBlocks", 3))
+        self.settings.setValue("numBlocks", self.settings.value("numBlocks", 2))
         self.settings.endGroup()
 
         # Settings - Flanker
