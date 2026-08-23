@@ -20,7 +20,7 @@ from tasks import (
     digits_memorization,
     sternberg,
     neopir,
-    d2,
+    cpt,
     dual_task,
     pvr,
     acs,
@@ -562,10 +562,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         srq20_task = srq20.SRQ20(self.pygame_screen, background)
                         srq20_data = srq20_task.run()
                         results["SRQ20"] = srq20_data
-                    elif task == "D2 (Test de atención y concentración)":
-                        d2_task = d2.D2(self.pygame_screen, background)
-                        d2_data = d2_task.run()
-                        results["D2"] = d2_data
+                    elif task == "CPT (Test de atención y concentración)":
+                        cpt_task = cpt.CPT(self.pygame_screen, background)
+                        cpt_data = cpt_task.run()
+                        results["CPT"] = cpt_data
                     elif task == "Dual Task":
                         dt_task = dual_task.DualTask(self.pygame_screen, background)
                         dt_data = dt_task.run()

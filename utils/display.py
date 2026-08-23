@@ -87,7 +87,7 @@ def text_space(screen, font, x, y, colour=(0, 0, 0)):
         text. Defaults to black (0,0,0)
     """
 
-    text(screen, font, "(press space to continue)", x, y, colour=colour)
+    text(screen, font, "pulsa <barra espaciadora> para continuar", x, y, colour=colour)
 
 
 def wait(duration):

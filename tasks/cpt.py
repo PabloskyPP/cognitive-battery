@@ -8,9 +8,9 @@ from pygame.locals import *
 from utils import display
 
 
-class D2(object):
+class CPT(object):
     """
-    D2 Test de atención y concentración
+    CPT - Test de atención y concentración
     
     A task that measures attention and concentration by having participants
     identify and mark specific target letters (d with exactly two marks)
@@ -32,7 +32,7 @@ class D2(object):
 
         # Fill background
         self.background.fill((255, 255, 255))
-        pygame.display.set_caption("D2 - Test de atención y concentración")
+        pygame.display.set_caption("CPT - Test de atención y concentración")
         pygame.mouse.set_visible(1)
 
         # Experiment options (constants)
@@ -736,6 +736,6 @@ class D2(object):
         # Screen 17: Final
         self.display_final()
 
-        print("- D2 complete")
+        print("- CPT complete")
 
         return self.all_data

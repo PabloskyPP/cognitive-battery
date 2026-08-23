@@ -11,7 +11,7 @@ from utils import display
 
 
 class ANT(object):
-    def __init__(self, screen, background, blocks=3):
+    def __init__(self, screen, background, blocks=2):
         # Get the pygame display window
         self.screen = screen
         self.background = background
@@ -41,7 +41,7 @@ class ANT(object):
 
         # Specify factor levels, and task timings as used by Fan et al. (2002).
         self.CONGRUENCY_LEVELS = ("congruent", "incongruent", "neutral")
-        self.CUE_LEVELS = ("nocue", "center", "spatial", "double")
+        self.CUE_LEVELS = ("nocue", "spatial", "double")
         self.LOCATION_LEVELS = ("top", "bottom")
         self.DIRECTION_LEVELS = ("left", "right")
 
@@ -88,7 +88,7 @@ class ANT(object):
             np.random.shuffle(cur_combinations)
         else:
             np.random.shuffle(combinations)
-            cur_combinations = combinations[: len(combinations) // 2]
+            cur_combinations = combinations[: len(combinations) // 3]
 
         # Add combinations to dataframe
         cur_block = pd.DataFrame(
@@ -161,9 +161,6 @@ class ANT(object):
         if cue_type == "nocue":
             # Display fixation in the center
             display.image(self.screen, self.img_fixation, "center", "center")
-        elif cue_type == "center":
-            # Display cue in the center
-            display.image(self.screen, self.img_cue, "center", "center")
         elif cue_type == "double":
             # Display fixation in the center
             display.image(self.screen, self.img_fixation, "center", "center")

@@ -1,4 +1,4 @@
 from .ravens import Ravens
-from .d2 import D2
+from .cpt import CPT
 
-__all__ = ['Ravens', 'D2']
+__all__ = ['Ravens', 'CPT']
