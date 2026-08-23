@@ -344,7 +344,7 @@ class Ui_CognitiveBattery(object):
         item = self.taskList.item(8)
         item.setText(_translate("CognitiveBattery", "NEO-PI-R"))
         item = self.taskList.item(9)
-        item.setText(_translate("CognitiveBattery", "CPT (Test de atención y concentración)"))
+        item.setText(_translate("CognitiveBattery", "CPT)"))
         item = self.taskList.item(10)
         item.setText(_translate("CognitiveBattery", "Dual Task"))
         item = self.taskList.item(11)

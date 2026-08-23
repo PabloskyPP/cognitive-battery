@@ -562,7 +562,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         srq20_task = srq20.SRQ20(self.pygame_screen, background)
                         srq20_data = srq20_task.run()
                         results["SRQ20"] = srq20_data
-                    elif task == "CPT (Test de atención y concentración)":
+                    elif task == "CPT":
                         cpt_task = cpt.CPT(self.pygame_screen, background)
                         cpt_data = cpt_task.run()
                         results["CPT"] = cpt_data
