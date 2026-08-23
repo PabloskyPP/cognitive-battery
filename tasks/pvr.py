@@ -36,7 +36,7 @@ class PVR(object):
         # Line properties
         self.LINE_LENGTH = min(self.screen_x, self.screen_y) // 3
         self.LINE_COLOUR = (0, 0, 0)
-        self.LINE_WIDTH = 32
+        self.LINE_WIDTH = 16
 
         # Decorative frame properties (slightly tilted from vertical)
         self.FRAME_HEIGHT = self.screen_x // 3
@@ -53,10 +53,10 @@ class PVR(object):
 
     def _draw_frame(self):
         """Draw the slightly-tilted decorative rectangle frame."""
-        cx = self.screen_x // 2
-        cy = self.screen_y // 2
-        hw = self.FRAME_WIDTH // 2
-        hh = self.FRAME_HEIGHT // 2
+        cx = self.screen_x // 1.5
+        cy = self.screen_y // 1.5
+        hw = self.FRAME_WIDTH // 1.5
+        hh = self.FRAME_HEIGHT // 1.5
 
         tilt_rad = math.radians(self.FRAME_TILT)
 
