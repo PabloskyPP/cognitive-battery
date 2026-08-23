@@ -224,14 +224,14 @@ class CPT(object):
 
         # Get image path - FIX: Navigate to project root
         self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.image_path = os.path.join(self.base_dir, "images", "D2")
+        self.image_path = os.path.join(self.base_dir, "images", "CPT")
 
         # Create output dataframe for all rows
         self.all_data = pd.DataFrame()
         
         # Define target stimuli based on (row, letter_num) combinations
         # These are the combinations where target = "si"
-        # Note: These mappings come from the D2 test specifications.
+        # Note: These mappings come from the CPT test specifications.
         # Row 10 intentionally has 28 instead of 29 (compared to rows 1, 7, 13).
         # Row 4 is not defined in the specifications, so it has no targets.
         self.TARGET_STIMULI = {
@@ -387,7 +387,7 @@ class CPT(object):
             # Show error message if image doesn't exist
             display.text(
                 self.screen, self.font,
-                "Error: Image 'prueba.png' not found in images/D2/",
+                "Error: Image 'prueba.png' not found in images/CPT/",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
@@ -533,7 +533,7 @@ class CPT(object):
             # Show error message if image doesn't exist
             display.text(
                 self.screen, self.font,
-                f"Error: Image 'fila{row_num}.jpg' not found in images/D2/",
+                f"Error: Image 'fila{row_num}.jpg' not found in images/CPT/",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
