@@ -127,10 +127,6 @@ class DualTask(object):
         self.scale_x = self.screen_x / self.REF_WIDTH
         self.scale_y = self.screen_y / self.REF_HEIGHT
 
-        # Pre-compute smooth path and scaled stimulus positions
-        self._path_points_ref = self._generate_path_points_ref()
-        self._path = self._build_smooth_path()
-
         # Randomise stimulus-type assignment: balanced 12 target_red / 12 distractor_blue.
         stimulus_types = ["target_red"] * 12 + ["distractor_blue"] * 12
         random.shuffle(stimulus_types)
@@ -146,6 +142,25 @@ class DualTask(object):
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
             for t, x, y, stype in self.PRACTICE_EVENTS
         ]
+
+        # Pre-compute smooth path and regenerate if any event starts too close.
+        self._path_points_ref = []
+        self._path = []
+        max_attempts = 12
+        path_ready = False
+        for _ in range(max_attempts):
+            self._path_points_ref = self._generate_path_points_ref()
+            self._path = self._build_smooth_path()
+            main_overlaps = self._count_overlaps(self._stimuli)
+            practice_overlaps = self._count_overlaps(self._practice_stimuli)
+            if main_overlaps == 0 and practice_overlaps == 0:
+                path_ready = True
+                break
+        if not path_ready:
+            print(
+                "  [DualTask] WARNING: no zero-overlap path found after "
+                f"{max_attempts} attempts (main={main_overlaps}, practice={practice_overlaps})"
+            )
 
         self._validate_no_overlap(self._stimuli, "main")
         self._validate_no_overlap(self._practice_stimuli, "practice")
@@ -187,7 +202,16 @@ class DualTask(object):
 
         curve_steps_left = 0
         curve_sign = 1
-        forced_turns = ["turn_90"] * 18 + ["turn_180"] * 10 + ["curve_start"] * 16
+        total_steps = self.PATH_POINT_COUNT - 1
+        forced_count = max(12, int(total_steps * 0.58))
+        turn_90_count = max(4, int(forced_count * 0.42))
+        turn_180_count = max(2, int(forced_count * 0.23))
+        curve_count = max(4, forced_count - turn_90_count - turn_180_count)
+        forced_turns = (
+            ["turn_90"] * turn_90_count
+            + ["turn_180"] * turn_180_count
+            + ["curve_start"] * curve_count
+        )
         random.shuffle(forced_turns)
 
         for i in range(self.PATH_POINT_COUNT - 1):
@@ -245,6 +269,7 @@ class DualTask(object):
             if not success:
                 x = min(max(x, min_x), max_x)
                 y = min(max(y, min_y), max_y)
+                heading = math.degrees(math.atan2(center_y - y, center_x - x)) % 360.0
 
             points.append((x, y))
 
@@ -253,6 +278,9 @@ class DualTask(object):
     def _build_smooth_path(self):
         """Return a dense list of (x, y) positions using Catmull-Rom splines,
         arc-length parameterised so the tracking point moves at constant speed."""
+        if not self._path_points_ref:
+            return [(self.screen_x // 2, self.screen_y // 2)]
+
         pts = [
             (int(x * self.scale_x), int(y * self.scale_y))
             for x, y in self._path_points_ref
@@ -314,12 +342,23 @@ class DualTask(object):
         n = len(self._path)
         if n == 0:
             return self.screen_x // 2, self.screen_y // 2
-        idx = int((elapsed / self.PATH_LOOP_DURATION) % 1.0 * n) % n
+        idx = int(((elapsed / self.PATH_LOOP_DURATION) % 1.0) * n) % n
         return self._path[idx]
 
     # ------------------------------------------------------------------
     # Overlap validation
     # ------------------------------------------------------------------
+
+    def _count_overlaps(self, stimuli):
+        """Count stimuli that are too close to the tracking point at onset."""
+        threshold = self.MIN_STIMULUS_DISTANCE
+        overlap_count = 0
+        for t, sx, sy, _ in stimuli:
+            px, py = self._get_point_position(t)
+            dist = math.sqrt((px - sx) ** 2 + (py - sy) ** 2)
+            if dist < threshold:
+                overlap_count += 1
+        return overlap_count
 
     def _validate_no_overlap(self, stimuli, block_name):
         """Log a warning when the tracking point is too close to a stimulus at onset."""
