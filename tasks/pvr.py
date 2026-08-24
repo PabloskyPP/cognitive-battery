@@ -37,6 +37,8 @@ class PVR(object):
         self.LINE_LENGTH = min(self.screen_x, self.screen_y) // 3
         self.LINE_COLOUR = (0, 0, 0)
         self.LINE_WIDTH = 16
+        self.LINE_RENDER_SCALE = 4
+        self._line_surface_hr = self._create_highres_line_surface()
 
         # Decorative frame properties (slightly tilted from vertical)
         self.FRAME_HEIGHT = self.screen_x // 3
@@ -76,19 +78,28 @@ class PVR(object):
         angle_deg: 0.0 = horizontal (pointing left-right),
                    90.0 = vertical (pointing up-down).
         """
-        cx = self.screen_x // 2
-        cy = self.screen_y // 2
-        angle_rad = math.radians(angle_deg)
-        half_len = self.LINE_LENGTH / 2
+        cx = self.screen_x / 2.0
+        cy = self.screen_y / 2.0
+        scale_factor = 1.0 / self.LINE_RENDER_SCALE
+        line_surface = pygame.transform.rotozoom(
+            self._line_surface_hr, angle_deg, scale_factor
+        )
+        rect = line_surface.get_rect(center=(int(round(cx)), int(round(cy))))
+        self.screen.blit(line_surface, rect)
 
-        dx = math.cos(angle_rad) * half_len
-        # Negate dy because pygame y-axis increases downward
-        dy = -math.sin(angle_rad) * half_len
-
-        start = (int(cx - dx), int(cy - dy))
-        end = (int(cx + dx), int(cy + dy))
-
-        pygame.draw.line(self.screen, self.LINE_COLOUR, start, end, self.LINE_WIDTH)
+    def _create_highres_line_surface(self):
+        """Create a high-resolution horizontal bar for antialiased rotation."""
+        scale = self.LINE_RENDER_SCALE
+        surf_w = self.LINE_LENGTH * scale
+        surf_h = self.LINE_WIDTH * scale
+        surface = pygame.Surface((surf_w, surf_h), pygame.SRCALPHA)
+        surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(
+            surface,
+            (*self.LINE_COLOUR, 255),
+            pygame.Rect(0, 0, surf_w, surf_h),
+        )
+        return surface
 
     def _show_instructions(self):
         """Display the task instructions screen."""
