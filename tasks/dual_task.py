@@ -39,7 +39,7 @@ class DualTask(object):
         (1040, 300), (1220, 340), (1360, 430), (1500, 360), (1580, 240),
         (1450, 180), (1560, 130), (1420, 170), (1260, 210), (1090, 280),
         (940, 360), (820, 460), (700, 560), (560, 620), (420, 700),
-        (300, 640), (260, 500), (310, 640), (260, 540), (340, 380),
+        (300, 640), (260, 500), (380, 520), (330, 430), (340, 380),
         (500, 320), (660, 300), (780, 360), (860, 470),
         (940, 600), (1040, 700), (1180, 740), (1320, 700), (1460, 620),
         (1600, 680), (1660, 820), (1520, 900), (1320, 880), (1140, 820),
@@ -155,6 +155,13 @@ class DualTask(object):
         # Pre-compute deterministic smooth path from fixed reference points.
         self._path_points_ref = list(self.PATH_POINTS_REF)
         self._path = self._build_smooth_path()
+        main_overlaps = self._count_overlaps(self._stimuli)
+        practice_overlaps = self._count_overlaps(self._practice_stimuli)
+        if main_overlaps or practice_overlaps:
+            print(
+                "  [DualTask] WARNING: deterministic path overlap summary "
+                f"(main={main_overlaps}, practice={practice_overlaps})"
+            )
 
         self._validate_no_overlap(self._stimuli, "main")
         self._validate_no_overlap(self._practice_stimuli, "practice")
