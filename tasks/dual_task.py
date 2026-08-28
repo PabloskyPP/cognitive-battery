@@ -27,17 +27,26 @@ class DualTask(object):
     - Response latency / accuracy for each stimulus                        → "responses" DataFrame
     """
 
-    # Procedural trajectory generation (reference resolution: 1920×1080).
-    # Designed to mix short/medium displacements, sharp turns (~90° / ~180°),
-    # and smooth curves while keeping constant speed through arc-length
-    # parameterisation.
+    # Deterministic trajectory control points (reference resolution: 1920×1080).
+    # This fixed sequence preserves varied motion (short/medium displacements,
+    # frequent direction changes, and ~90°/~180° turns) while Catmull-Rom +
+    # arc-length reparameterisation keeps smooth curves and constant speed.
     REF_WIDTH = 1920
     REF_HEIGHT = 1080
-    PATH_MARGIN = 120
-    PATH_EDGE_ZONE = 220
-    PATH_POINT_COUNT = 78
-    PATH_MIN_SEGMENT = 80
-    PATH_MAX_SEGMENT = 250
+    PATH_POINTS_REF = [
+        (900, 520), (1120, 500), (1320, 540), (1480, 620), (1360, 760),
+        (1180, 780), (980, 720), (820, 620), (760, 470), (860, 340),
+        (1040, 300), (1220, 340), (1360, 430), (1500, 360), (1580, 240),
+        (1450, 180), (1560, 130), (1420, 170), (1260, 210), (1090, 280),
+        (940, 360), (820, 460), (700, 560), (560, 620), (420, 700),
+        (300, 640), (260, 500), (380, 520), (330, 430), (340, 380),
+        (500, 320), (660, 300), (780, 360), (860, 470),
+        (940, 600), (1040, 700), (1180, 740), (1320, 700), (1460, 620),
+        (1600, 680), (1660, 820), (1520, 900), (1320, 880), (1140, 820),
+        (980, 760), (840, 820), (700, 900), (560, 960), (420, 900),
+        (360, 780), (420, 660), (560, 600), (720, 580), (860, 620),
+        (980, 680), (1080, 640), (1160, 540), (1040, 460),
+    ]
     PATH_LOOP_DURATION = 95.0  # seconds per full loop (faster than before)
 
     # Main task stimulus events (24 total): (onset_s, x_ref, y_ref, stimulus_type).
@@ -143,23 +152,15 @@ class DualTask(object):
             for t, x, y, stype in self.PRACTICE_EVENTS
         ]
 
-        # Pre-compute smooth path and regenerate if any event starts too close.
-        self._path_points_ref = []
-        self._path = []
-        max_attempts = 12
-        path_ready = False
-        for _ in range(max_attempts):
-            self._path_points_ref = self._generate_path_points_ref()
-            self._path = self._build_smooth_path()
-            main_overlaps = self._count_overlaps(self._stimuli)
-            practice_overlaps = self._count_overlaps(self._practice_stimuli)
-            if main_overlaps == 0 and practice_overlaps == 0:
-                path_ready = True
-                break
-        if not path_ready:
+        # Pre-compute deterministic smooth path from fixed reference points.
+        self._path_points_ref = list(self.PATH_POINTS_REF)
+        self._path = self._build_smooth_path()
+        main_overlaps = self._count_overlaps(self._stimuli)
+        practice_overlaps = self._count_overlaps(self._practice_stimuli)
+        if main_overlaps or practice_overlaps:
             print(
-                "  [DualTask] WARNING: no zero-overlap path found after "
-                f"{max_attempts} attempts (main={main_overlaps}, practice={practice_overlaps})"
+                "  [DualTask] WARNING: deterministic path overlap summary "
+                f"(main={main_overlaps}, practice={practice_overlaps})"
             )
 
         self._validate_no_overlap(self._stimuli, "main")
@@ -180,100 +181,6 @@ class DualTask(object):
             + (2.0 * v0 - 5.0 * v1 + 4.0 * v2 - v3) * t2
             + (-v0 + 3.0 * v1 - 3.0 * v2 + v3) * t3
         )
-
-    @staticmethod
-    def _normalize_angle_diff(angle):
-        """Normalize angle to [-180, 180)."""
-        return (angle + 180.0) % 360.0 - 180.0
-
-    def _generate_path_points_ref(self):
-        """Generate varied trajectory control points in 1920×1080 coordinates."""
-        min_x = self.PATH_MARGIN
-        max_x = self.REF_WIDTH - self.PATH_MARGIN
-        min_y = self.PATH_MARGIN
-        max_y = self.REF_HEIGHT - self.PATH_MARGIN
-        center_x = self.REF_WIDTH / 2.0
-        center_y = self.REF_HEIGHT / 2.0
-
-        x = center_x + random.uniform(-220, 220)
-        y = center_y + random.uniform(-150, 150)
-        heading = random.uniform(0.0, 360.0)
-        points = [(x, y)]
-
-        curve_steps_left = 0
-        curve_sign = 1
-        total_steps = self.PATH_POINT_COUNT - 1
-        forced_count = max(12, int(total_steps * 0.58))
-        turn_90_count = max(4, int(forced_count * 0.42))
-        turn_180_count = max(2, int(forced_count * 0.23))
-        curve_count = max(4, forced_count - turn_90_count - turn_180_count)
-        forced_turns = (
-            ["turn_90"] * turn_90_count
-            + ["turn_180"] * turn_180_count
-            + ["curve_start"] * curve_count
-        )
-        random.shuffle(forced_turns)
-
-        for i in range(self.PATH_POINT_COUNT - 1):
-            if curve_steps_left > 0:
-                delta = curve_sign * random.uniform(12.0, 24.0)
-                curve_steps_left -= 1
-            else:
-                if i < len(forced_turns):
-                    mode = forced_turns[i]
-                else:
-                    mode = random.choices(
-                        ["turn_90", "turn_180", "curve_start", "angled"],
-                        weights=[0.28, 0.18, 0.32, 0.22],
-                        k=1,
-                    )[0]
-
-                if mode == "turn_90":
-                    delta = random.choice([-1, 1]) * random.uniform(80.0, 100.0)
-                elif mode == "turn_180":
-                    delta = random.choice([-1, 1]) * random.uniform(165.0, 195.0)
-                elif mode == "curve_start":
-                    curve_sign = random.choice([-1, 1])
-                    curve_steps_left = random.randint(2, 4)
-                    delta = curve_sign * random.uniform(10.0, 20.0)
-                    curve_steps_left -= 1
-                else:
-                    delta = random.choice([-1, 1]) * random.uniform(30.0, 70.0)
-
-            heading = (heading + delta) % 360.0
-
-            distance_to_edge = min(x - min_x, max_x - x, y - min_y, max_y - y)
-            segment = random.uniform(self.PATH_MIN_SEGMENT, self.PATH_MAX_SEGMENT)
-            if distance_to_edge < self.PATH_EDGE_ZONE:
-                segment = random.uniform(self.PATH_MIN_SEGMENT, self.PATH_MAX_SEGMENT * 0.7)
-                center_heading = math.degrees(math.atan2(center_y - y, center_x - x))
-                steer = self._normalize_angle_diff(center_heading - heading)
-                heading = (heading + steer * 0.55) % 360.0
-
-            success = False
-            trial_heading = heading
-            trial_segment = segment
-            for _ in range(8):
-                nx = x + math.cos(math.radians(trial_heading)) * trial_segment
-                ny = y + math.sin(math.radians(trial_heading)) * trial_segment
-                if min_x <= nx <= max_x and min_y <= ny <= max_y:
-                    x, y = nx, ny
-                    heading = trial_heading
-                    success = True
-                    break
-                center_heading = math.degrees(math.atan2(center_y - y, center_x - x))
-                steer = self._normalize_angle_diff(center_heading - trial_heading)
-                trial_heading = (trial_heading + steer * 0.65) % 360.0
-                trial_segment *= 0.8
-
-            if not success:
-                x = min(max(x, min_x), max_x)
-                y = min(max(y, min_y), max_y)
-                heading = math.degrees(math.atan2(center_y - y, center_x - x)) % 360.0
-
-            points.append((x, y))
-
-        return [(int(round(px)), int(round(py))) for px, py in points]
 
     def _build_smooth_path(self):
         """Return a dense list of (x, y) positions using Catmull-Rom splines,
