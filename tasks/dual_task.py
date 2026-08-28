@@ -27,42 +27,18 @@ class DualTask(object):
     - Response latency / accuracy for each stimulus                        → "responses" DataFrame
     """
 
-    # Waypoints for the moving point (reference resolution: 1920×1080).
-    # The path is designed with frequent ~90° and ~180° direction changes to make
-    # the trajectory less predictable.  The increased arc length (relative to the
-    # previous smooth loop) also raises the constant travel speed slightly.
-    PATH_POINTS = [
-        # Upper-left → right
-        (150, 300), (500, 200), (900, 180), (1300, 220), (1700, 160),
-        # ≈90° turn: right → down
-        (1850, 350), (1820, 600),
-        # ≈90° turn: down → left
-        (1600, 750), (1200, 780), (800, 740),
-        # ≈90° turn: left → down
-        (500, 900), (300, 1020),
-        # ≈180° turn: reversal near bottom → right
-        (600, 980), (1000, 960), (1400, 940),
-        # ≈90° turn: right → up
-        (1750, 800), (1800, 550),
-        # ≈90° turn: up → left
-        (1550, 350), (1150, 310), (750, 350),
-        # ≈90° turn: left → down
-        (400, 500), (200, 700),
-        # ≈90° turn: down → right
-        (450, 850), (900, 820), (1300, 850),
-        # ≈180° turn: reversal → left
-        (1100, 780), (700, 760), (350, 800),
-        # ≈90° turn: left → up
-        (180, 600), (200, 350),
-        # ≈90° turn: up → right (upper-middle)
-        (550, 150), (950, 130), (1350, 170),
-        # ≈90° turn: right → down
-        (1700, 350), (1680, 600),
-        # ≈90° turn: down → left
-        (1450, 780), (1050, 800),
-        # ≈90° turn: left → up → return to start
-        (700, 650), (400, 450), (200, 300),
-    ]
+    # Procedural trajectory generation (reference resolution: 1920×1080).
+    # Designed to mix short/medium displacements, sharp turns (~90° / ~180°),
+    # and smooth curves while keeping constant speed through arc-length
+    # parameterisation.
+    REF_WIDTH = 1920
+    REF_HEIGHT = 1080
+    PATH_MARGIN = 120
+    PATH_EDGE_ZONE = 220
+    PATH_POINT_COUNT = 78
+    PATH_MIN_SEGMENT = 80
+    PATH_MAX_SEGMENT = 250
+    PATH_LOOP_DURATION = 95.0  # seconds per full loop (faster than before)
 
     # Main task stimulus events (24 total): (onset_s, x_ref, y_ref, stimulus_type).
     # 12 target_red  → participant must press A.
@@ -148,11 +124,8 @@ class DualTask(object):
         pygame.mouse.set_visible(1)
 
         # Scale factors relative to the 1920×1080 reference resolution
-        self.scale_x = self.screen_x / 1920.0
-        self.scale_y = self.screen_y / 1080.0
-
-        # Pre-compute smooth path and scaled stimulus positions
-        self._path = self._build_smooth_path()
+        self.scale_x = self.screen_x / self.REF_WIDTH
+        self.scale_y = self.screen_y / self.REF_HEIGHT
 
         # Randomise stimulus-type assignment: balanced 12 target_red / 12 distractor_blue.
         stimulus_types = ["target_red"] * 12 + ["distractor_blue"] * 12
@@ -169,6 +142,25 @@ class DualTask(object):
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
             for t, x, y, stype in self.PRACTICE_EVENTS
         ]
+
+        # Pre-compute smooth path and regenerate if any event starts too close.
+        self._path_points_ref = []
+        self._path = []
+        max_attempts = 12
+        path_ready = False
+        for _ in range(max_attempts):
+            self._path_points_ref = self._generate_path_points_ref()
+            self._path = self._build_smooth_path()
+            main_overlaps = self._count_overlaps(self._stimuli)
+            practice_overlaps = self._count_overlaps(self._practice_stimuli)
+            if main_overlaps == 0 and practice_overlaps == 0:
+                path_ready = True
+                break
+        if not path_ready:
+            print(
+                "  [DualTask] WARNING: no zero-overlap path found after "
+                f"{max_attempts} attempts (main={main_overlaps}, practice={practice_overlaps})"
+            )
 
         self._validate_no_overlap(self._stimuli, "main")
         self._validate_no_overlap(self._practice_stimuli, "practice")
@@ -189,12 +181,109 @@ class DualTask(object):
             + (-v0 + 3.0 * v1 - 3.0 * v2 + v3) * t3
         )
 
+    @staticmethod
+    def _normalize_angle_diff(angle):
+        """Normalize angle to [-180, 180)."""
+        return (angle + 180.0) % 360.0 - 180.0
+
+    def _generate_path_points_ref(self):
+        """Generate varied trajectory control points in 1920×1080 coordinates."""
+        min_x = self.PATH_MARGIN
+        max_x = self.REF_WIDTH - self.PATH_MARGIN
+        min_y = self.PATH_MARGIN
+        max_y = self.REF_HEIGHT - self.PATH_MARGIN
+        center_x = self.REF_WIDTH / 2.0
+        center_y = self.REF_HEIGHT / 2.0
+
+        x = center_x + random.uniform(-220, 220)
+        y = center_y + random.uniform(-150, 150)
+        heading = random.uniform(0.0, 360.0)
+        points = [(x, y)]
+
+        curve_steps_left = 0
+        curve_sign = 1
+        total_steps = self.PATH_POINT_COUNT - 1
+        forced_count = max(12, int(total_steps * 0.58))
+        turn_90_count = max(4, int(forced_count * 0.42))
+        turn_180_count = max(2, int(forced_count * 0.23))
+        curve_count = max(4, forced_count - turn_90_count - turn_180_count)
+        forced_turns = (
+            ["turn_90"] * turn_90_count
+            + ["turn_180"] * turn_180_count
+            + ["curve_start"] * curve_count
+        )
+        random.shuffle(forced_turns)
+
+        for i in range(self.PATH_POINT_COUNT - 1):
+            if curve_steps_left > 0:
+                delta = curve_sign * random.uniform(12.0, 24.0)
+                curve_steps_left -= 1
+            else:
+                if i < len(forced_turns):
+                    mode = forced_turns[i]
+                else:
+                    mode = random.choices(
+                        ["turn_90", "turn_180", "curve_start", "angled"],
+                        weights=[0.28, 0.18, 0.32, 0.22],
+                        k=1,
+                    )[0]
+
+                if mode == "turn_90":
+                    delta = random.choice([-1, 1]) * random.uniform(80.0, 100.0)
+                elif mode == "turn_180":
+                    delta = random.choice([-1, 1]) * random.uniform(165.0, 195.0)
+                elif mode == "curve_start":
+                    curve_sign = random.choice([-1, 1])
+                    curve_steps_left = random.randint(2, 4)
+                    delta = curve_sign * random.uniform(10.0, 20.0)
+                    curve_steps_left -= 1
+                else:
+                    delta = random.choice([-1, 1]) * random.uniform(30.0, 70.0)
+
+            heading = (heading + delta) % 360.0
+
+            distance_to_edge = min(x - min_x, max_x - x, y - min_y, max_y - y)
+            segment = random.uniform(self.PATH_MIN_SEGMENT, self.PATH_MAX_SEGMENT)
+            if distance_to_edge < self.PATH_EDGE_ZONE:
+                segment = random.uniform(self.PATH_MIN_SEGMENT, self.PATH_MAX_SEGMENT * 0.7)
+                center_heading = math.degrees(math.atan2(center_y - y, center_x - x))
+                steer = self._normalize_angle_diff(center_heading - heading)
+                heading = (heading + steer * 0.55) % 360.0
+
+            success = False
+            trial_heading = heading
+            trial_segment = segment
+            for _ in range(8):
+                nx = x + math.cos(math.radians(trial_heading)) * trial_segment
+                ny = y + math.sin(math.radians(trial_heading)) * trial_segment
+                if min_x <= nx <= max_x and min_y <= ny <= max_y:
+                    x, y = nx, ny
+                    heading = trial_heading
+                    success = True
+                    break
+                center_heading = math.degrees(math.atan2(center_y - y, center_x - x))
+                steer = self._normalize_angle_diff(center_heading - trial_heading)
+                trial_heading = (trial_heading + steer * 0.65) % 360.0
+                trial_segment *= 0.8
+
+            if not success:
+                x = min(max(x, min_x), max_x)
+                y = min(max(y, min_y), max_y)
+                heading = math.degrees(math.atan2(center_y - y, center_x - x)) % 360.0
+
+            points.append((x, y))
+
+        return [(int(round(px)), int(round(py))) for px, py in points]
+
     def _build_smooth_path(self):
         """Return a dense list of (x, y) positions using Catmull-Rom splines,
         arc-length parameterised so the tracking point moves at constant speed."""
+        if not self._path_points_ref:
+            return [(self.screen_x // 2, self.screen_y // 2)]
+
         pts = [
             (int(x * self.scale_x), int(y * self.scale_y))
-            for x, y in self.PATH_POINTS
+            for x, y in self._path_points_ref
         ]
         # Close the loop: return to the first point
         pts_loop = pts + [pts[0]]
@@ -253,12 +342,23 @@ class DualTask(object):
         n = len(self._path)
         if n == 0:
             return self.screen_x // 2, self.screen_y // 2
-        idx = int((elapsed / self.TASK_DURATION) % 1.0 * n) % n
+        idx = int(((elapsed / self.PATH_LOOP_DURATION) % 1.0) * n) % n
         return self._path[idx]
 
     # ------------------------------------------------------------------
     # Overlap validation
     # ------------------------------------------------------------------
+
+    def _count_overlaps(self, stimuli):
+        """Count stimuli that are too close to the tracking point at onset."""
+        threshold = self.MIN_STIMULUS_DISTANCE
+        overlap_count = 0
+        for t, sx, sy, _ in stimuli:
+            px, py = self._get_point_position(t)
+            dist = math.sqrt((px - sx) ** 2 + (py - sy) ** 2)
+            if dist < threshold:
+                overlap_count += 1
+        return overlap_count
 
     def _validate_no_overlap(self, stimuli, block_name):
         """Log a warning when the tracking point is too close to a stimulus at onset."""
