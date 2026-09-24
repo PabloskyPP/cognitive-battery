@@ -114,6 +114,24 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         self.deselectAllButton.clicked.connect(self.deselect_all)
         self.upButton.clicked.connect(self.move_up)
         self.downButton.clicked.connect(self.move_down)
+        self.ensure_task_entries()
+
+    def ensure_task_entries(self):
+        for task_name in ("D2", "NamingNumbers"):
+            matches = self.taskList.findItems(task_name, QtCore.Qt.MatchExactly)
+            if matches:
+                continue
+
+            item = QtWidgets.QListWidgetItem(task_name)
+            item.setFlags(
+                item.flags()
+                | QtCore.Qt.ItemIsUserCheckable
+                | QtCore.Qt.ItemIsEnabled
+                | QtCore.Qt.ItemIsSelectable
+                | QtCore.Qt.ItemIsDragEnabled
+            )
+            item.setCheckState(QtCore.Qt.Unchecked)
+            self.taskList.addItem(item)
 
     # Set default settings values
     def set_default_settings(self):
@@ -568,6 +586,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         cpt_task = cpt.CPT(self.pygame_screen, background)
                         cpt_data = cpt_task.run()
                         results["CPT"] = cpt_data
+                    elif task == "D2":
+                        d2_task = d2.D2(self.pygame_screen, background)
+                        d2_data = d2_task.run()
+                        results["D2"] = d2_data
                     elif task == "Dual Task":
                         dt_task = dual_task.DualTask(self.pygame_screen, background)
                         dt_data = dt_task.run()
