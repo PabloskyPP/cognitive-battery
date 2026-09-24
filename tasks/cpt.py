@@ -239,7 +239,10 @@ class CPT(object):
         )
         self.COORDINATE_POSITIONS = self._load_cpt_row_positions(log_path)
         self.ROW_POSITIONS = {
-            row_num: self.COORDINATE_POSITIONS.get(f"secuencia{row_num}.png", [])
+            row_num: (
+                self.COORDINATE_POSITIONS.get(f"secuencia{row_num}.png")
+                or self.COORDINATE_POSITIONS.get(f"fila{row_num}.png", [])
+            )
             for row_num in range(1, self.NUM_ROWS + 1)
         }
         del self._legacy_row_positions
