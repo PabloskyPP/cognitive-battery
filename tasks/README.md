@@ -87,12 +87,36 @@
 - Digit duration: 250ms
 - Mask duration: 900ms
 
+## CPT
+- 1 practice block with 22 clickable letters
+- 14 main rows with 47 clickable letters per row
+- Target: letters d with exactly two marks
+- Mouse clicks toggle letter selections and record response times
+- Each main row lasts 20 seconds before advancing automatically
+- Exports one row per letter with selection, timestamp, and target status
+
+## D2
+- 1 practice block with 22 clickable letters
+- 14 main rows with 47 clickable letters per row
+- Target: letters d with exactly two marks
+- Mouse clicks toggle letter selections and record response times
+- Each main row lasts 20 seconds before advancing automatically
+- Exports one row per letter with selection, timestamp, and target status
+
 ## FourFigures
 - 4 parts with part-specific instructions
 - Practice + experimental block per part
 - Response options: Cuadrado / Círculo / Triángulo / Cruz
 - Part 4 includes red rule-switch stimuli
 - Exports contour/content response accuracy per trial
+
+## NamingNumbers
+- 4 parts with part-specific instructions
+- Practice + experimental block per part
+- Part 1 uses square stimuli containing dot counts
+- Parts 2-4 use square stimuli containing repeated digits
+- Responses use the number keys 1-9
+- Part 4 includes red rule-switch trials between identity and amount
 
 ## Ikigai
 - 1 introduction screen followed by 2 selection screens

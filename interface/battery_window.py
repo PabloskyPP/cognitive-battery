@@ -11,24 +11,26 @@ from utils import display, values
 from designer import battery_window_qt
 from interface import about_dialog, update_dialog, settings_window
 from tasks import (
-    ant,
     flanker,
     mrt,
     sart,
     ravens,
     digitspan_backwards,
-    digits_memorization,
     sternberg,
     neopir,
-    cpt,
-    dual_task,
-    pvr,
-    acs,
     riasec,
     inteligencia_multiple,
     ikigai,
     srq20,
+    acs,
+    ant,
+    d2,
+    cpt,
+    dual_task,
+    pvr,
     fourfigures,
+    namingnumbers,
+    digits_memorization,
 )
 
 
@@ -579,6 +581,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         fourfigures_task = fourfigures.FourFigures(self.pygame_screen, background)
                         fourfigures_data = fourfigures_task.run()
                         results["FourFigures"] = fourfigures_data
+                    elif task == "NamingNumbers":
+                        namingnumbers_task = namingnumbers.NamingNumbers(self.pygame_screen, background)
+                        namingnumbers_data = namingnumbers_task.run()
+                        results["NamingNumbers"] = namingnumbers_data
 
                     # Play beep after each task
                     if self.task_beep:

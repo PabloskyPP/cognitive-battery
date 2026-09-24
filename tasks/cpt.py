@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 import time
@@ -65,7 +66,7 @@ class CPT(object):
         
         # Main task row coordinates (47 letters per row, 14 rows total)
         # Format: {row_number: [[x_start, x_end], [x_start, x_end], ...], ...}
-        self.ROW_POSITIONS = {
+        self._legacy_row_positions = {
             1: [
             [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],   #6
             [185, 198], [207, 220], [229, 242], [252, 264], [274, 287], [296, 309], #12
@@ -225,6 +226,13 @@ class CPT(object):
         # Get image path - FIX: Navigate to project root
         self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self.image_path = os.path.join(self.base_dir, "images", "CPT")
+        log_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "coordenadas estímulos CPT",
+            "coordenadas imagenes CPT.log",
+        )
+        self.ROW_POSITIONS = self._load_cpt_row_positions(log_path)
+        del self._legacy_row_positions
 
         # Create output dataframe for all rows
         self.all_data = pd.DataFrame()
@@ -250,6 +258,26 @@ class CPT(object):
             13: [1, 5, 6, 9, 11, 12, 13, 15, 19, 24, 25, 27, 29, 33, 34, 37, 38, 40, 43, 45, 46],
             14: [2, 5, 8, 13, 14, 16, 19, 21, 23, 24, 29, 30, 33, 35, 37, 39, 40, 41, 42, 44, 46, 47]
         }
+
+    def _load_cpt_row_positions(self, log_path):
+        """Load filename-keyed stimulus centers from the CPT coordinate log."""
+        with open(log_path, "r", encoding="utf-8") as log_file:
+            blocks = [block for block in log_file.read().split("\n\n") if block.strip()]
+
+        positions = {}
+        for block in blocks:
+            lines = [line.strip() for line in block.splitlines() if line.strip()]
+            if not lines:
+                continue
+
+            coordinate_line = next((line for line in lines if line.startswith("[")), None)
+            if coordinate_line is None:
+                continue
+
+            coordinates = ast.literal_eval(coordinate_line)
+            positions[lines[0]] = [(float(x), float(y)) for x, y in coordinates]
+
+        return positions
 
     def display_instructions(self):
         """Screen 1: Display task instructions with example image"""
@@ -607,17 +635,19 @@ class CPT(object):
         selections = [False] * self.ROW_LETTERS
         selection_times = [None] * self.ROW_LETTERS
         
-        # Check if custom coordinates are defined for this row
-        has_custom_coords = (row_num in self.ROW_POSITIONS and 
-                            len(self.ROW_POSITIONS[row_num]) >= self.ROW_LETTERS)
+        # Coordinates in the log are keyed by their PNG filename.
+        coordinate_key = f"fila{row_num}.png"
+        row_positions = self.ROW_POSITIONS.get(coordinate_key, [])
+        has_custom_coords = len(row_positions) >= self.ROW_LETTERS
         
         for i in range(self.ROW_LETTERS):
             # Check if custom coordinates are defined for this letter in this row
             if (has_custom_coords and 
-                i < len(self.ROW_POSITIONS[row_num]) and 
-                len(self.ROW_POSITIONS[row_num][i]) == 2):
-                # Use custom coordinates (from original image) and scale them
-                x_start, x_end = self.ROW_POSITIONS[row_num][i]
+                i < len(row_positions) and
+                len(row_positions[i]) == 2):
+                # Each logged point is the stimulus center; use an 11 px margin.
+                x_center, _ = row_positions[i]
+                x_start, x_end = x_center - 11, x_center + 11
                 x_start_scaled = x_start * scale_factor
                 x_end_scaled = x_end * scale_factor
                 hitbox = pygame.Rect(
