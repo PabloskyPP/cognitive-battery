@@ -572,6 +572,10 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         d2_task = d2.D2(self.pygame_screen, background)
                         d2_data = d2_task.run()
                         results["D2"] = d2_data
+                    elif task == "NamingNumbers":
+                        namingnumbers_task = namingnumbers.NamingNumbers(self.pygame_screen, background)
+                        namingnumbers_data = namingnumbers_task.run()
+                        results["NamingNumbers"] = namingnumbers_data
                     elif task == "Dual Task":
                         dt_task = dual_task.DualTask(self.pygame_screen, background)
                         dt_data = dt_task.run()
@@ -585,10 +589,6 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         fourfigures_task = fourfigures.FourFigures(self.pygame_screen, background)
                         fourfigures_data = fourfigures_task.run()
                         results["FourFigures"] = fourfigures_data
-                    elif task == "NamingNumbers":
-                        namingnumbers_task = namingnumbers.NamingNumbers(self.pygame_screen, background)
-                        namingnumbers_data = namingnumbers_task.run()
-                        results["NamingNumbers"] = namingnumbers_data
 
                     # Play beep after each task
                     if self.task_beep:
