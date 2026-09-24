@@ -117,7 +117,12 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         self.ensure_task_entries()
 
     def ensure_task_entries(self):
-        for task_name in ("D2", "NamingNumbers"):
+        required_tasks = (
+            ("D2", "CPT"),
+            ("NamingNumbers", "FourFigures"),
+        )
+
+        for task_name, insert_after in required_tasks:
             matches = self.taskList.findItems(task_name, QtCore.Qt.MatchExactly)
             if matches:
                 continue
@@ -131,7 +136,13 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 | QtCore.Qt.ItemIsDragEnabled
             )
             item.setCheckState(QtCore.Qt.Unchecked)
-            self.taskList.addItem(item)
+
+            insert_index = self.taskList.count()
+            anchor_matches = self.taskList.findItems(insert_after, QtCore.Qt.MatchExactly)
+            if anchor_matches:
+                insert_index = self.taskList.row(anchor_matches[0]) + 1
+
+            self.taskList.insertItem(insert_index, item)
 
     # Set default settings values
     def set_default_settings(self):
