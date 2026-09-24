@@ -74,20 +74,20 @@ class DualTask(object):
     # spatial overlap with the tracking-point path.
     STIMULUS_EVENTS = [
         ( 4.0,  180,  920, "target_red"),   
-        ( 9.0, 1720,  820, "distractor_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
-        (12.5,  280,  480, "target_red"),   
+        ( 9.0, 1720,  820, "distractor_blue"), 
+        (12.5,  280,  480, "target_red"),   # Este cuadrado se muestra muy cerca del punto seguido con el ratón
         (18.0, 1620,  180, "target_red"),   
         (24.5, 1000,  960, "distractor_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
         (29.5, 1760,  580, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
         (33.0,  480, 1000, "target_red"),   
         (38.5, 1380,  280, "distractor_blue"),
-        (43.5,  820,  870, "distractor_blue"),
-        (50.0, 1670,  720, "distractor_blue"), # Este muy lejos del punto seguido con el ratón
+        (43.5,  820,  870, "target_red"),
+        (50.0, 1670,  720, "target_red"), # Este muy lejos del punto seguido con el ratón
         (55.0,  380,  240, "target_red"),   
         (58.5, 1560,  980, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
         (64.0,  420,  300, "distractor_blue"),
         (69.0,  230,  740, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
-        (75.5, 1710,  440, "target_red"),  # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (75.5, 1710,  440, "distractor_blue"),  # Este cuadrado se muestra muy cerca del punto seguido con el ratón
         (80.5,  580,  990, "target_red"),   # Este muy lejos del punto seguido con el ratón
         (84.0, 1460,  640, "target_red"),   
         (89.5,  340,  340, "distractor_blue"),
