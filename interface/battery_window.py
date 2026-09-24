@@ -114,35 +114,6 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         self.deselectAllButton.clicked.connect(self.deselect_all)
         self.upButton.clicked.connect(self.move_up)
         self.downButton.clicked.connect(self.move_down)
-        self.ensure_task_entries()
-
-    def ensure_task_entries(self):
-        required_tasks = (
-            ("D2", "CPT"),
-            ("NamingNumbers", "FourFigures"),
-        )
-
-        for task_name, insert_after in required_tasks:
-            matches = self.taskList.findItems(task_name, QtCore.Qt.MatchExactly)
-            if matches:
-                continue
-
-            item = QtWidgets.QListWidgetItem(task_name)
-            item.setFlags(
-                item.flags()
-                | QtCore.Qt.ItemIsUserCheckable
-                | QtCore.Qt.ItemIsEnabled
-                | QtCore.Qt.ItemIsSelectable
-                | QtCore.Qt.ItemIsDragEnabled
-            )
-            item.setCheckState(QtCore.Qt.Unchecked)
-
-            insert_index = self.taskList.count()
-            anchor_matches = self.taskList.findItems(insert_after, QtCore.Qt.MatchExactly)
-            if anchor_matches:
-                insert_index = self.taskList.row(anchor_matches[0]) + 1
-
-            self.taskList.insertItem(insert_index, item)
 
     # Set default settings values
     def set_default_settings(self):
