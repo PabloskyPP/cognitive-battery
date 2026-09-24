@@ -33,6 +33,29 @@ from tasks import (
     digits_memorization,
 )
 
+TASK_LIST_ORDER = (
+    "Attention Network Test (ANT)",
+    "Digit Span (backwards)",
+    "Digits Memorization",
+    "Eriksen Flanker Task",
+    "Mental Rotation Task",
+    "Raven's Progressive Matrices",
+    "Sternberg Task",
+    "Sustained Attention to Response Task (SART)",
+    "NEO-PI-R",
+    "CPT",
+    "D2",
+    "Dual Task",
+    "Relative Verticality Perception (PVR)",
+    "ACS",
+    "RIASEC",
+    "Inteligencia Multiple",
+    "SRQ20",
+    "Ikigai",
+    "FourFigures",
+    "NamingNumbers",
+)
+
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
     def __init__(self, base_dir, project_dir, res_width, res_height):
@@ -40,6 +63,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Setup the main window UI
         self.setupUi(self)
+        self.normalize_task_list()
 
         # Set app icon
         self.setWindowIcon(QtGui.QIcon(os.path.join("images", "icon_sml.png")))
@@ -114,6 +138,20 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         self.deselectAllButton.clicked.connect(self.deselect_all)
         self.upButton.clicked.connect(self.move_up)
         self.downButton.clicked.connect(self.move_down)
+
+    def normalize_task_list(self):
+        self.taskList.clear()
+        for task_name in TASK_LIST_ORDER:
+            item = QtWidgets.QListWidgetItem(task_name)
+            item.setFlags(
+                item.flags()
+                | QtCore.Qt.ItemIsUserCheckable
+                | QtCore.Qt.ItemIsEnabled
+                | QtCore.Qt.ItemIsSelectable
+                | QtCore.Qt.ItemIsDragEnabled
+            )
+            item.setCheckState(QtCore.Qt.Unchecked)
+            self.taskList.addItem(item)
 
     # Set default settings values
     def set_default_settings(self):
@@ -568,6 +606,14 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         cpt_task = cpt.CPT(self.pygame_screen, background)
                         cpt_data = cpt_task.run()
                         results["CPT"] = cpt_data
+                    elif task == "D2":
+                        d2_task = d2.D2(self.pygame_screen, background)
+                        d2_data = d2_task.run()
+                        results["D2"] = d2_data
+                    elif task == "NamingNumbers":
+                        namingnumbers_task = namingnumbers.NamingNumbers(self.pygame_screen, background)
+                        namingnumbers_data = namingnumbers_task.run()
+                        results["NamingNumbers"] = namingnumbers_data
                     elif task == "Dual Task":
                         dt_task = dual_task.DualTask(self.pygame_screen, background)
                         dt_data = dt_task.run()
@@ -581,10 +627,6 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         fourfigures_task = fourfigures.FourFigures(self.pygame_screen, background)
                         fourfigures_data = fourfigures_task.run()
                         results["FourFigures"] = fourfigures_data
-                    elif task == "NamingNumbers":
-                        namingnumbers_task = namingnumbers.NamingNumbers(self.pygame_screen, background)
-                        namingnumbers_data = namingnumbers_task.run()
-                        results["NamingNumbers"] = namingnumbers_data
 
                     # Play beep after each task
                     if self.task_beep:

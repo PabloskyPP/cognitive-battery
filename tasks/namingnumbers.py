@@ -1,4 +1,3 @@
-import random
 import sys
 import time
 
@@ -13,6 +12,37 @@ class NamingNumbers(object):
     DIGITS = tuple(range(1, 10))
     KEY_TO_DIGIT = {getattr(pygame, f"K_{digit}"): digit for digit in DIGITS}
     RED_POSITIONS = {5, 10, 14, 19, 23, 29}
+    PART1_PRACTICE_AMOUNTS = (2, 5, 8, 4)
+    PART1_EXPERIMENTAL_AMOUNTS = (
+        1, 4, 7, 2, 9, 5, 3, 8,
+        6, 2, 5, 9, 1, 7, 4, 8,
+        3, 6, 1, 5, 8, 2, 9, 4,
+        7, 3, 6, 9, 2, 8, 4, 1,
+    )
+    PART2_PRACTICE_STIMULI = ((3, 7), (5, 2), (2, 9), (4, 4))
+    PART2_EXPERIMENTAL_STIMULI = (
+        (3, 7), (5, 2), (2, 9), (7, 4), (4, 1), (6, 8), (1, 5), (8, 3),
+        (9, 6), (2, 4), (5, 7), (3, 1), (6, 9), (4, 8), (7, 5), (1, 2),
+        (8, 6), (2, 3), (9, 4), (5, 1), (3, 8), (6, 2), (4, 7), (7, 9),
+        (1, 6), (8, 5), (2, 1), (9, 7), (5, 4), (3, 2), (6, 3), (4, 9),
+    )
+    PART3_PRACTICE_STIMULI = ((2, 6), (6, 3), (4, 8), (7, 5))
+    PART3_EXPERIMENTAL_STIMULI = (
+        (2, 6), (7, 3), (4, 8), (9, 2), (5, 7), (3, 1), (8, 4), (6, 9),
+        (1, 5), (4, 2), (7, 8), (2, 3), (9, 6), (5, 4), (3, 7), (8, 1),
+        (6, 5), (1, 9), (4, 3), (7, 2), (2, 8), (9, 1), (5, 6), (3, 4),
+        (8, 7), (6, 2), (1, 4), (4, 9), (7, 5), (2, 1), (9, 8), (5, 3),
+    )
+    PART4_PRACTICE_STIMULI = (
+        (2, 7), (5, 3), (4, 8), (6, 2),
+        (3, 9), (7, 4), (1, 5), (8, 6),
+    )
+    PART4_EXPERIMENTAL_STIMULI = (
+        (2, 7), (5, 3), (4, 8), (6, 2), (3, 9), (7, 4), (1, 5), (8, 6),
+        (9, 1), (2, 4), (5, 7), (4, 3), (6, 8), (3, 2), (7, 9), (1, 4),
+        (8, 5), (9, 6), (2, 1), (5, 8), (4, 7), (6, 3), (3, 5), (7, 2),
+        (1, 9), (8, 4), (9, 7), (2, 6), (5, 1), (4, 9), (6, 5), (3, 8),
+    )
 
     def __init__(self, screen, background):
         self.screen = screen
@@ -28,17 +58,11 @@ class NamingNumbers(object):
         pygame.mouse.set_visible(1)
         self.rows = []
 
-    def _generate_stimulus(self, kind):
-        """Return one random dots or repeated-numbers stimulus."""
-        if kind == "dots":
-            return {"kind": kind, "amount": random.randint(1, 9), "identity": None}
-        if kind == "numbers":
-            return {
-                "kind": kind,
-                "amount": random.randint(1, 9),
-                "identity": random.randint(1, 9),
-            }
-        raise ValueError(f"Unknown stimulus kind: {kind}")
+    def _dots_stimulus(self, amount):
+        return {"kind": "dots", "amount": amount, "identity": None}
+
+    def _numbers_stimulus(self, amount, identity):
+        return {"kind": "numbers", "amount": amount, "identity": identity}
 
     def _draw_stimulus(self, stimulus, is_red=False, center=None, size=170, surface=None):
         if surface is None:
@@ -154,23 +178,35 @@ class NamingNumbers(object):
             self._run_trial(trial, part, target_rule, trial["trial_type"])
 
     def _create_part1_experimental(self):
-        return [dict(self._generate_stimulus("dots"), trial_type="experimental", target="amount")
-                for _ in range(32)]
+        return [
+            dict(self._dots_stimulus(amount), trial_type="experimental", target="amount")
+            for amount in self.PART1_EXPERIMENTAL_AMOUNTS
+        ]
 
     def _create_part2_experimental(self):
-        return [dict(self._generate_stimulus("numbers"), trial_type="experimental", target="identity")
-                for _ in range(32)]
+        return [
+            dict(self._numbers_stimulus(amount, identity), trial_type="experimental", target="identity")
+            for amount, identity in self.PART2_EXPERIMENTAL_STIMULI
+        ]
 
     def _create_part3_experimental(self):
-        return [dict(self._generate_stimulus("numbers"), trial_type="experimental", target="amount")
-                for _ in range(32)]
+        return [
+            dict(self._numbers_stimulus(amount, identity), trial_type="experimental", target="amount")
+            for amount, identity in self.PART3_EXPERIMENTAL_STIMULI
+        ]
 
     def _create_part4_experimental(self):
         trials = []
-        for position in range(1, 33):
+        for position, (amount, identity) in enumerate(self.PART4_EXPERIMENTAL_STIMULI, start=1):
             is_red = position in self.RED_POSITIONS
-            trials.append(dict(self._generate_stimulus("numbers"), is_red=is_red,
-                               switch_before=is_red, trial_type="experimental"))
+            trials.append(
+                dict(
+                    self._numbers_stimulus(amount, identity),
+                    is_red=is_red,
+                    switch_before=is_red,
+                    trial_type="experimental",
+                )
+            )
         return trials
 
     def _compute_practice_rules(self, trials, initial_rule):
@@ -276,8 +312,10 @@ class NamingNumbers(object):
             "Pulsa <<barra espaciadora>> para continuar.",
         ])
 
-        part1_practice = [dict(self._generate_stimulus("dots"), trial_type="practice", target="amount")
-                          for _ in range(4)]
+        part1_practice = [
+            dict(self._dots_stimulus(amount), trial_type="practice", target="amount")
+            for amount in self.PART1_PRACTICE_AMOUNTS
+        ]
         self._show_practice_integrated_screen(
             ["Primera parte", "", "Indica cuántos puntos aparecen dentro de cada cuadrado.",
              "", "Responde a los siguientes 4 ejemplos con las teclas 1-9."],
@@ -286,8 +324,10 @@ class NamingNumbers(object):
              "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
         self._run_trials(self._create_part1_experimental(), 1, "amount")
 
-        part2_practice = [dict(self._generate_stimulus("numbers"), trial_type="practice", target="identity")
-                          for _ in range(4)]
+        part2_practice = [
+            dict(self._numbers_stimulus(amount, identity), trial_type="practice", target="identity")
+            for amount, identity in self.PART2_PRACTICE_STIMULI
+        ]
         self._show_practice_integrated_screen(
             ["La parte 1 ha terminado.", "", "En esta parte aparecerán agrupaciones de una misma cifra.",
              "", "Indica qué cifra aparece en cada cuadrado."],
@@ -296,8 +336,10 @@ class NamingNumbers(object):
              "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
         self._run_trials(self._create_part2_experimental(), 2, "identity")
 
-        part3_practice = [dict(self._generate_stimulus("numbers"), trial_type="practice", target="amount")
-                          for _ in range(4)]
+        part3_practice = [
+            dict(self._numbers_stimulus(amount, identity), trial_type="practice", target="amount")
+            for amount, identity in self.PART3_PRACTICE_STIMULI
+        ]
         self._show_practice_integrated_screen(
             ["La parte 2 ha terminado.", "", "Indica cuántas veces aparece repetida la cifra dentro de cada cuadrado."],
             part3_practice, 3, "amount",
@@ -305,9 +347,15 @@ class NamingNumbers(object):
              "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
         self._run_trials(self._create_part3_experimental(), 3, "amount")
 
-        part4_practice = [dict(self._generate_stimulus("numbers"), trial_type="practice",
-                               is_red=idx in (3, 5), switch_before=idx in (3, 5))
-                          for idx in range(1, 9)]
+        part4_practice = [
+            dict(
+                self._numbers_stimulus(amount, identity),
+                trial_type="practice",
+                is_red=idx in (3, 5),
+                switch_before=idx in (3, 5),
+            )
+            for idx, (amount, identity) in enumerate(self.PART4_PRACTICE_STIMULI, start=1)
+        ]
         self._show_practice_integrated_screen(
             ["La parte 3 ha terminado.", "", "Al principio indica cuántas cifras aparecen.", "",
              "Cada estímulo rojo cambia el objetivo: desde ese estímulo debes indicar la cifra, y el objetivo vuelve a cambiar en el siguiente estímulo rojo."],

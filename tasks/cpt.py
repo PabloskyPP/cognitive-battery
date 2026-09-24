@@ -223,15 +223,28 @@ class CPT(object):
         ]
         }
 
-        # Get image path - FIX: Navigate to project root
-        self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.image_path = os.path.join(self.base_dir, "images", "CPT")
+        # Get image path
+        self.base_dir = os.path.dirname(os.path.realpath(__file__))
+        task_image_path = os.path.join(self.base_dir, "images", "CPT")
+        project_image_path = os.path.join(
+            os.path.dirname(self.base_dir), "images", "CPT"
+        )
+        self.image_path = (
+            task_image_path if os.path.isdir(task_image_path) else project_image_path
+        )
         log_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "coordenadas estímulos CPT",
             "coordenadas imagenes CPT.log",
         )
-        self.ROW_POSITIONS = self._load_cpt_row_positions(log_path)
+        self.COORDINATE_POSITIONS = self._load_cpt_row_positions(log_path)
+        self.ROW_POSITIONS = {
+            row_num: (
+                self.COORDINATE_POSITIONS.get(f"secuencia{row_num}.png")
+                or self.COORDINATE_POSITIONS.get(f"fila{row_num}.png", [])
+            )
+            for row_num in range(1, self.NUM_ROWS + 1)
+        }
         del self._legacy_row_positions
 
         # Create output dataframe for all rows
@@ -460,9 +473,21 @@ class CPT(object):
         hitboxes = []
         selections = [False] * self.TRAINING_LETTERS
         
+        training_positions = self.COORDINATE_POSITIONS.get("prueba.png", [])
+
         for i in range(self.TRAINING_LETTERS):
             # Check if custom coordinates are defined for this letter
-            if i < len(self.TRAINING_POSITIONS) and len(self.TRAINING_POSITIONS[i]) == 2:
+            if i < len(training_positions) and len(training_positions[i]) == 2:
+                x_center, _ = training_positions[i]
+                x_start_scaled = (x_center - 11) * scale_factor
+                x_end_scaled = (x_center + 11) * scale_factor
+                hitbox = pygame.Rect(
+                    img_x + x_start_scaled,
+                    img_y,
+                    x_end_scaled - x_start_scaled,
+                    img_height
+                )
+            elif i < len(self.TRAINING_POSITIONS) and len(self.TRAINING_POSITIONS[i]) == 2:
                 # Use custom coordinates (from original image) and scale them
                 x_start, x_end = self.TRAINING_POSITIONS[i]
                 x_start_scaled = x_start * scale_factor
@@ -556,12 +581,12 @@ class CPT(object):
         self.screen.blit(black_background, (0, 0))
         
         # Load row image
-        row_image_path = os.path.join(self.image_path, f"fila{row_num}.jpg")
+        row_image_path = os.path.join(self.image_path, f"secuencia{row_num}.png")
         if not os.path.exists(row_image_path):
             # Show error message if image doesn't exist
             display.text(
                 self.screen, self.font,
-                f"Error: Image 'fila{row_num}.jpg' not found in images/CPT/",
+                f"Error: Image 'secuencia{row_num}.png' not found in images/CPT/",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
@@ -594,7 +619,7 @@ class CPT(object):
         if original_width <= 0 or original_height <= 0:
             display.text(
                 self.screen, self.font,
-                f"Error: Invalid dimensions for 'fila{row_num}.jpg'",
+                f"Error: Invalid dimensions for 'secuencia{row_num}.png'",
                 "center", "center", (255, 0, 0)
             )
             pygame.display.flip()
@@ -635,9 +660,7 @@ class CPT(object):
         selections = [False] * self.ROW_LETTERS
         selection_times = [None] * self.ROW_LETTERS
         
-        # Coordinates in the log are keyed by their PNG filename.
-        coordinate_key = f"fila{row_num}.png"
-        row_positions = self.ROW_POSITIONS.get(coordinate_key, [])
+        row_positions = self.ROW_POSITIONS.get(row_num, [])
         has_custom_coords = len(row_positions) >= self.ROW_LETTERS
         
         for i in range(self.ROW_LETTERS):

@@ -222,9 +222,15 @@ class D2(object):
         ]
         }
 
-        # Get image path - FIX: Navigate to project root
-        self.base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.image_path = os.path.join(self.base_dir, "images", "D2")
+        # Get image path
+        self.base_dir = os.path.dirname(os.path.realpath(__file__))
+        task_image_path = os.path.join(self.base_dir, "images", "D2")
+        project_image_path = os.path.join(
+            os.path.dirname(self.base_dir), "images", "D2"
+        )
+        self.image_path = (
+            task_image_path if os.path.isdir(task_image_path) else project_image_path
+        )
 
         # Create output dataframe for all rows
         self.all_data = pd.DataFrame()
