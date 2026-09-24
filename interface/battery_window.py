@@ -33,6 +33,29 @@ from tasks import (
     digits_memorization,
 )
 
+TASK_LIST_ORDER = (
+    "Attention Network Test (ANT)",
+    "Digit Span (backwards)",
+    "Digits Memorization",
+    "Eriksen Flanker Task",
+    "Mental Rotation Task",
+    "Raven's Progressive Matrices",
+    "Sternberg Task",
+    "Sustained Attention to Response Task (SART)",
+    "NEO-PI-R",
+    "CPT",
+    "D2",
+    "Dual Task",
+    "Relative Verticality Perception (PVR)",
+    "ACS",
+    "RIASEC",
+    "Inteligencia Multiple",
+    "SRQ20",
+    "Ikigai",
+    "FourFigures",
+    "NamingNumbers",
+)
+
 
 class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery):
     def __init__(self, base_dir, project_dir, res_width, res_height):
@@ -40,6 +63,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Setup the main window UI
         self.setupUi(self)
+        self.normalize_task_list()
 
         # Set app icon
         self.setWindowIcon(QtGui.QIcon(os.path.join("images", "icon_sml.png")))
@@ -114,6 +138,20 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
         self.deselectAllButton.clicked.connect(self.deselect_all)
         self.upButton.clicked.connect(self.move_up)
         self.downButton.clicked.connect(self.move_down)
+
+    def normalize_task_list(self):
+        self.taskList.clear()
+        for task_name in TASK_LIST_ORDER:
+            item = QtWidgets.QListWidgetItem(task_name)
+            item.setFlags(
+                item.flags()
+                | QtCore.Qt.ItemIsUserCheckable
+                | QtCore.Qt.ItemIsEnabled
+                | QtCore.Qt.ItemIsSelectable
+                | QtCore.Qt.ItemIsDragEnabled
+            )
+            item.setCheckState(QtCore.Qt.Unchecked)
+            self.taskList.addItem(item)
 
     # Set default settings values
     def set_default_settings(self):
