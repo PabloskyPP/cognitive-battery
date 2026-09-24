@@ -225,7 +225,13 @@ class CPT(object):
 
         # Get image path
         self.base_dir = os.path.dirname(os.path.realpath(__file__))
-        self.image_path = os.path.join(self.base_dir, "images", "CPT")
+        task_image_path = os.path.join(self.base_dir, "images", "CPT")
+        project_image_path = os.path.join(
+            os.path.dirname(self.base_dir), "images", "CPT"
+        )
+        self.image_path = (
+            task_image_path if os.path.isdir(task_image_path) else project_image_path
+        )
         log_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
             "coordenadas estímulos CPT",
