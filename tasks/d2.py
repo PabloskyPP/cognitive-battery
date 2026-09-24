@@ -265,7 +265,7 @@ class D2(object):
         y_pos = self.screen_y / 2 - 350
         
         lines = [
-            "Esta prueba trata de conocer tu capacidad de concentración en una tarea determinada.",
+            "Esta prueba trata de conocer tu capacidad de concentració.",
             "En esta página se te presenta un ejemplo y una línea de entrenamiento para que te",
             "familiarices con la tarea."
         ]
@@ -296,7 +296,7 @@ class D2(object):
             "La primera d tiene las dos rayitas encima, la segunda las tiene debajo y la tercera d tiene una",
             "rayita encima y otra debajo. Observa que en estos casos la letra d va acompañada de dos rayitas.",
             "",
-            "Tu tarea consistirá en buscar las letras d iguales a esas tres (con dos rayitas en cualquier posición)",
+            "Tu tarea consiste en buscar las letras d iguales a esas tres (con dos rayitas en cualquier posición)",
             "y marcarlas. Fíjate bien, porque hay letras d con más de dos o menos de dos rayitas y letras p,",
             "que NO deberás marcar en ningún caso, independientemente del número de rayitas que tengan.",
             "Si te equivocas y quieres cambiar una respuesta, puedes desmarcar tu respuesta clicando de nuevo",

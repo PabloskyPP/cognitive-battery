@@ -2,7 +2,6 @@ import sys
 import time
 import math
 import heapq
-import random
 import pandas as pd
 import pygame
 
@@ -34,42 +33,36 @@ class DualTask(object):
     REF_WIDTH = 1920
     REF_HEIGHT = 1080
     PATH_POINTS_REF = [
-    (858, 746), (942, 809), (858, 872), (774, 809), (711, 893),
-    (627, 830), (732, 830), (627, 830), (690, 746), (606, 683),
-    (690, 620), (753, 704), (690, 620), (795, 620), (795, 515),
-    (690, 515), (753, 599), (669, 662), (585, 599), (648, 515),
+    (858, 746), (942, 809), (1047, 809), (963, 746), (900, 662),
+    (1005, 662), (1089, 599), (1152, 515), (1068, 452), (984, 389),
+    (900, 452), (837, 536), (921, 473), (921, 368), (1005, 305),
+    (942, 221), (858, 284), (774, 221), (690, 284), (627, 368),
     (564, 452), (648, 389), (564, 452), (564, 557), (564, 452),
-    (480, 389), (543, 305), (606, 389), (543, 305), (480, 389),
-    (564, 326), (501, 410), (378, 326), (522, 265), (522, 356),
-    (378, 313), (459, 389), (369, 452), (339, 389), (369, 452),
-    (459, 389), (369, 326), (522, 326), (522, 221), (417, 221),
-    (417, 116), (306, 116), (306, 11), (222, 74), (222, 179),
-    (138, 116), (222, 179), (123, 179), (186, 95), (102, 32),
-    (207, 32), (123, 95), (186, 11), (102, 74), (207, 74),
-    (102, 74), (207, 74), (258, 158), (339, 74), (297, 11),
-    (366, 11), (423, 95), (339, 32), (270, 116), (366, 179),
-    (366, 74), (423, 158), (366, 218), (444, 179), (411, 95),
-    (444, 11), (549, 11), (549, 116), (606, 32), (669, 116),
-    (585, 53), (522, 137), (522, 32), (606, 95), (522, 158),
-    (459, 74), (543, 137), (459, 74), (543, 137), (459, 200),
-    (543, 221), (450, 301), (543, 221), (438, 221), (543, 221),
-    (543, 116), (627, 221), (690, 137), (606, 200), (669, 116),
-    (585, 179), (522, 95), (378, 158), (543, 158), (480, 242),
-    (369, 158), (459, 95), (564, 179), (564, 74), (669, 74),
-    (732, 158), (648, 221), (711, 137), (795, 200), (711, 263),
-    (816, 263), (816, 158), (900, 95), (837, 179), (921, 116),
-    (921, 221), (837, 158), (900, 242), (963, 158), (879, 95),
-    (942, 179), (858, 242), (963, 242), (900, 326), (900, 221),
-    (816, 284), (879, 200), (879, 305), (816, 221), (900, 158),
-    (837, 74), (921, 11), (984, 95), (1047, 11), (1110, 95),
-    (1194, 32), (1110, 95), (1215, 95), (1110, 95), (1173, 11),
+
+    (480, 389), (564, 326), (564, 431), (648, 494), (753, 494),
+    (669, 557), (669, 452), (753, 515), (753, 620), (837, 683),
+    (732, 683), (648, 746), (732, 809), (627, 809), (543, 746),
+    (438, 746), (522, 683), (417, 683), (333, 746), (249, 683),
+    (249, 578), (144, 578), (228, 515), (228, 410), (312, 347),
+    (396, 410), (480, 347), (564, 410), (669, 410), (585, 473),
+    (690, 473), (690, 368), (774, 305), (858, 368), (858, 473),
+    (963, 473), (1047, 536), (1047, 431), (963, 368), (963, 263),
+    (879, 326), (795, 263), (879, 200), (984, 200), (984, 95),
+    (1068, 32), (1173, 32), (1257, 95), (1362, 95), (1278, 158),
+    (1278, 53), (1194, 116), (1299, 116), (1383, 53), (1488, 53),
+    (1488, 158), (1383, 158), (1467, 95), (1467, 200), (1383, 137),
+    (1299, 200), (1194, 200), (1194, 95), (1278, 32), (1278, 137),
+    (1194, 74), (1110, 137), (1026, 74), (1110, 11), (1005, 11),
+    (1089, 74), (1089, 179), (1173, 242), (1257, 179), (1257, 74),
+    (1173, 11),
+    
     (1278, 11), (1341, 95), (1425, 32), (1488, 116), (1488, 11),
     (1425, 95), (1341, 32), (1404, 116), (1488, 53), (1551, 137),
     (1467, 200), (1551, 263), (1488, 179), (1593, 179), (1530, 263),
     (1467, 179), (1404, 263), (1320, 200), (1425, 200), (1362, 284),
     (1362, 179), (1362, 284), (1467, 284), (1467, 389), (1362, 389),
     (1362, 494), (1446, 557), (1509, 473), (1509, 578),
-    ]
+]
     
     PATH_LOOP_DURATION = 95.0  # seconds per full loop (faster than before)
 
@@ -80,30 +73,30 @@ class DualTask(object):
     # Positions are placed in peripheral screen areas to minimise
     # spatial overlap with the tracking-point path.
     STIMULUS_EVENTS = [
-        ( 4.0,  180,  920, "target_red"),
-        ( 9.0, 1720,  820, "distractor_blue"),
-        (12.5,  280,  480, "target_red"),
-        (18.0, 1620,  180, "distractor_blue"),
-        (24.5, 1000,  960, "target_red"),
-        (29.5, 1760,  580, "distractor_blue"),
-        (33.0,  480, 1000, "target_red"),
+        ( 4.0,  180,  920, "target_red"),   
+        ( 9.0, 1720,  820, "distractor_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (12.5,  280,  480, "target_red"),   
+        (18.0, 1620,  180, "target_red"),   
+        (24.5, 1000,  960, "distractor_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (29.5, 1760,  580, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
+        (33.0,  480, 1000, "target_red"),   
         (38.5, 1380,  280, "distractor_blue"),
-        (43.5,  820,  870, "target_red"),
-        (50.0, 1670,  720, "distractor_blue"),
-        (55.0,  380,  240, "target_red"),
-        (58.5, 1560,  980, "distractor_blue"),
-        (64.0,  920,  100, "target_red"),
-        (69.0,  230,  740, "distractor_blue"),
-        (75.5, 1710,  440, "target_red"),
-        (80.5,  580,  990, "distractor_blue"),
-        (84.0, 1460,  640, "target_red"),
+        (43.5,  820,  870, "distractor_blue"),
+        (50.0, 1670,  720, "distractor_blue"), # Este muy lejos del punto seguido con el ratón
+        (55.0,  380,  240, "target_red"),   
+        (58.5, 1560,  980, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
+        (64.0,  420,  300, "distractor_blue"),
+        (69.0,  230,  740, "distractor_blue"),# Este muy lejos del punto seguido con el ratón
+        (75.5, 1710,  440, "target_red"),  # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (80.5,  580,  990, "target_red"),   # Este muy lejos del punto seguido con el ratón
+        (84.0, 1460,  640, "target_red"),   
         (89.5,  340,  340, "distractor_blue"),
-        (94.5, 1210,  890, "target_red"),
+        (94.5, 1210,  890, "target_red"),   # Este muy lejos del punto seguido con el ratón
         (99.5, 1820,  190, "distractor_blue"),
-        (103.5,  680,  510, "target_red"),
-        (108.0, 1520,  910, "distractor_blue"),
-        (111.5,  260,  120, "target_red"),
-        (116.0, 1060,  930, "distractor_blue"),
+        (103.5,  680,  510, "target_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (108.0, 1520,  910, "target_red"),  # Este muy lejos del punto seguido con el ratón
+        (111.5,  260,  120, "distractor_blue"), # Este cuadrado se muestra muy cerca del punto seguido con el ratón
+        (116.0, 1060,  930, "target_red"), 
     ]
 
     # Practice trial stimulus events (4 total): (onset_s, x_ref, y_ref, stimulus_type).
@@ -160,16 +153,9 @@ class DualTask(object):
         self.scale_x = self.screen_x / self.REF_WIDTH
         self.scale_y = self.screen_y / self.REF_HEIGHT
 
-        # Randomise stimulus-type assignment: balanced 12 target_red / 12 distractor_blue.
-        stimulus_types = ["target_red"] * 12 + ["distractor_blue"] * 12
-        random.shuffle(stimulus_types)
-        shuffled_events = [
-            (t, x, y, stype)
-            for (t, x, y, _), stype in zip(self.STIMULUS_EVENTS, stimulus_types)
-        ]
         self._stimuli = [
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
-            for t, x, y, stype in shuffled_events
+            for t, x, y, stype in self.STIMULUS_EVENTS
         ]
         self._practice_stimuli = [
             (t, int(x * self.scale_x), int(y * self.scale_y), stype)
@@ -370,7 +356,7 @@ class DualTask(object):
             "1. Sigue con el cursor el punto azul que se mueve por la pantalla.",
             cx, y,
         )
-        y += 40
+        y += 50
         display.text(
             self.screen, self.font,
             "   Mantén el cursor lo más cerca posible del punto en todo momento.",
@@ -382,7 +368,7 @@ class DualTask(object):
             "2. Cuando aparezca un cuadrado ROJO en la pantalla,",
             cx, y,
         )
-        y += 40
+        y += 50
         display.text(
             self.screen, self.font,
             "   presiona la tecla A lo más rápido posible.",
@@ -391,7 +377,13 @@ class DualTask(object):
         y += 50
         display.text(
             self.screen, self.font,
-            "   CUIDADO. Cuando aparezca un cuadrado AZUL, NO presiones ninguna tecla.",
+            "   CUIDADO! A veces aparece un cuadrado AZUL, NO presiones ninguna tecla.",
+            cx, y,
+        )
+        y += 50
+        display.text(
+            self.screen, self.font,
+            "   Responde solo ante el cuadrado rojo, NO el azul. ",
             cx, y,
         )
         y += 50
@@ -400,7 +392,7 @@ class DualTask(object):
             "La tarea dura 2 minutos y finaliza automáticamente.",
             cx, y,
         )
-        y += 80
+        y += 100
         display.text_space(self.screen, self.font, "center", y)
         pygame.display.flip()
         display.wait_for_space()
@@ -443,7 +435,7 @@ class DualTask(object):
         cy += 50
         display.text(
             self.screen, self.font,
-            "Si no tienes dudas sobre la tarea, pulsa la barra espaciadora para continuar.",
+            "Si no tienes dudas sobre la tarea:",
             "center", cy,
         )
         cy += 80

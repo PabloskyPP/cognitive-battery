@@ -1,3 +1,4 @@
+
 import ast
 import os
 import sys
@@ -12,10 +13,10 @@ from utils import display
 class CPT(object):
     """
     CPT - Test de atención y concentración
-    
+
     A task that measures attention and concentration by having participants
-    identify and mark specific target letters (d with exactly two marks)
-    among distractors.
+    identify and mark target stimuli (the number 9 flanked by exactly two
+    points, in any position) among distractor 9s and 6s.
     """
     
     def __init__(self, screen, background):
@@ -36,216 +37,49 @@ class CPT(object):
         pygame.display.set_caption("CPT - Test de atención y concentración")
         pygame.mouse.set_visible(1)
 
+        # Path to the CPT stimulus images (tasks/images/CPT/), resolved relative
+        # to this file so it works regardless of the current working directory.
+        self.image_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "images", "CPT"
+        )
+
         # Experiment options (constants)
         self.ROW_DURATION = 20000  # 20 seconds per row in milliseconds
         self.TRAINING_LETTERS = 22  # Number of letters in training
         self.ROW_LETTERS = 47  # Number of letters in each main task row
         self.NUM_ROWS = 14  # Number of main task rows
-        
+        self.HITBOX_MARGIN = 15  # Half-width (px, unscaled) around each logged stimulus center
+
         # Customizable hitbox coordinate system
         # These coordinates define the exact x-position boundaries [x_start, x_end] for each letter
         # in the ORIGINAL (unscaled) images. They will be automatically scaled during runtime.
-        # 
-        # How to measure and add coordinates:
-        # 1. Open the original image (prueba.png or fila{N}.png) in an image editor
-        # 2. For each letter, note the x-coordinate where the letter starts and ends
-        # 3. Add these as [x_start, x_end] pairs in pixels
-        # 4. The system will automatically apply scaling when displaying
-        # 
-        # If coordinates are empty or incomplete, the system falls back to uniform spacing.
-        
-        # Training image coordinates (22 letters in prueba.png)
-        # Format: [[x_start, x_end], [x_start, x_end], ...]
-        self.TRAINING_POSITIONS = [
-            # Add 22 coordinate pairs here, one for each letter in prueba.png
-            [154, 165], [173, 186], [195, 207], [216, 228], [237, 250], [258, 271],  
-            [279, 292], [301, 313], [321, 335], [343, 356], [364, 377], [386, 399],
-            [406, 421], [427, 441], [450, 462], [470, 484], [493, 506], [512, 527],
-            [534, 547], [554, 569], [575, 590], [597, 611]
-        ]
-        
-        # Main task row coordinates (47 letters per row, 14 rows total)
-        # Format: {row_number: [[x_start, x_end], [x_start, x_end], ...], ...}
-        self._legacy_row_positions = {
-            1: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],   #6
-            [185, 198], [207, 220], [229, 242], [252, 264], [274, 287], [296, 309], #12
-            [318, 331], [340, 353], [360, 374], [383, 396], [405, 419], [427, 441], #18
-            [451, 463], [470, 484], [494, 507], [516, 529],   #22
-            [539, 553], [561, 572], [583, 597], [607, 620], [628, 640], [650, 664],  #28
-            [673, 685], [693, 707], [717, 729], [737, 750], [760, 771], [780, 793],#34
-            [804, 817], [825,839], [847, 861], [870, 885], [892, 905], [912, 927],#40
-            [936, 947], [959, 971], [981, 995], [1002, 1015], #44
-            [1025, 1037], [1047, 1060], [1068, 1080]
-        ],
-            2: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [185, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [340, 353], [361, 374], [383, 396], [405, 419], [427, 441],#18
-            [450, 462], [471, 485], [494, 507], [515, 528],   #22
-            [541, 555], [561, 572], [583, 596], [605, 619], [627, 640], [650, 664],  #28
-            [673, 685], [693, 707], [717, 729], [737, 750], [760, 771], [780, 793],#34
-            [804, 818], [825,839], [847, 861], [870, 885], [892, 905], [912, 927],#40
-            [936, 947], [957, 971], [979, 993], [1002, 1015],#44
-            [1024, 1037], [1046, 1060], [1068, 1082]
-        ],
-            3: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [184, 197], [207, 220], [227, 240], [252, 263], [273, 285], [296, 309],#12
-            [318, 331], [340, 353], [360, 373], [383, 396], [405, 419], [427, 441],#18
-            [450, 462], [470, 484], [493, 506], [514, 527],   #22
-            [539, 553], [560, 572], [583, 596], [605, 619], [627, 641], [649, 664],  #28
-            [673, 686], [693, 707], [717, 729], [737, 750], [760, 771], [781, 791],#34
-            [804, 817], [825,839], [847, 861], [870, 884], [892, 904], [912, 927],#40
-            [936, 947], [957, 971], [979, 993], [1002, 1015], #44
-            [1023, 1037], [1046, 1060], [1068, 1082]
-        ],  
-            4: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [185, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [340, 353], [360, 373], [383, 396], [405, 419], [427, 441],#18
-            [450, 462], [470, 484], [493, 506], [512, 527],   #22
-            [539, 554], [560, 572], [583, 596], [604, 621], [627, 641], [648, 664],  #28
-            [673, 686], [692, 707], [717, 729], [737, 750], [760, 771], [781, 791],#34
-            [804, 818], [824,839], [847, 861], [870, 885], [892, 905], [912, 931],#40
-            [936, 947], [957, 971], [979, 993], [1002, 1018], #44
-            [1022, 1037], [1045, 1060], [1066, 1083]
-        ],
-            5: [
-            [54, 68], [77, 89], [98, 110], [120, 134], [144, 156], [166, 178],  #6
-            [188, 201], [209, 223], [232, 248], [257, 269], [278, 290], [300, 313],#12
-            [321, 333], [344, 357], [364, 377], [387, 400], [409, 422], [431, 445],#18
-            [455, 468], [476, 488], [497, 510], [522, 531],   #22
-            [541, 556], [565, 577], [587, 600], [608, 621], [630, 643], [653, 665],  #28
-            [674, 686], [692, 707], [717, 729], [738, 751], [762, 775], [784, 795],#34
-            [807, 820], [829,840], [848, 862], [874, 888], [896, 908], [915, 934],#40
-            [940, 953], [961, 974], [983, 996], [1006, 1021], #44
-            [1026, 1040], [1049, 1062], [1072, 1086]
-        ],
-            6: [
-            [54, 67], [78, 90], [98, 109], [120, 133], [143, 156], [166, 178],  #6
-            [188, 201], [210, 223], [232, 245], [254, 266], [276, 288], [299, 312],#12
-            [321, 334], [343, 356], [363, 376], [386, 399], [408, 422], [430, 444],#18
-            [453, 467], [477, 489], [499, 513], [522, 533],   #22
-            [541, 556], [563, 575], [585, 598], [608, 622], [629, 642], [653, 665],  #28
-            [673, 687], [694, 707], [717, 731], [740, 752], [763, 774], [784, 797],#34
-            [807, 820], [828,841], [849, 863], [872, 887], [894, 907], [914, 933],#40
-            [938, 950], [961, 974], [983, 997], [1005, 1018],#44
-            [1026, 1037], [1048, 1061], [1069, 1083]
-        ],
-            7: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [185, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [340, 353], [362, 373], [383, 396], [406, 417], [427, 441],#18
-            [450, 462], [471, 484], [493, 506], [514, 527],   #22
-            [539, 553], [561, 572], [583, 596], [606, 620], [628, 638], [648, 664],  #28
-            [673, 686], [694, 707], [716, 728], [737, 750], [760, 771], [782, 794],#34
-            [805, 818], [828,839], [848, 861], [871, 885], [894, 904], [915, 927],#40
-            [936, 949], [959, 971], [980, 993], [1004, 1014],#44
-            [1025, 1037], [1047, 1060], [1069, 1083]
-        ],
-            8: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [186, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [340, 353], [363, 375], [386, 398], [409, 421], [432, 444],#18
-            [453, 465], [475, 486], [497, 510], [520, 533],   #22
-            [542, 555], [564, 574], [584, 596], [608, 621], [630, 644], [652, 664],  #28
-            [673, 686], [695, 707], [717, 729], [738, 750], [760, 772], [781, 793],#34
-            [805, 818], [829,839], [848, 861], [871, 885], [895, 907], [917, 931],#40
-            [940, 953], [962, 973], [984, 995], [1004, 1018], #44
-            [1027, 1038], [1048, 1060], [1070, 1083]
-        ],
-            9: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [185, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [341, 353], [362, 373], [383, 396], [406, 419], [428, 441],#18
-            [450, 462], [472, 484], [495, 506], [515, 527],   #22
-            [539, 553], [563, 572], [583, 596], [606, 618], [627, 640], [649, 663],  #28
-            [672, 683], [692, 707], [717, 729], [737, 750], [760, 772], [781, 793],#34
-            [804, 818], [826,839], [848, 861], [870, 883], [892, 904], [912, 929],#40
-            [937, 947], [958, 971], [980, 993], [1002, 1014],#44
-            [1024, 1037], [1047, 1060], [1072, 1086]
-        ],
-            10: [
-            [54, 68], [76, 88], [97, 109], [119, 132], [142, 155], [165, 177],  #6
-            [187, 200], [209, 222], [233, 244], [255, 267], [276, 288], [298, 311],#12
-            [320, 333], [342, 355], [362, 375], [384, 398], [408, 421], [430, 443],#18
-            [453, 465], [473, 487], [496, 509], [515, 530],   #22
-            [542, 557], [563, 575], [583, 596], [606, 623], [628, 640], [651, 660],  #28
-            [670, 684], [694, 706], [717, 729], [737, 750], [760, 772], [785, 795],#34
-            [804, 818], [829,839], [849, 862], [870, 885], [892, 907], [917, 931],#40
-            [940, 951], [961, 975], [985, 996], [1002, 1018],#44
-            [1028, 1038], [1046, 1058], [1071, 1083]
-        ],
-            11: [
-            [55, 69], [78, 89],  [97, 109], [119, 132], [142, 155], [165, 177],    #6
-            [187, 200], [209, 222], [233, 244], [255, 267], [276, 288], [298, 311],#12
-            [320, 333], [342, 355], [363, 375], [385, 398], [407, 420], [430, 443],#18
-            [453, 465], [474, 487], [496, 509], [520, 531],   #22
-            [543, 556], [564, 575], [584, 596], [606, 620], [630, 642], [651, 663],  #28
-            [676, 687], [697, 709], [718, 729], [739, 752], [763, 776], [785, 797],#34
-            [808, 822], [831,842], [852, 865], [875, 886], [896, 908], [918, 931],#40
-            [940, 951], [961, 973], [983, 996], [1006, 1018],#44
-            [1028, 1039], [1050, 1062], [1071, 1084]
-        ],
-            12: [
-            [62, 74], [84, 96], [105, 117], [127, 140], [150, 163], [173, 185],  #6
-            [195, 208], [217, 230], [240, 252], [263, 275], [284, 297], [306, 318],#12
-            [328, 341], [350, 362], [371, 383], [393, 406], [416, 429], [439, 451],#18
-            [462, 474], [483, 496], [505, 517], [527, 540],   #22
-            [551, 564], [572, 582], [593, 606], [616, 628], [637, 651], [660, 672],  #28
-            [683, 696], [705, 717], [727, 741], [749, 760], [770, 781], [791, 803],#34
-            [814, 827], [837,849], [858, 871], [881, 895], [903, 915], [926, 938],#40
-            [948, 959], [968, 981], [991, 1003], [1014, 1025],#44
-            [1036, 1047], [1057, 1070], [1079, 1093]
-        ],
-            13: [
-            [55, 69], [78, 90], [100, 110], [120, 134], [144, 156], [166, 178],  #6
-            [187, 200], [212, 223], [233, 245], [256, 267], [277, 289], [299, 312],#12
-            [321, 334], [343, 356], [364, 376], [386, 399], [410, 422], [431, 444],#18
-            [453, 466], [477, 488], [498, 511], [520, 533],   #22
-            [541, 554], [564, 574], [585, 600], [608, 621], [630, 643], [653, 665],  #28
-            [676, 688], [699, 712], [722, 731], [743, 753], [761, 773], [785, 798],#34
-            [808, 821], [831,843], [851, 863], [874, 887], [896, 910], [918, 932],#40
-            [942, 954], [964, 977], [987, 998], [1008, 1020],#44
-            [1031, 1041], [1051, 1064], [1072, 1085]
-        ],
-            14: [
-            [51, 65], [74, 86], [95, 107], [117, 130], [140, 153], [163, 175],  #6
-            [185, 198], [207, 220], [229, 242], [253, 264], [274, 286], [296, 309],#12
-            [318, 331], [340, 353], [361, 373], [383, 396], [405, 419], [427, 441],#18
-            [450, 462], [470, 484], [493, 505], [515, 527],   #22
-            [539, 549], [560, 572], [583, 596], [604, 615], [627, 640], [650, 664],  #28
-            [673, 686], [694, 707], [717, 729], [737, 750], [760, 771], [781, 791],#34
-            [804, 818], [826,839], [848, 861], [871, 885], [893, 903], [913, 925],#40
-            [935, 947], [957, 971], [979, 993], [1002, 1016], #44
-            [1024, 1037], [1046, 1058], [1068, 1079]
-        ]
-        }
-
-        # Get image path
-        self.base_dir = os.path.dirname(os.path.realpath(__file__))
-        task_image_path = os.path.join(self.base_dir, "images", "CPT")
-        project_image_path = os.path.join(
-            os.path.dirname(self.base_dir), "images", "CPT"
-        )
-        self.image_path = (
-            task_image_path if os.path.isdir(task_image_path) else project_image_path
-        )
-        log_path = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
+        #
+        # Coordinates are measured once (per stimulus center) in
+        # "coordenadas estímulos CPT/coordenadas imagenes CPT.log" and loaded here.
+        # If that log is missing or a filename isn't found in it, the display
+        # methods fall back to uniform spacing automatically.
+        coord_log_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
             "coordenadas estímulos CPT",
             "coordenadas imagenes CPT.log",
         )
-        self.COORDINATE_POSITIONS = self._load_cpt_row_positions(log_path)
+        logged_positions = self._load_cpt_row_positions(coord_log_path)
+
+        # Training image coordinates (22 letters in prueba.png)
+        # Format: [[x_start, x_end], [x_start, x_end], ...]
+        self.TRAINING_POSITIONS = [
+            [x_center - self.HITBOX_MARGIN, x_center + self.HITBOX_MARGIN]
+            for x_center, _y_center in logged_positions.get("prueba.png", [])
+        ]
+
+        # Main task row coordinates (47 letters per row, 14 rows total)
+        # Format: {"secuenciaN.png": [(x, y), (x, y), ...], ...}
+        # The log measures these on files named "secuenciaN.png"; the images
+        # actually shown during the task are "secuenciaN.png", so remap 1:1 here.
         self.ROW_POSITIONS = {
-            row_num: (
-                self.COORDINATE_POSITIONS.get(f"secuencia{row_num}.png")
-                or self.COORDINATE_POSITIONS.get(f"fila{row_num}.png", [])
-            )
+            f"secuencia{row_num}.png": logged_positions.get(f"secuencia{row_num}.png", [])
             for row_num in range(1, self.NUM_ROWS + 1)
         }
-        del self._legacy_row_positions
 
         # Create output dataframe for all rows
         self.all_data = pd.DataFrame()
@@ -298,54 +132,45 @@ class CPT(object):
         
         # Main instruction text
         y_pos = self.screen_y / 2 - 350
-        
-        lines = [
-            "Esta prueba trata de conocer tu capacidad de concentración en una tarea determinada.",
-            "En esta página se te presenta un ejemplo y una línea de entrenamiento para que te",
-            "familiarices con la tarea."
-        ]
-        
-        for line in lines:
-            display.text(self.screen, self.font, line, "center", y_pos, (0, 0, 0))
-            y_pos += 35
-
-        # Display example image if it exists
-        ejemplo_path = os.path.join(self.image_path, "ejemplo.png")
-        if os.path.exists(ejemplo_path):
-            img_ejemplo = pygame.image.load(ejemplo_path)
-            # Scale the example image to a reasonable size (keep it moderate since it's just an example)
-            scale_factor = 3  # Fixed scale for the small example image
-            new_width = int(img_ejemplo.get_width() * scale_factor)
-            new_height = int(img_ejemplo.get_height() * scale_factor)
-            img_ejemplo = pygame.transform.scale(img_ejemplo, (new_width, new_height))
-            
-            y_pos += 30
-            display.image(self.screen, img_ejemplo, "center", y_pos)
-            y_pos += img_ejemplo.get_height() + 30
-        else:
-            y_pos += 50
 
         # Explanation paragraphs
-        explanation_lines = [
-            "Observa las tres letras minúsculas del ejemplo. Se trata de la letra d acompañada de dos rayitas.",
-            "La primera d tiene las dos rayitas encima, la segunda las tiene debajo y la tercera d tiene una",
-            "rayita encima y otra debajo. Observa que en estos casos la letra d va acompañada de dos rayitas.",
-            "",
-            "Tu tarea consistirá en buscar las letras d iguales a esas tres (con dos rayitas en cualquier posición)",
-            "y marcarlas. Fíjate bien, porque hay letras d con más de dos o menos de dos rayitas y letras p,",
-            "que NO deberás marcar en ningún caso, independientemente del número de rayitas que tengan.",
+        explanation_lines1 = [
+            "Esta prueba trata de conocer tu capacidad de concentración.",
+            "Observa los tres números del ejemplo. Se trata del número 9 acompañado de dos puntos.",
+        ]
+
+        explanation_lines2 = [
+            "El primer 9 tiene los dos puntos encima, el segundo los tiene debajo y el tercer 9 tiene un",
+            "punto encima y otro debajo. Observa que en estos casos el número 9 va acompañado de dos puntos.",
+            "Tu tarea consiste en buscar los números 9 iguales a estos tres (con dos puntos en cualquier posición) y marcarlos.",
+            "Fíjate bien! Hay números 9 con más de dos o menos de dos puntos, y también números 6,",
+            "que NO debes marcar en ningún caso, independientemente del número de puntos que tengan.",
             "Si te equivocas y quieres cambiar una respuesta, puedes desmarcar tu respuesta clicando de nuevo",
             "en el estímulo seleccionado.",
             "",
-            "En la página siguiente se te mostrará un caso de entrenamiento antes de empezar con la tarea."
+            "En la página siguiente se te muestra un caso de entrenamiento antes de empezar con la tarea."
         ]
         
-        for line in explanation_lines:
-            if line == "":
-                y_pos += 20
-            else:
-                display.text(self.screen, self.font_small, line, "center", y_pos, (0, 0, 0))
-                y_pos += 28
+        for line in explanation_lines1:
+            display.text(self.screen, self.font_small, line, "center", y_pos, (0, 0, 0))
+            y_pos += 28
+
+        ejemplo_path = os.path.join(self.image_path, "ejemplo.png")
+        if os.path.exists(ejemplo_path):
+            img_ejemplo = pygame.image.load(ejemplo_path)
+            scale_factor = 0.5
+            new_width = int(img_ejemplo.get_width() * scale_factor)
+            new_height = int(img_ejemplo.get_height() * scale_factor)
+            img_ejemplo = pygame.transform.scale(img_ejemplo, (new_width, new_height))
+            y_pos += 20
+            display.image(self.screen, img_ejemplo, "center", y_pos)
+            y_pos += img_ejemplo.get_height() + 20
+        else:
+            y_pos += 30
+
+        for line in explanation_lines2:
+            display.text(self.screen, self.font_small, line, "center", y_pos, (0, 0, 0))
+            y_pos += 28
 
         # Final instruction
         y_pos += 30
@@ -359,11 +184,11 @@ class CPT(object):
         explanation = "Observa que deberías haber marcado las letras números "
         correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
         instructions = [
-            "En la siguiente página empezarás la tarea.",
-            "Durante la tarea se te presentarán por orden hasta un total de 14 filas similares a la de esta",
-            "práctica anterior pero con más letras. En cada una tendrás 20 segundos para señalar todas las",
-            "letras d con dos rayitas que encuentres.",
-            "Tras los 20 segundos se pasará automáticamente a la siguiente fila.",
+            "En la siguiente página empieza la tarea.",
+            "Durante la tarea se te presentan por orden hasta un total de 14 filas similares a la de esta",
+            "práctica anterior pero con más elementos. En cada una tienes 20 segundos para señalar todas los",
+            "los 9 con dos puntos.",
+            "Tras los 20 segundos se pasa automáticamente a la siguiente fila.",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
         ]
@@ -373,7 +198,7 @@ class CPT(object):
         # Redraw instructions
         y = 100
         display.text(self.screen, self.font, 
-            "Recuerda que el objetivo es señalar las letras d con dos rayitas.",
+            "Recuerda que el objetivo es señalar los números 9 con dos puntos.",
             "center", y, (0, 0, 0))
         y += 40
         display.text(self.screen, self.font, 
@@ -408,13 +233,15 @@ class CPT(object):
         """Screen 2: Display training screen with 22 clickable letters"""
         self.screen.blit(self.background, (0, 0))
         
-        # Instructions
+        # PRactice
         y_pos = 100
-        display.text(
-            self.screen, self.font, 
-            "Recuerda que el objetivo es señalar las letras d con dos rayitas.",
-            "center", y_pos, (0, 0, 0)
-        )
+        lines = [
+            "En esta página se te presenta un ejemplo y línea de entrenamiento para que te",
+            "familiarices con la tarea."
+        ]
+        for line in lines:
+            display.text(self.screen, self.font, line, "center", y_pos, (0, 0, 0))
+            y_pos += 35
         y_pos += 40
         display.text(
             self.screen, self.font, 
@@ -473,21 +300,9 @@ class CPT(object):
         hitboxes = []
         selections = [False] * self.TRAINING_LETTERS
         
-        training_positions = self.COORDINATE_POSITIONS.get("prueba.png", [])
-
         for i in range(self.TRAINING_LETTERS):
             # Check if custom coordinates are defined for this letter
-            if i < len(training_positions) and len(training_positions[i]) == 2:
-                x_center, _ = training_positions[i]
-                x_start_scaled = (x_center - 11) * scale_factor
-                x_end_scaled = (x_center + 11) * scale_factor
-                hitbox = pygame.Rect(
-                    img_x + x_start_scaled,
-                    img_y,
-                    x_end_scaled - x_start_scaled,
-                    img_height
-                )
-            elif i < len(self.TRAINING_POSITIONS) and len(self.TRAINING_POSITIONS[i]) == 2:
+            if i < len(self.TRAINING_POSITIONS) and len(self.TRAINING_POSITIONS[i]) == 2:
                 # Use custom coordinates (from original image) and scale them
                 x_start, x_end = self.TRAINING_POSITIONS[i]
                 x_start_scaled = x_start * scale_factor
@@ -502,7 +317,7 @@ class CPT(object):
                 # Fallback: uniform spacing calculation
                 letter_width = img_width / self.TRAINING_LETTERS
                 hitbox_margin = letter_width * 0.005
-                actual_hitbox_width = letter_width * 0.6
+                actual_hitbox_width = letter_width * 0.9
                 hitbox = pygame.Rect(
                     img_x + (i * letter_width) + hitbox_margin,
                     img_y,
@@ -523,11 +338,11 @@ class CPT(object):
         # Additional instructions
         text_y += 50
         instructions = [
-            "En la siguiente página empezarás la tarea.",
-            "Durante la tarea se te presentarán por orden hasta un total de 14 filas similares a la de esta",
-            "práctica anterior pero con más letras. En cada una tendrás 20 segundos para señalar todas las",
-            "letras d con dos rayitas que encuentres.",
-            "Tras los 20 segundos se pasará automáticamente a la siguiente fila.",
+            "En la siguiente página empieza la tarea.",
+            "Durante la tarea se te presentan por orden hasta un total de 14 filas similares a la de esta",
+            "práctica anterior pero con más elementos. En cada una tienes 20 segundos para señalar todas los",
+            "los 9 con dos puntos.",
+            "Tras los 20 segundos se pasa automáticamente a la siguiente fila.",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
         ]
@@ -660,7 +475,9 @@ class CPT(object):
         selections = [False] * self.ROW_LETTERS
         selection_times = [None] * self.ROW_LETTERS
         
-        row_positions = self.ROW_POSITIONS.get(row_num, [])
+        # Coordinates in the log are keyed by their PNG filename.
+        coordinate_key = f"secuencia{row_num}.png"
+        row_positions = self.ROW_POSITIONS.get(coordinate_key, [])
         has_custom_coords = len(row_positions) >= self.ROW_LETTERS
         
         for i in range(self.ROW_LETTERS):
@@ -670,7 +487,7 @@ class CPT(object):
                 len(row_positions[i]) == 2):
                 # Each logged point is the stimulus center; use an 11 px margin.
                 x_center, _ = row_positions[i]
-                x_start, x_end = x_center - 11, x_center + 11
+                x_start, x_end = x_center - self.HITBOX_MARGIN, x_center + self.HITBOX_MARGIN
                 x_start_scaled = x_start * scale_factor
                 x_end_scaled = x_end * scale_factor
                 hitbox = pygame.Rect(

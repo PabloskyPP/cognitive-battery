@@ -35,7 +35,7 @@ class NamingNumbers(object):
     )
     PART4_PRACTICE_STIMULI = (
         (2, 7), (5, 3), (4, 8), (6, 2),
-        (3, 9), (7, 4), (1, 5), (8, 6),
+        (3, 9), (7, 4), (1, 5), (5, 6),
     )
     PART4_EXPERIMENTAL_STIMULI = (
         (2, 7), (5, 3), (4, 8), (6, 2), (3, 9), (7, 4), (1, 5), (8, 6),
@@ -51,6 +51,7 @@ class NamingNumbers(object):
         self.font_small = pygame.font.SysFont("arial", 24)
         self.font_title = pygame.font.SysFont("arial", 36)
         self.font_label = pygame.font.SysFont("arial", 20)
+        self.font_response = pygame.font.SysFont("arial", 42)
         self.screen_x = self.screen.get_width()
         self.screen_y = self.screen.get_height()
         self.background.fill((255, 255, 255))
@@ -64,7 +65,7 @@ class NamingNumbers(object):
     def _numbers_stimulus(self, amount, identity):
         return {"kind": "numbers", "amount": amount, "identity": identity}
 
-    def _draw_stimulus(self, stimulus, is_red=False, center=None, size=170, surface=None):
+    def _draw_stimulus(self, stimulus, is_red=False, center=None, size=200, surface=None):
         if surface is None:
             surface = self.screen
         if center is None:
@@ -85,8 +86,12 @@ class NamingNumbers(object):
                                    (int(cx + px * size), int(cy + py * size)), dot_radius)
         else:
             digit = self.font_title.render(str(stimulus["identity"]), True, color)
+            line_spacing = min(
+                44,
+                (2 * size - digit.get_height()) / max(1, stimulus["amount"] - 1),
+            )
             for row in range(stimulus["amount"]):
-                y = cy - (stimulus["amount"] - 1) * 18 + row * 36
+                y = cy - (stimulus["amount"] - 1) * line_spacing / 2 + row * line_spacing
                 surface.blit(digit, (cx - digit.get_width() // 2,
                                      int(y - digit.get_height() // 2)))
 
@@ -130,9 +135,12 @@ class NamingNumbers(object):
 
     def _run_trial(self, trial, part, target_rule, trial_type):
         correct_response = self._target_value(trial, target_rule)
+        stimulus_center = (self.screen_x // 2, self.screen_y // 2 - 90)
+        stimulus_size = 230
         self.screen.blit(self.background, (0, 0))
         display.text(self.screen, self.font_small, f"Parte {part}", 40, 30)
-        self._draw_stimulus(trial, is_red=trial.get("is_red", False))
+        self._draw_stimulus(trial, is_red=trial.get("is_red", False),
+                            center=stimulus_center, size=stimulus_size)
         pygame.display.flip()
         response = None
         response_start_time = time.time()
@@ -148,11 +156,16 @@ class NamingNumbers(object):
         is_correct = response == correct_response
         self.screen.blit(self.background, (0, 0))
         display.text(self.screen, self.font_small, f"Parte {part}", 40, 30)
-        self._draw_stimulus(trial, is_red=trial.get("is_red", False))
+        self._draw_stimulus(trial, is_red=trial.get("is_red", False),
+                            center=stimulus_center, size=stimulus_size)
         response_color = (0, 180, 0) if is_correct else (220, 40, 40)
-        response_surface = self.font_title.render(str(response), True, response_color)
-        self.screen.blit(response_surface, (self.screen_x // 2 - response_surface.get_width() // 2,
-                                            self.screen_y - 120))
+        response_surface = self.font_response.render(str(response), True, response_color)
+        response_y = min(
+            stimulus_center[1] + stimulus_size + 15,
+            self.screen_y - response_surface.get_height() - 15,
+        )
+        self.screen.blit(response_surface, (stimulus_center[0] - response_surface.get_width() // 2,
+                                            response_y))
         pygame.display.flip()
         display.wait(200)
         self.rows.append({
@@ -224,7 +237,7 @@ class NamingNumbers(object):
         rules_info = self._compute_practice_rules(practice_trials, initial_rule)
         responses = [None] * len(practice_trials)
         correct_flags = [None] * len(practice_trials)
-        stim_size = 60
+        stim_size = 115
         n_per_row = 4
         rows = [practice_trials[:4], practice_trials[4:]] if two_rows else [practice_trials]
 
@@ -238,8 +251,15 @@ class NamingNumbers(object):
                         y += 38
                 else:
                     y += 18
+            footer_reserve = 150
+            row_gap = 55 if two_rows else 30
+            total_stimulus_height = len(rows) * (2 * stim_size) + (len(rows) - 1) * row_gap
+            stimulus_top = max(
+                y + 20,
+                (self.screen_y - footer_reserve - total_stimulus_height) // 2,
+            )
             for row_i, row_trials in enumerate(rows):
-                cy = self.screen_y - (150 if two_rows else 95) + row_i * 125
+                cy = stimulus_top + stim_size + row_i * (2 * stim_size + row_gap)
                 section_w = self.screen_x // n_per_row
                 for col_i, trial in enumerate(row_trials):
                     idx = row_i * n_per_row + col_i
@@ -247,14 +267,14 @@ class NamingNumbers(object):
                     self._draw_stimulus(trial, trial.get("is_red", False), (cx, cy), stim_size)
                     if responses[idx] is not None:
                         color = (0, 180, 0) if correct_flags[idx] else (220, 40, 40)
-                        text = self.font_label.render(str(responses[idx]), True, color)
+                        text = self.font_response.render(str(responses[idx]), True, color)
                         self.screen.blit(text, (cx - text.get_width() // 2, cy + stim_size + 8))
             if show_footer:
-                footer_y = self.screen_y - 75
+                footer_y = self.screen_y - 75 - (len(footer_lines) - 1) * 28
                 for line in footer_lines:
                     if line:
                         display.text(self.screen, self.font_small, line, "center", footer_y)
-                        footer_y -= 28
+                    footer_y += 28
                 display.text_space(self.screen, self.font, "center", self.screen_y - 35)
             pygame.display.flip()
 
@@ -303,25 +323,29 @@ class NamingNumbers(object):
     def run(self):
         """Run the four-part NamingNumbers task and return trial data."""
         self._show_text_screen([
-            "Esta prueba consta de 4 partes. En cada una tendrás que responder atendiendo a una característica distinta de los estímulos.",
-            "", "Los estímulos serán cuadrados que contienen puntos o agrupaciones de una misma cifra.",
+            "",
+            "",
+            "",
+            "Esta prueba consta de 4 partes, en las que las instrucciones sobre el estímulo ",
+            "a atender y responder (puntos o agrupaciones de cifras) cambian en cada parte.", 
+            "En algunos casos tienes que indicar el número de cifras que aparecen ",
+            "y en otros el nombre de las cifras presentadas. ",
+            "Para responder utiliza las teclas numéricas del teclado, del 1 al 9.",
+            "Tras responder a un estímulo se pasa al siguiente y así hasta completar toda la serie de cada parte.",
+            "Al empezar cada nueva parte se presentan primero las nuevas instrucciones.",
+            "Responde de la forma más rápida y precisa posible.",
         ], title="NamingNumbers")
-        self._show_text_screen([
-            "Para responder utiliza las teclas numéricas del teclado, del 1 al 9.", "",
-            "Responde de la forma más rápida y precisa posible.", "",
-            "Pulsa <<barra espaciadora>> para continuar.",
-        ])
 
         part1_practice = [
             dict(self._dots_stimulus(amount), trial_type="practice", target="amount")
             for amount in self.PART1_PRACTICE_AMOUNTS
         ]
         self._show_practice_integrated_screen(
-            ["Primera parte", "", "Indica cuántos puntos aparecen dentro de cada cuadrado.",
-             "", "Responde a los siguientes 4 ejemplos con las teclas 1-9."],
+            ["Primera parte", "", "En esta parte tienes que indicar el número de puntos que aparecen en cada caso",
+             "", "Como ejemplo de práctica indica para los siguientes 4 casos cuántos puntos se están a mostrar en cada uno."],
             part1_practice, 1, "amount",
-            ["El color verde indica una respuesta acertada y el rojo una respuesta errónea.", "",
-             "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
+            ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part1_experimental(), 1, "amount")
 
         part2_practice = [
@@ -329,11 +353,20 @@ class NamingNumbers(object):
             for amount, identity in self.PART2_PRACTICE_STIMULI
         ]
         self._show_practice_integrated_screen(
-            ["La parte 1 ha terminado.", "", "En esta parte aparecerán agrupaciones de una misma cifra.",
-             "", "Indica qué cifra aparece en cada cuadrado."],
+            [
+                "La parte 1 ha terminado.",
+                "",
+                "A continuación empieza la parte 2.",
+                "",
+                "La tarea cambia, ahora en vez de puntos aparecerán agrupaciones de una misma cifra.",
+                "",
+                "En esta segunda parte tu tarea es indicar la cifra que aparece. Utiliza las teclas de tu teclado 1-9 para esto.",
+                "",
+                "Como ejemplo de práctica indica para los siguientes 4 casos qué cifra se está a mostrar en cada uno.",
+            ],
             part2_practice, 2, "identity",
-            ["El color verde indica una respuesta acertada y el rojo una respuesta errónea.", "",
-             "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
+                ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part2_experimental(), 2, "identity")
 
         part3_practice = [
@@ -341,10 +374,18 @@ class NamingNumbers(object):
             for amount, identity in self.PART3_PRACTICE_STIMULI
         ]
         self._show_practice_integrated_screen(
-            ["La parte 2 ha terminado.", "", "Indica cuántas veces aparece repetida la cifra dentro de cada cuadrado."],
+            ["La parte 2 ha terminado.",
+                "",
+                "A continuación empieza la parte 3.",
+                "",
+                "De nuevo, se van a mostrar agrupaciones de cifras.",
+                "",
+                "Esta vez tu tarea es contar e indicar el número de veces que esta misma cifra aparece en cada caso.",
+                "",
+                "Como ejemplo de práctica indica para los siguientes 4 casos cuántas cifras se están a mostrar.",],
             part3_practice, 3, "amount",
-            ["El color verde indica una respuesta acertada y el rojo una respuesta errónea.", "",
-             "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."])
+                ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part3_experimental(), 3, "amount")
 
         part4_practice = [
@@ -357,11 +398,21 @@ class NamingNumbers(object):
             for idx, (amount, identity) in enumerate(self.PART4_PRACTICE_STIMULI, start=1)
         ]
         self._show_practice_integrated_screen(
-            ["La parte 3 ha terminado.", "", "Al principio indica cuántas cifras aparecen.", "",
-             "Cada estímulo rojo cambia el objetivo: desde ese estímulo debes indicar la cifra, y el objetivo vuelve a cambiar en el siguiente estímulo rojo."],
-            part4_practice, 4, "amount",
-            ["El color verde indica una respuesta acertada y el rojo una respuesta errónea.", "",
-             "Si no tienes ninguna duda pulsa <<barra espaciadora>> para empezar."], two_rows=True)
+            ["La parte 3 ha terminado.",
+                "",
+                "A continuación empieza la parte 4.",
+                "De nuevo, se van a mostrar agrupaciones de cifras.",
+                "En esta parte final, empiezas indicando la cifra que se muestra. ",
+                "Sin embargo, de vez en cuando estas cifras se mostrarán en color rojo.",
+                "Esto indica un cambio de objetivo para el caso rojo actual y en adelante hasta el siguiente caso rojo.",
+                "Así por ejemplo, después del primer caso rojo y en este incluído, tienes que cambiar ",
+                "de indicar la cifra que aparece, al número de cifras que aparecen. ",
+                "Y así cambiando sucesivamente el objetivo de tu respuesta con cada caso rojo que aparezca.",
+                "Como ejemplo de práctica indica para los siguientes 8 casos el número que proceda.",],
+            part4_practice, 4, "identity",
+                ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"],
+            two_rows=True)
         self._run_trials(self._create_part4_experimental(), 4, "amount")
 
         self._show_text_screen(["Fin de la tarea.", "", "Pulsa la barra espaciadora para continuar."])
