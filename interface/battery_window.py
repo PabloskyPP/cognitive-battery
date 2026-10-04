@@ -33,27 +33,29 @@ from tasks import (
     digits_memorization,
 )
 
-TASK_LIST_ORDER = (
-    "Attention Network Test (ANT)",
-    "Digit Span (backwards)",
-    "Digits Memorization",
-    "Eriksen Flanker Task",
-    "Mental Rotation Task",
-    "Raven's Progressive Matrices",
-    "Sternberg Task",
-    "Sustained Attention to Response Task (SART)",
-    "NEO-PI-R",
-    "CPT",
-    "D2",
-    "Dual Task",
-    "Relative Verticality Perception (PVR)",
-    "ACS",
-    "RIASEC",
-    "Inteligencia Multiple",
-    "SRQ20",
-    "Ikigai",
-    "FourFigures",
-    "NamingNumbers",
+TASK_CATEGORIES = (
+    ("Emocional", ("SRQ20",)),
+    ("Vocacional", ("RIASEC", "Inteligencia Multiple", "Ikigai")),
+    ("Atencional", (
+        "ACS",
+        "Attention Network Test (ANT)",
+        "Digits Memorization",
+        "CPT",
+        "Relative Verticality Perception (PVR)",
+        "Dual Task",
+        "NamingNumbers",
+    )),
+    ("Personalidad", ("NEO-PI-R",)),
+    ("Otros", (
+        "Digit Span (backwards)",
+        "Eriksen Flanker Task",
+        "Mental Rotation Task",
+        "Raven's Progressive Matrices",
+        "Sternberg Task",
+        "Sustained Attention to Response Task (SART)",
+        "D2",
+        "FourFigures",
+    )),
 )
 
 
@@ -63,6 +65,7 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Setup the main window UI
         self.setupUi(self)
+        self._configure_task_tree()
         self.normalize_task_list()
 
         # Set app icon
@@ -141,17 +144,47 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
     def normalize_task_list(self):
         self.taskList.clear()
-        for task_name in TASK_LIST_ORDER:
-            item = QtWidgets.QListWidgetItem(task_name)
-            item.setFlags(
-                item.flags()
-                | QtCore.Qt.ItemIsUserCheckable
-                | QtCore.Qt.ItemIsEnabled
-                | QtCore.Qt.ItemIsSelectable
-                | QtCore.Qt.ItemIsDragEnabled
+        for category_name, task_names in TASK_CATEGORIES:
+            category = QtWidgets.QTreeWidgetItem([category_name])
+            category.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+            category.setFont(0, QtGui.QFont(self.taskList.font().family(), 10, QtGui.QFont.Bold))
+            category.setIcon(
+                0, self.style().standardIcon(QtWidgets.QStyle.SP_ArrowRight)
             )
-            item.setCheckState(QtCore.Qt.Unchecked)
-            self.taskList.addItem(item)
+            self.taskList.addTopLevelItem(category)
+
+            for task_name in task_names:
+                item = QtWidgets.QTreeWidgetItem([task_name])
+                item.setFlags(
+                    QtCore.Qt.ItemIsUserCheckable
+                    | QtCore.Qt.ItemIsEnabled
+                    | QtCore.Qt.ItemIsSelectable
+                )
+                item.setCheckState(0, QtCore.Qt.Unchecked)
+                category.addChild(item)
+
+            category.setExpanded(False)
+
+    def _configure_task_tree(self):
+        old_task_list = self.taskList
+        self.taskList = QtWidgets.QTreeWidget(self.centralwidget)
+        self.taskList.setObjectName("taskList")
+        self.taskList.setFont(old_task_list.font())
+        self.taskList.setAlternatingRowColors(True)
+        self.taskList.setHeaderHidden(True)
+        self.taskList.setRootIsDecorated(False)
+        self.taskList.setExpandsOnDoubleClick(False)
+        self.taskList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.taskListLayout.replaceWidget(old_task_list, self.taskList)
+        old_task_list.deleteLater()
+        self.taskList.itemClicked.connect(self._toggle_task_category)
+
+    def _toggle_task_category(self, item, _column):
+        if item.parent() is None:
+            expanded = not item.isExpanded()
+            item.setExpanded(expanded)
+            icon = QtWidgets.QStyle.SP_ArrowDown if expanded else QtWidgets.QStyle.SP_ArrowRight
+            item.setIcon(0, self.style().standardIcon(icon))
 
     # Set default settings values
     def set_default_settings(self):
@@ -284,24 +317,41 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
             return False
 
     def select_all(self):
-        for index in range(self.taskList.count()):
-            self.taskList.item(index).setCheckState(2)
+        for index in range(self.taskList.topLevelItemCount()):
+            category = self.taskList.topLevelItem(index)
+            category.setExpanded(True)
+            for child_index in range(category.childCount()):
+                category.child(child_index).setCheckState(0, QtCore.Qt.Checked)
 
     def deselect_all(self):
-        for index in range(self.taskList.count()):
-            self.taskList.item(index).setCheckState(0)
+        for index in range(self.taskList.topLevelItemCount()):
+            category = self.taskList.topLevelItem(index)
+            for child_index in range(category.childCount()):
+                category.child(child_index).setCheckState(0, QtCore.Qt.Unchecked)
 
     def move_up(self):
-        current_row = self.taskList.currentRow()
-        current_item = self.taskList.takeItem(current_row)
-        self.taskList.insertItem(current_row - 1, current_item)
-        self.taskList.setCurrentItem(current_item)
+        item = self.taskList.currentItem()
+        if item is None or item.parent() is None:
+            return
+        category = item.parent()
+        current_row = category.indexOfChild(item)
+        if current_row == 0:
+            return
+        category.takeChild(current_row)
+        category.insertChild(current_row - 1, item)
+        self.taskList.setCurrentItem(item)
 
     def move_down(self):
-        current_row = self.taskList.currentRow()
-        current_item = self.taskList.takeItem(current_row)
-        self.taskList.insertItem(current_row + 1, current_item)
-        self.taskList.setCurrentItem(current_item)
+        item = self.taskList.currentItem()
+        if item is None or item.parent() is None:
+            return
+        category = item.parent()
+        current_row = category.indexOfChild(item)
+        if current_row >= category.childCount() - 1:
+            return
+        category.takeChild(current_row)
+        category.insertChild(current_row + 1, item)
+        self.taskList.setCurrentItem(item)
 
     def get_settings(self):
         # General settings
@@ -383,11 +433,12 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
 
         # Get *selected* tasks and task order
         selected_tasks = []
-        for index in range(self.taskList.count()):
-            # State 2 is set when item is selected
-            if self.taskList.item(index).checkState() == 2:
-                # Add selected task to task list
-                selected_tasks.append(str(self.taskList.item(index).text()))
+        for category_index in range(self.taskList.topLevelItemCount()):
+            category = self.taskList.topLevelItem(category_index)
+            for child_index in range(category.childCount()):
+                item = category.child(child_index)
+                if item.checkState(0) == QtCore.Qt.Checked:
+                    selected_tasks.append(str(item.text(0)))
 
         # Check to see if a random order is desired
         # If so, shuffle tasks
@@ -401,6 +452,8 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
             self.error_dialog("Please enter a subject number...")
         elif not age:
             self.error_dialog("Please enter an age...")
+        elif not age.isdecimal():
+            self.error_dialog("Age must contain numbers only.")
         elif not self.maleRadio.isChecked() and not self.femaleRadio.isChecked():
             self.error_dialog("Please select a sex...")
         else:

@@ -112,6 +112,8 @@ class DualTask(object):
     PRACTICE_DURATION =  20.0  # seconds (practice trial)
     STIMULUS_DURATION =   0.3  # seconds (visual display of the square)
     RESPONSE_WINDOW   =   1.0  # seconds after onset during which A is accepted
+    RESPONSE_FEEDBACK_DURATION = 250  # milliseconds
+    RESPONSE_FEEDBACK_BORDER_WIDTH = 10
     POINT_RADIUS      = 12
     SQUARE_SIZE       = 40
     COLOUR_POINT      = (30,  80, 220)   # blue – tracking point
@@ -341,56 +343,55 @@ class DualTask(object):
         self.background.fill((255, 255, 255))
         self.screen.blit(self.background, (0, 0))
 
-        cx = 80
         y = self.screen_y // 2 - 320
         display.text(self.screen, self.font_title, "Dual Task", "center", y)
         y += 70
         display.text(
             self.screen, self.font,
             "Durante esta tarea deberás realizar dos acciones simultáneamente:",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "1. Sigue con el cursor el punto azul que se mueve por la pantalla.",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "   Mantén el cursor lo más cerca posible del punto en todo momento.",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "2. Cuando aparezca un cuadrado ROJO en la pantalla,",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "   presiona la tecla A lo más rápido posible.",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "   CUIDADO! A veces aparece un cuadrado AZUL, NO presiones ninguna tecla.",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "   Responde solo ante el cuadrado rojo, NO el azul. ",
-            cx, y,
+            "center", y,
         )
         y += 50
         display.text(
             self.screen, self.font,
             "La tarea dura 2 minutos y finaliza automáticamente.",
-            cx, y,
+            "center", y,
         )
         y += 100
         display.text_space(self.screen, self.font, "center", y)
@@ -403,7 +404,7 @@ class DualTask(object):
         cy = self.screen_y // 2 - 60
         display.text(
             self.screen, self.font,
-            "En la siguiente pantalla (tras pulsar la barra espaciadora)",
+            "En la siguiente pantalla",
             "center", cy,
         )
         cy += 45
@@ -484,6 +485,8 @@ class DualTask(object):
         response_data = []
 
         active_stim = None   # dict with display/response timing and state
+        feedback_colour = None
+        feedback_until = 0.0
         stim_idx = 0
         clock = pygame.time.Clock()
 
@@ -513,6 +516,9 @@ class DualTask(object):
                     elif event.key == K_a:
                         if active_stim is not None and not active_stim["responded"]:
                             if now <= active_stim["response_end"]:
+                                is_correct = active_stim["stype"] == "target_red"
+                                feedback_colour = (0, 200, 0) if is_correct else (255, 0, 0)
+                                feedback_until = now + self.RESPONSE_FEEDBACK_DURATION / 1000
                                 latency = now - active_stim["onset_time"]
                                 response_data.append({
                                     "stimulus": active_stim["idx"] + 1,
@@ -605,6 +611,14 @@ class DualTask(object):
                     self.SQUARE_SIZE,
                 )
                 pygame.draw.rect(self.screen, colour, rect)
+
+            if feedback_colour is not None and now < feedback_until:
+                pygame.draw.rect(
+                    self.screen,
+                    feedback_colour,
+                    (0, 0, self.screen_x, self.screen_y),
+                    self.RESPONSE_FEEDBACK_BORDER_WIDTH,
+                )
 
             pygame.display.flip()
             clock.tick(60)

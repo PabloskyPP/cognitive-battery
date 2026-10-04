@@ -45,6 +45,7 @@ class CPT(object):
 
         # Experiment options (constants)
         self.ROW_DURATION = 20000  # 20 seconds per row in milliseconds
+        self.TRAINING_FEEDBACK_DELAY = 30000 # 30 seconds till showing text
         self.TRAINING_LETTERS = 22  # Number of letters in training
         self.ROW_LETTERS = 47  # Number of letters in each main task row
         self.NUM_ROWS = 14  # Number of main task rows
@@ -179,15 +180,17 @@ class CPT(object):
         pygame.display.flip()
         display.wait_for_space()
 
-    def _redraw_training_screen(self, img_prueba, img_x, img_y, img_height, hitboxes, selections):
+    def _redraw_training_screen(
+        self, img_prueba, img_x, img_y, img_height, hitboxes, selections,
+        show_feedback,
+    ):
         """Helper method to redraw training screen with current selections"""
         explanation = "Observa que deberías haber marcado las letras números "
         correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
         instructions = [
             "En la siguiente página empieza la tarea.",
-            "Durante la tarea se te presentan por orden hasta un total de 14 filas similares a la de esta",
-            "práctica anterior pero con más elementos. En cada una tienes 20 segundos para señalar todas los",
-            "los 9 con dos puntos.",
+            "Durante la tarea se te presentan por orden hasta un total de 14 filas igual a esta pero con más elementos.",
+            "En cada una tienes 20 segundos para señalar todas los los 9 con dos puntos.",
             "Tras los 20 segundos se pasa automáticamente a la siguiente fila.",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
@@ -198,11 +201,7 @@ class CPT(object):
         # Redraw instructions
         y = 100
         display.text(self.screen, self.font, 
-            "Recuerda que el objetivo es señalar los números 9 con dos puntos.",
-            "center", y, (0, 0, 0))
-        y += 40
-        display.text(self.screen, self.font, 
-            "Prueba a hacerlo con la siguiente serie",
+            "Practica, clica aquí en todos los casos de estímulos objetivo antes descritos (9 con dos puntos).",
             "center", y, (0, 0, 0))
         
         # Redraw image
@@ -213,19 +212,19 @@ class CPT(object):
             if selected:
                 pygame.draw.rect(self.screen, (255, 0, 0), hitboxes[j], 3)
         
-        # Redraw bottom text
-        y = img_y + img_height + 50
-        display.text(self.screen, self.font_small, explanation, "center", y, (0, 0, 0))
-        y += 30
-        display.text(self.screen, self.font_small, correct_numbers, "center", y, (0, 0, 139))
-        
-        y += 50
-        for line in instructions:
-            display.text(self.screen, self.font_small, line, "center", y, (0, 0, 0))
-            y += 28
-        
-        y += 30
-        display.text_space(self.screen, self.font, "center", y, (0, 0, 0))
+        if show_feedback:
+            y = img_y + img_height + 50
+            display.text(self.screen, self.font_small, explanation, "center", y, (0, 0, 0))
+            y += 30
+            display.text(self.screen, self.font_small, correct_numbers, "center", y, (0, 0, 139))
+
+            y += 50
+            for line in instructions:
+                display.text(self.screen, self.font_small, line, "center", y, (0, 0, 0))
+                y += 28
+
+            y += 30
+            display.text_space(self.screen, self.font, "center", y, (0, 0, 0))
         
         pygame.display.flip()
 
@@ -245,7 +244,7 @@ class CPT(object):
         y_pos += 40
         display.text(
             self.screen, self.font, 
-            "Prueba a hacerlo con la siguiente serie",
+            "Practica, clica aquí los estímulos objetivo antes descritos (9 con dos puntos).",
             "center", y_pos, (0, 0, 0)
         )
 
@@ -326,17 +325,9 @@ class CPT(object):
                 )
             hitboxes.append(hitbox)
 
-        # Display explanation text below image
-        text_y = img_y + img_height + 50
         explanation = "Observa que deberías haber marcado las letras números "
         correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
         
-        display.text(self.screen, self.font_small, explanation, "center", text_y, (0, 0, 0))
-        text_y += 30
-        display.text(self.screen, self.font_small, correct_numbers, "center", text_y, (0, 0, 139))
-
-        # Additional instructions
-        text_y += 50
         instructions = [
             "En la siguiente página empieza la tarea.",
             "Durante la tarea se te presentan por orden hasta un total de 14 filas similares a la de esta",
@@ -347,21 +338,29 @@ class CPT(object):
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
         ]
         
-        for line in instructions:
-            display.text(self.screen, self.font_small, line, "center", text_y, (0, 0, 0))
-            text_y += 28
-
-        # Space to continue
-        text_y += 30
-        display.text_space(self.screen, self.font, "center", text_y, (0, 0, 0))
-        
-        pygame.display.flip()
+        training_start = pygame.time.get_ticks()
+        feedback_visible = False
+        self._redraw_training_screen(
+            img_prueba, img_x, img_y, img_height, hitboxes, selections,
+            feedback_visible,
+        )
 
         # Interactive loop for training
         waiting = True
         while waiting:
+            should_show_feedback = (
+                pygame.time.get_ticks() - training_start
+                >= self.TRAINING_FEEDBACK_DELAY
+            )
+            if should_show_feedback and not feedback_visible:
+                feedback_visible = True
+                self._redraw_training_screen(
+                    img_prueba, img_x, img_y, img_height, hitboxes, selections,
+                    feedback_visible,
+                )
+
             for event in pygame.event.get():
-                if event.type == KEYDOWN and event.key == K_SPACE:
+                if event.type == KEYDOWN and event.key == K_SPACE and feedback_visible:
                     waiting = False
                 elif event.type == KEYDOWN and event.key == K_F12:
                     sys.exit(0)
@@ -374,7 +373,10 @@ class CPT(object):
                             selections[i] = not selections[i]
                             
                             # Redraw the screen with highlights
-                            self._redraw_training_screen(img_prueba, img_x, img_y, img_height, hitboxes, selections)
+                            self._redraw_training_screen(
+                                img_prueba, img_x, img_y, img_height, hitboxes,
+                                selections, feedback_visible,
+                            )
                             break
 
         return selections

@@ -130,6 +130,18 @@ class NamingNumbers(object):
         if wait_for_space:
             display.wait_for_space()
 
+    def _show_zero_control_screen(self, lines):
+        self._show_text_screen(lines, wait_for_space=False)
+        while True:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    sys.exit(0)
+                if event.type == KEYDOWN:
+                    if event.key == K_F12:
+                        sys.exit(0)
+                    if event.key in (K_0, K_KP0):
+                        return
+
     def _target_value(self, trial, target_rule):
         return trial["amount"] if target_rule == "amount" else trial["identity"]
 
@@ -326,13 +338,13 @@ class NamingNumbers(object):
             "",
             "",
             "",
-            "Esta prueba consta de 4 partes, en las que las instrucciones sobre el estímulo ",
-            "a atender y responder (puntos o agrupaciones de cifras) cambian en cada parte.", 
+            "Esta prueba consta de 4 partes, en las que las que el estímulo ",
+            "a atender y responder cambia en cada parte.", 
             "En algunos casos tienes que indicar el número de cifras que aparecen ",
             "y en otros el nombre de las cifras presentadas. ",
             "Para responder utiliza las teclas numéricas del teclado, del 1 al 9.",
-            "Tras responder a un estímulo se pasa al siguiente y así hasta completar toda la serie de cada parte.",
-            "Al empezar cada nueva parte se presentan primero las nuevas instrucciones.",
+            "Al responder a un estímulo se pasa al siguiente y así hasta completar toda la serie.",
+            "Al empezar cada nueva parte se presenta primero las nuevas instrucciones.",
             "Responde de la forma más rápida y precisa posible.",
         ], title="NamingNumbers")
 
@@ -341,31 +353,36 @@ class NamingNumbers(object):
             for amount in self.PART1_PRACTICE_AMOUNTS
         ]
         self._show_practice_integrated_screen(
-            ["Primera parte", "", "En esta parte tienes que indicar el número de puntos que aparecen en cada caso",
-             "", "Como ejemplo de práctica indica para los siguientes 4 casos cuántos puntos se están a mostrar en cada uno."],
+            ["Primera parte", "", "En esta parte tienes que indicar el número de puntos que aparecen en cada caso. Usa las teclas 1-9 del teclado.",
+             "", "Como ejemplo de práctica indica por orden cuántos puntos se muestran en cada caso:"],
             part1_practice, 1, "amount",
-            ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
-                "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
+            ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea."
+            "Aquí las respuestas correctas son 2, 5, 8 y 4.",
+            "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part1_experimental(), 1, "amount")
 
         part2_practice = [
             dict(self._numbers_stimulus(amount, identity), trial_type="practice", target="identity")
             for amount, identity in self.PART2_PRACTICE_STIMULI
         ]
+        self._show_zero_control_screen([
+            "La parte 1 ha terminado.",
+            "",
+            "A continuación empieza la parte 2.",
+            "",
+            "Pulsa el botón 0 para continuar.",
+        ])
         self._show_practice_integrated_screen(
             [
-                "La parte 1 ha terminado.",
+                "La tarea cambia, ahora en vez de puntos se muestran agrupaciones de una misma cifra.",
                 "",
-                "A continuación empieza la parte 2.",
+                "Ahora tienes que indicar la cifra que se muestra en cada caso. Para esto utiliza las teclas de tu teclado 1-9.",
                 "",
-                "La tarea cambia, ahora en vez de puntos aparecerán agrupaciones de una misma cifra.",
-                "",
-                "En esta segunda parte tu tarea es indicar la cifra que aparece. Utiliza las teclas de tu teclado 1-9 para esto.",
-                "",
-                "Como ejemplo de práctica indica para los siguientes 4 casos qué cifra se está a mostrar en cada uno.",
+                "Como ejemplo de práctica indica por orden qué cifra se muestra en cada uno de los siguientes casos:",
             ],
             part2_practice, 2, "identity",
                 ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Aquí las respuestas correctas son 7, 2, 9 y 4.",
                 "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part2_experimental(), 2, "identity")
 
@@ -373,18 +390,24 @@ class NamingNumbers(object):
             dict(self._numbers_stimulus(amount, identity), trial_type="practice", target="amount")
             for amount, identity in self.PART3_PRACTICE_STIMULI
         ]
+        self._show_zero_control_screen([
+            "La parte 2 ha terminado.",
+            "",
+            "A continuación empieza la parte 3.",
+            "",
+            "Pulsa el botón 0 para continuar.",
+        ])
         self._show_practice_integrated_screen(
-            ["La parte 2 ha terminado.",
-                "",
-                "A continuación empieza la parte 3.",
+            ["Tarea de conteo de cifras.",
                 "",
                 "De nuevo, se van a mostrar agrupaciones de cifras.",
                 "",
-                "Esta vez tu tarea es contar e indicar el número de veces que esta misma cifra aparece en cada caso.",
+                "Esta vez tu tarea es contar e indicar el número de veces que cada misma cifra aparece en cada caso.",
                 "",
-                "Como ejemplo de práctica indica para los siguientes 4 casos cuántas cifras se están a mostrar.",],
+                "Como ejemplo de práctica indica por orden cuántas cifras se están a mostrar en los siguientes casos:",],
             part3_practice, 3, "amount",
                 ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Aquí las respuestas correctas son 2, 6, 4 y 7.",
                 "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"])
         self._run_trials(self._create_part3_experimental(), 3, "amount")
 
@@ -397,20 +420,25 @@ class NamingNumbers(object):
             )
             for idx, (amount, identity) in enumerate(self.PART4_PRACTICE_STIMULI, start=1)
         ]
-        self._show_practice_integrated_screen(
-            ["La parte 3 ha terminado.",
-                "",
-                "A continuación empieza la parte 4.",
+        self._show_zero_control_screen([
+            "La parte 3 ha terminado.",
+            "",
+            "A continuación empieza la parte 4.",
+            "",
+            "Pulsa el botón 0 para continuar.",
+        ])
+        self._show_practice_integrated_screen([
                 "De nuevo, se van a mostrar agrupaciones de cifras.",
-                "En esta parte final, empiezas indicando la cifra que se muestra. ",
-                "Sin embargo, de vez en cuando estas cifras se mostrarán en color rojo.",
-                "Esto indica un cambio de objetivo para el caso rojo actual y en adelante hasta el siguiente caso rojo.",
+                "En esta parte final, empiezas indicando la cifra que se muestra.",
+                "Sin embargo, de vez en cuando estas cifras serán de color rojo.",
+                "Esto indica un cambio de objetivo, para el caso rojo actual y en adelante hasta el siguiente caso rojo.",
                 "Así por ejemplo, después del primer caso rojo y en este incluído, tienes que cambiar ",
                 "de indicar la cifra que aparece, al número de cifras que aparecen. ",
-                "Y así cambiando sucesivamente el objetivo de tu respuesta con cada caso rojo que aparezca.",
-                "Como ejemplo de práctica indica para los siguientes 8 casos el número que proceda.",],
+                "Cambiando así sucesivamente el objetivo de tu respuesta con cada caso rojo que aparezca.",
+                "Como ejemplo de práctica indica para los siguientes 8 casos el número que proceda:",],
             part4_practice, 4, "identity",
                 ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
+                "Aquí las respuestas correctas son 7, 2, 9 y 4.",
                 "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"],
             two_rows=True)
         self._run_trials(self._create_part4_experimental(), 4, "amount")
