@@ -354,7 +354,7 @@ class DualTask(object):
         y += 50
         display.text(
             self.screen, self.font,
-            "1. Sigue con el cursor el punto azul que se mueve por la pantalla.",
+            "1. Seguir con el cursor el punto azul que se mueve por la pantalla.",
             "center", y,
         )
         y += 50
@@ -372,7 +372,7 @@ class DualTask(object):
         y += 50
         display.text(
             self.screen, self.font,
-            "   presiona la tecla A lo más rápido posible.",
+            "   presionar la tecla A lo más rápido posible.",
             "center", y,
         )
         y += 50

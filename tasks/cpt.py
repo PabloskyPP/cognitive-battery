@@ -142,7 +142,7 @@ class CPT(object):
 
         explanation_lines2 = [
             "El primer 9 tiene los dos puntos encima, el segundo los tiene debajo y el tercer 9 tiene un",
-            "punto encima y otro debajo. Observa que en estos casos el número 9 va acompañado de dos puntos.",
+            "punto arriba y otro abajo. Observa que en estos casos el número 9 va acompañado de dos puntos.",
             "Tu tarea consiste en buscar los números 9 iguales a estos tres (con dos puntos en cualquier posición) y marcarlos.",
             "Fíjate bien! Hay números 9 con más de dos o menos de dos puntos, y también números 6,",
             "que NO debes marcar en ningún caso, independientemente del número de puntos que tengan.",
@@ -185,13 +185,14 @@ class CPT(object):
         show_feedback,
     ):
         """Helper method to redraw training screen with current selections"""
-        explanation = "Observa que deberías haber marcado las letras números "
+        explanation = "Observa que deberías haber marcado los números "
         correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
         instructions = [
             "En la siguiente página empieza la tarea.",
             "Durante la tarea se te presentan por orden hasta un total de 14 filas igual a esta pero con más elementos.",
-            "En cada una tienes 20 segundos para señalar todas los los 9 con dos puntos.",
+            "En cada una tienes 20 segundos para señalar todas los 9 con dos puntos.",
             "Tras los 20 segundos se pasa automáticamente a la siguiente fila.",
+            "Importante empezar y responder en cada nueva fila de izquierda a derecha",
             "Trabaja tan rápidamente como puedas sin cometer errores.",
             "Permanece trabajando hasta que el tiempo se acabe y el programa se cierre automáticamente."
         ]
@@ -201,7 +202,7 @@ class CPT(object):
         # Redraw instructions
         y = 100
         display.text(self.screen, self.font, 
-            "Practica, clica aquí en todos los casos de estímulos objetivo antes descritos (9 con dos puntos).",
+            "Practica, de izquierda a derecha clica aquí en todos los casos de estímulos objetivo antes descritos (9 con dos puntos).",
             "center", y, (0, 0, 0))
         
         # Redraw image
@@ -327,6 +328,7 @@ class CPT(object):
 
         explanation = "Observa que deberías haber marcado las letras números "
         correct_numbers = "1, 3, 5, 6, 9, 12, 13, 17, 19, 22"
+        correct_hitboxes = (1, 3, 5, 6, 9, 12, 13, 17, 19, 22)
         
         instructions = [
             "En la siguiente página empieza la tarea.",
@@ -351,6 +353,7 @@ class CPT(object):
             should_show_feedback = (
                 pygame.time.get_ticks() - training_start
                 >= self.TRAINING_FEEDBACK_DELAY
+                or all(selections[number - 1] for number in correct_hitboxes)
             )
             if should_show_feedback and not feedback_visible:
                 feedback_visible = True
@@ -371,6 +374,10 @@ class CPT(object):
                         if hitbox.collidepoint(mouse_pos):
                             # Toggle selection
                             selections[i] = not selections[i]
+                            if not feedback_visible and all(
+                                selections[number - 1] for number in correct_hitboxes
+                            ):
+                                feedback_visible = True
                             
                             # Redraw the screen with highlights
                             self._redraw_training_screen(
@@ -601,9 +608,13 @@ class CPT(object):
         training_selections = self.display_training()
 
         # Screens 3-16: Main task (14 rows)
+        black_background = pygame.Surface(self.screen.get_size()).convert()
+        black_background.fill((0, 0, 0))
         for row_num in range(1, self.NUM_ROWS + 1):
             row_data = self.display_row(row_num)
             self.all_data = pd.concat([self.all_data, row_data], ignore_index=True)
+            if row_num < self.NUM_ROWS:
+                display.blank_screen(self.screen, black_background, 2000)
 
         # Screen 17: Final
         self.display_final()

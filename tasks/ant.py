@@ -314,7 +314,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "INTRUCCIONES del Test de Redes Atencionales (ANT)",
+            "Test de Redes Atencionales (ANT)",
             "center",
             self.screen_y / 2 - 500,
         )
@@ -361,7 +361,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "En este ejemplo, deberías presionar la flecha Izquierda.",
+            "Deberías aquí presionar la flecha izquierda.",
             100,
             self.screen_y / 2 + 90,
         )
@@ -406,7 +406,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "A continuación, empezarás con unos ensayos de entrenamiento de la tarea.",
+            "A continuación, empezarás con unos ensayos de entrenamiento.",
             100,
             self.screen_y / 2 - 150,
         )
@@ -420,7 +420,7 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Si no tienes ninguna duda presiona la barra espaciadora para empezar.",
+            "Si no tienes ninguna duda:",
             100,
             self.screen_y / 2 -50,
         )
@@ -451,14 +451,14 @@ class ANT(object):
         display.text(
             self.screen,
             self.font,
-            "Por favor, recuerda MANTENER LA MIRADA EN EL CENTRO DE LA PANTALLA,",
+            "Por favor, recuerda en todo momento MANTENER LA MIRADA FIJA EN LA CRUCETA DEL CENTRO DE LA PANTALLA,",
             100,
             self.screen_y / 2 - 50,
         )        
         display.text(
             self.screen,
             self.font,
-            "e indicar la dirección de la flecha central con LA MAYOR RAPIDEZ Y PRECISIÓN POSIBLE.",
+            "e indicar la dirección de la flecha central con la mayor rapidez y precisión posible.",
             100,
             self.screen_y / 2,
         )

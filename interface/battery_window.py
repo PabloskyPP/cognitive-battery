@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import random
+import ctypes
 import datetime
 import pygame
 import pandas as pd
@@ -498,8 +499,8 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                 )
             else:
 
-                # Minimizar UI y obtener ajustes antes de ejecutar tareas
-                self.showMinimized()
+                # Keep the battery window open behind the task window.
+                self.showNormal()
                 self.get_settings()
 
                 # Posicionar ventana pygame en esquina superior izquierda para pantalla completa
@@ -531,6 +532,18 @@ class BatteryWindow(QtWidgets.QMainWindow, battery_window_qt.Ui_CognitiveBattery
                         self.pygame_screen = pygame.display.set_mode(
                             (self.res_width, self.res_height)
                         )
+
+                if sys.platform == "win32":
+                    window_handle = pygame.display.get_wm_info().get("window")
+                    if window_handle:
+                        user32 = ctypes.WinDLL("user32", use_last_error=True)
+                        user32.ShowWindow.argtypes = (ctypes.c_void_p, ctypes.c_int)
+                        user32.BringWindowToTop.argtypes = (ctypes.c_void_p,)
+                        user32.SetForegroundWindow.argtypes = (ctypes.c_void_p,)
+                        hwnd = ctypes.c_void_p(window_handle)
+                        user32.ShowWindow(hwnd, 9)
+                        user32.BringWindowToTop(hwnd)
+                        user32.SetForegroundWindow(hwnd)
 
                 background = pygame.Surface(self.pygame_screen.get_size())
                 background = background.convert()

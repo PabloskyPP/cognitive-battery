@@ -402,9 +402,9 @@ class NamingNumbers(object):
                 "",
                 "De nuevo, se van a mostrar agrupaciones de cifras.",
                 "",
-                "Esta vez tu tarea es contar e indicar el número de veces que cada misma cifra aparece en cada caso.",
+                "Esta vez tu tarea es contar e indicar el número de cifras que aparecen en cada caso.",
                 "",
-                "Como ejemplo de práctica indica por orden cuántas cifras se están a mostrar en los siguientes casos:",],
+                "Como ejemplo de práctica indica por orden cuántas cifras se muestran en los siguientes casos:",],
             part3_practice, 3, "amount",
                 ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
                 "Aquí las respuestas correctas son 2, 6, 4 y 7.",
@@ -428,7 +428,7 @@ class NamingNumbers(object):
             "Pulsa el botón 0 para continuar.",
         ])
         self._show_practice_integrated_screen([
-                "De nuevo, se van a mostrar agrupaciones de cifras.",
+                "De nuevo, se muestran agrupaciones de cifras.",
                 "En esta parte final, empiezas indicando la cifra que se muestra.",
                 "Sin embargo, de vez en cuando estas cifras serán de color rojo.",
                 "Esto indica un cambio de objetivo, para el caso rojo actual y en adelante hasta el siguiente caso rojo.",
@@ -438,10 +438,11 @@ class NamingNumbers(object):
                 "Como ejemplo de práctica indica para los siguientes 8 casos el número que proceda:",],
             part4_practice, 4, "identity",
                 ["Revisa tus respuestas en este ejemplo, el color verde indica respuesta acertada y el rojo respuesta errónea.",
-                "Aquí las respuestas correctas son 7, 2, 9 y 4.",
+                "Aquí las respuestas correctas son 7, 3, 4, 6, 9, 4, 5, 6",
+                "En la siguiente página inicia la tarea y empiezas indicando la cifra.",
                 "Si tienes alguna duda sobre esta tarea pregunta ahora a la persona responsable de la evaluación. Si no:"],
             two_rows=True)
-        self._run_trials(self._create_part4_experimental(), 4, "amount")
+        self._run_trials(self._create_part4_experimental(), 4, "identity")
 
         self._show_text_screen(["Fin de la tarea.", "", "Pulsa la barra espaciadora para continuar."])
         print("- NamingNumbers complete")
